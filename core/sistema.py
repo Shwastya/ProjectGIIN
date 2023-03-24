@@ -14,9 +14,12 @@ Cada atributo puede modificarse en archivos separados, y luego en Sistema se lla
 También tenemos la clase Menu, que se quiere utilizar para todas las clases con su propio menú.
 Esta clase sistema se ejecutará en el Engine, se da la opción a que la aplicación pueda ejecutar más de un sistema
 """
-from modulos.menu import Menu
 
-class SistemaHardVIU:
+#from utils.menu import Menu
+from utils.menu import MenuDrawer
+from core.entitymanager.componentes import ManagerComponentes
+
+class Sistema:
     """    
     La clase Sistema representa el sistema completo de componentes, equipos, distribuidores y despachos.
 
@@ -28,7 +31,8 @@ class SistemaHardVIU:
         historico (list): lista de objetos Despacho.
     """
     def __init__(self):
-        self._menu = Menu([
+        
+        self._menu = MenuDrawer([
             "Componentes",
             "Equipos",
             "Distribuidores",
@@ -36,21 +40,23 @@ class SistemaHardVIU:
             "Días",
             "Info sistema",
             "Ficheros"
-        ])
-        self.componentes = []
-        self.equipos = []
-        self.distribuidores = []
-        self.despachos = []
-        self.historico = []
+        ], "Menu Sistema HardVIU")
+        
+        self._componentes = ManagerComponentes()
+        #self.componentes = []
+        #self.equipos = []
+        #self.distribuidores = []
+        #self.despachos = []
+        #self.historico = []
 
-    def run(self):
+    def run(self):     
         while True :
+            
             self._menu.display()
-            option = self._menu.get_option()            
+            option = self._menu.get_option()
+            
             if option == 1:
-                #import componentes                
-                #componentes.run()
-                print("Option 1")
+                self._componentes.run()
             elif option == 2:
                 #import equipos
                 #equipos.run()

@@ -11,8 +11,7 @@ Del mismo modo, cada elemento o componente del sistema tendrá su propio menú s
 Todos los menús son creados por la misma clase/modulo Menu.
 """
 
-from modulos.sistema import SistemaHardVIU
-from modulos.menu import Menu
+from core.sistema import Sistema
 
 class Engine:
     """
@@ -22,8 +21,8 @@ class Engine:
         _sistema (obj): objeto de la clase SistemaHardVIU que representa el sistema a ejecutar.
     """
 
-    def __init__(self):
-        self._sistema = SistemaHardVIU()
+    def __init__(self):        
+        self._sistema = Sistema()
     
     def run(self):
         self._sistema.run()
