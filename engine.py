@@ -2,62 +2,29 @@
 """
 Proyecto: HardVIU
 Created on Tue Mar 21 09:53:06 2023
-@author: José Luis Rosa Maiques
+Author: José Luis Rosa Maiques
 
-Este módulo contiene la clase Engine que se encarga de gestionar y ejecutar
-el menú interactivo, importando y ejecutando los módulos correspondientes
-según la opción seleccionada.
+la clase Engine que se encarga de gestionar y ejecutar cualquier sistema que se desee implementar,
+en este caso, solo tenemos el sistema HardVIU.
+Cada sistema que se implemente tendrá su propio menú. 
+Del mismo modo, cada elemento o componente del sistema tendrá su propio menú si es necesario. 
+Todos los menús son creados por la misma clase/modulo Menu.
 """
 
-from hard_module.menu import Menu
+from modulos.sistema import SistemaHardVIU
+from modulos.menu import Menu
 
 class Engine:
+    """
+    La clase Engine se encarga de gestionar y ejecutar el sistema deseado.
+
+    Atributos:
+        _sistema (obj): objeto de la clase SistemaHardVIU que representa el sistema a ejecutar.
+    """
+
     def __init__(self):
-        self._menu = Menu([
-            "Componentes",
-            "Equipos",
-            "Distribuidores",
-            "Despachar",
-            "Días",
-            "Info sistema",
-            "Ficheros"
-        ])
+        self._sistema = SistemaHardVIU()
     
     def run(self):
-        while True :
-            self._menu.display()
-            option = self._menu.get_option()
-            
-            if option == 1:
-                #import componentes
-                #componentes.run()
-                print("test opcion 1")
-            elif option == 2:
-                print("test opcion 2")
-                #import equipos
-                #equipos.run()
-            elif option == 3:
-                print("test opcion 3")
-                #import distribuidores
-                #distribuidores.run()
-            elif option == 4:
-                print("test opcion 4")
-                #import despachar
-                #despachar.run()
-            elif option == 5:
-                print("test opcion 5")
-                #import dias
-                #dias.run()
-            elif option == 6:
-                print("test opcion 6")
-                #import info_sistema
-                #info_sistema.run()
-            elif option == 7:
-                print("test opcion 7")
-                #import ficheros
-                #ficheros.run()
-            elif option == 0:
-                print("Saliendo...")
-                break
-            else:
-                print("Opción no válida.")
+        self._sistema.run()
+        

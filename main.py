@@ -4,24 +4,30 @@ Proyecto: HardVIU
 Created on Tue Mar 21 09:53:06 2023
 @author: José Luis Rosa Maiques
 
-Se trata de usar en el proyecto, convenciones de estilo en Python (PEP 8):
-https://www.python.org/dev/peps/pep-0008/
+Este módulo implementa el punto de entrada del programa y se encarga de crear y 
+ejecutar un objeto Engine, que a su vez ejecutará los sistemas del proyecto. 
 
-Este módulo contiene el punto de entrada del programa, que crea y ejecuta un
-objeto Engine para gestionar y ejecutar el menú interactivo.
+Se busca seguir las convenciones de estilo en Python (PEP 8), 
+que pueden consultarse en el siguiente enlace: 
+    https://www.python.org/dev/peps/pep-0008/.
+
+En este momento, el Engine solo se ha implementado para gestionar un sistema 'HardVIU'.
 """
 
 from engine import Engine
 
 def main():
     """
-    Punto de entrada del programa que ejecuta el objeto Engine.
+    Punto de entrada del programa:
+        Crea y ejecuta un objeto Engine para ejecutar los sistemas.    
     
-    La función principal del Engine es gestionar y ejecutar el menú.
-    El menú importa el módulo correspondiente según la opción seleccionada.
+    Aunque se ha llamado a la variable 'sistemas' en plural, 
+    en este proyecto solo se ejecuta un sistema. 
+    Sin embargo, se ha mantenido el nombre en plural 
+    para mantener la coherencia con el propósito del diseño.
     """
-    HardVIU = Engine()
-    HardVIU.run()
+    sistemas = Engine()
+    sistemas.run()
 
 
 if __name__ == '__main__':

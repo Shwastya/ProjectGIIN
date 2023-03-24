@@ -19,14 +19,14 @@ class Menu:
     La clase dispone de tres métodos: display(), get_option() y clear_screen().
     """
 
-    def __init__(self, pOptions):
+    def __init__(self, opciones):
         """
         Inicializa un objeto Menu con una lista de opciones.
 
         Args:
-            options (list): lista de cadenas con las opciones del menú.
+            opciones (list): lista de cadenas con las opciones del menú.
         """
-        self._options = pOptions
+        self.opciones = opciones
 
     def clear_screen(self):
         """
@@ -35,10 +35,14 @@ class Menu:
         bool: True si la limpieza se realiza con éxito, False en caso contrario.
         """
         limpia = False
-        if os.name == 'nt':  # Para Windows
+        
+        # Para Windows
+        if os.name == 'nt':  
             os.system('cls')
             limpia = True
-        else:                # Para Linux, macOS
+            
+        # Para Linux, macOS
+        else:                
             os.system('clear')
             limpia = True
         return limpia
@@ -49,8 +53,8 @@ class Menu:
         Muestra las opciones del menú numeradas y (0) para salir.
         """
         counter = 1
-        for option in self._options:
-            print(str(counter) + ") " + option)
+        for opcion in self.opciones:
+            print(str(counter) + ") " + opcion)
             counter += 1
 
         print("0) Salir")
