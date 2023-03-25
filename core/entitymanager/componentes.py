@@ -35,13 +35,23 @@ class Componente:
         self.precio = precio
         self.cantidad = cantidad       
         
-    def user_set_values(self, id):
-        self.id = id
-        self.nombre = input("Introduce el nombre del componente: ")
-        self.tipo = input("Introduce el tipo de componente (Fuente, PB, TG, CPU, RAM, Disco): ")
-        self.peso = int(input("Introduce el peso en gramos del componente: "))
-        self.precio = float(input("Introduce el precio en euros del componente: "))
-        self.cantidad = int(input("Introduce la cantidad del componente: "))
+    def user_set_values(self, id, msg = "cancel"):
+        id = id
+        nombre = input("Introduce el nombre del componente: ")
+
+        # Solicitar el tipo de componente hasta que sea válido
+        while True:
+            tipo = input("Introduce el tipo de componente (Fuente, PB, TG, CPU, RAM, Disco): ")
+            if tipo in [t.value for t in TipoComponente]:
+                break
+            else:
+                print("El Tipo de componente no está en la lista. Inténtalo de nuevo.")
+        
+        peso = int(input("Introduce el peso en gramos del componente: "))
+        precio = float(input("Introduce el precio en euros del componente: "))
+        cantidad = int(input("Introduce la cantidad del componente: "))       
+        
+        self.set_values(id, nombre, tipo, peso, precio, cantidad)
         
     def to_string(self):
         return f'{self.id};{self.nombre};{self.tipo.value};{self.peso};{self.precio};{self.cantidad}'
@@ -51,7 +61,7 @@ class ManagerComponentes:
         self.componentes = []
         self.menu = MenuDrawer([
             "Alta", 
-            "Modificación"], "Menu Componentes")
+            "Modificación"], "- HardVIU Menu - 1) Componentes")
         self._logger = Logger()
 
     def agregar_componente(self, id, nombre, tipo, peso, precio, cantidad):
@@ -91,7 +101,9 @@ class ManagerComponentes:
             
             
     def alta_componente(self):
-        id = input("Introduce el identificador del componente: ")
+        Logger.cian_bold("1) Alta de un componente:")
+        Logger.warn("Introduce 'cancel' si deseas anular el registro.")
+        id = input("Introduce el ID del componente: ")
         if self.componente_por_id(id):
             print("El identificador ya existe. Por favor, elija otro.")
             return

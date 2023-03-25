@@ -26,14 +26,39 @@ class TipoComponente(Enum):
     DISCO = "Disco"
 
 class Componente:
-    def __init__(self, id, nombre, tipo, peso, precio, cantidad):
+    def __init__(self, id = None, nombre = None, tipo = None, peso = None, precio = None, cantidad = None):
+        self.id = id
+        self.nombre = nombre
+        self.tipo = TipoComponente(tipo) if tipo else None
+        self.peso = peso
+        self.precio = precio
+        self.cantidad = cantidad
+        
+    def set_values(self, id, nombre, tipo, peso, precio, cantidad):
         self.id = id
         self.nombre = nombre
         self.tipo = TipoComponente(tipo)
         self.peso = peso
         self.precio = precio
-        self.cantidad = cantidad
+        self.cantidad = cantidad       
         
+    def user_set_values(self, id, msg = "cancel"):
+        id = id
+        nombre = input("Introduce el nombre del componente: ")
+
+        # Solicitar el tipo de componente hasta que sea válido
+        while True:
+            tipo = input("Introduce el tipo de componente (Fuente, PB, TG, CPU, RAM, Disco): ")
+            if tipo in [t.value for t in TipoComponente]:
+                break
+            else:
+                print("El Tipo de componente no está en la lista. Inténtalo de nuevo.")
+        
+        peso = int(input("Introduce el peso en gramos del componente: "))
+        precio = float(input("Introduce el precio en euros del componente: "))
+        cantidad = int(input("Introduce la cantidad del componente: "))       
+        
+        self.set_values(id, nombre, tipo, peso, precio, cantidad)
         
     def to_string(self):
         return f'{self.id};{self.nombre};{self.tipo.value};{self.peso};{self.precio};{self.cantidad}'

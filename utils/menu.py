@@ -81,6 +81,7 @@ class Menu:
         
 
 import IPython
+from utils.logger import Logger
 
 class MenuDrawer:
     """
@@ -119,7 +120,12 @@ class MenuDrawer:
     def draw_title(self, width):
         title_length = len(self.titulo)
         padding = (width - title_length) // 2
-        print("│" + " " * padding + self.titulo + " " * (width - title_length - padding) + "│")
+        
+        print("│\033[1;36m" + " " * padding + self.titulo + " " * (width - title_length - padding) + "\033[0;m│")
+        
+        #print("│" + " " * padding + "\033[1;37m" + self.titulo +  + "\033[0;m" + " " * (width - title_length - padding) + "│")
+        
+        
         padding = (width + title_length) // 2
         print("│" + " " * padding + " " * (width - title_length - padding) + "  │")
         

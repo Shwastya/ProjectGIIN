@@ -32,25 +32,25 @@ class Logger:
     
     def core(msg):
         """
-        Estilo: Negrita (1)
+        Estilo: No (0)
         Color: Magenta (35) 
         """        
-        print("\033[1;35m" + "Core: " + msg + "\033[0m")
+        print("\033[0;35m" + "Core: " + msg + "\033[0;m")
         
     def system(msg):
-        print("\033[92mSystem: " + msg + "\033[0m")   
+        print("\033[92mSystem: " + msg + "\033[0;m")   
         
     def trace(msg):
-        print("\033[97m" + msg + "\033[0m")
+        print("\033[97m" + msg + "\033[0;m")
     
     def info(msg):
-        print("\033[32m" + msg + "\033[0m")
+        print("\033[32m" + msg + "\033[0;m")
     
-    def alert(msg):
-        print("\033[33m" + msg + "\033[0m")
+    def warn(msg):
+        print("\033[1;33m" + msg + "\033[0;m")
     
     def error(msg):
-        print("\033[31m" + msg + "\033[0m")
+        print("\033[31m" + msg + "\033[0;m")
         
     def starting():
         print("\n")
@@ -59,5 +59,16 @@ class Logger:
     def shutdown():
         Logger.core("shutting down system")
         
+    # Definimos aqui mismo ciertos estilo para usar en el programa
+    # No considero que sea responsabilidad del Logger 
+    # pero para este ejercicio ya va bien
+    def white_bold(msg):
+        print("\033[1;37m" + msg + "\033[0;m")
+    
+    def yellow_bold(msg):
+        print("\033[1;33m" + msg + "\033[0;m")
+        
+    def cian_bold(msg):
+        print("\033[1;36m" + msg + "\033[0;m")
     
     

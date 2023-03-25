@@ -40,7 +40,7 @@ class Sistema:
             "Días",
             "Info sistema",
             "Ficheros"
-        ], "Menu Sistema HardVIU")
+        ], "- HardVIU Menu -")
         
         self._componentes = ManagerComponentes()
         #self.componentes = []
