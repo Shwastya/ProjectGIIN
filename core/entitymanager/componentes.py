@@ -7,6 +7,7 @@ Created on Fri Mar 24 16:18:11 2023
 
 #from utils.menu import Menu
 from utils.menu import MenuDrawer
+from utils.logger import Logger
 from enum import Enum
 
 class TipoComponente(Enum):
@@ -51,6 +52,7 @@ class ManagerComponentes:
         self.menu = MenuDrawer([
             "Alta", 
             "Modificación"], "Menu Componentes")
+        self._logger = Logger()
 
     def agregar_componente(self, id, nombre, tipo, peso, precio, cantidad):
         componente = Componente(id, nombre, tipo, peso, precio, cantidad)

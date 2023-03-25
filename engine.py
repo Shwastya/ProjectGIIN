@@ -12,6 +12,7 @@ Todos los menús son creados por la misma clase/modulo Menu.
 """
 
 from core.sistema import Sistema
+from utils.logger import Logger
 
 class Engine:
     """
@@ -25,5 +26,6 @@ class Engine:
         self._sistema = Sistema()
     
     def run(self):
+        Logger.starting()
         self._sistema.run()
-        
+        Logger.shutdown()

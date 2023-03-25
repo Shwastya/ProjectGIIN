@@ -81,9 +81,7 @@ class Sistema:
                 #import ficheros
                 #ficheros.run()
                 print("Option 7")
-            elif option == 0:
-                print("Saliendo...")
-                break
+            elif option == 0: break
             else:
                 print("Opción no válida.")
     
