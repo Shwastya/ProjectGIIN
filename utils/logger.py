@@ -24,8 +24,8 @@ Algunos de los colores:
     Rojo: mensajes de error
 """
 
-#from colorama import Fore, Style
-
+import time
+from core.constants import USER_CANCEL_MSG
 
 # Clase con métodos estáticos.
 class Logger:    
@@ -50,8 +50,12 @@ class Logger:
         print("\033[1;33m" + msg + "\033[0;m")
     
     def error(msg):
-        print("\033[31m" + msg + "\033[0;m")
+        print("\033[31m" + msg + "\033[0;m")    
         
+    """ 
+        Definimos aqui mismo ciertas funcs. usadas con frecuencia en el programa.
+        No lo considero responsabilidad del Logger, pero para el ejercicio ya va bien
+    """
     def starting():
         print("\n")
         Logger.core("starting system")
@@ -59,16 +63,33 @@ class Logger:
     def shutdown():
         Logger.core("shutting down system")
         
-    # Definimos aqui mismo ciertos estilo para usar en el programa
-    # No considero que sea responsabilidad del Logger 
-    # pero para este ejercicio ya va bien
-    def white_bold(msg):
-        print("\033[1;37m" + msg + "\033[0;m")
+    def white_bold(msg, e ='\n'):
+        print("\033[1;37m" + msg + "\033[0;m", end = e)
     
-    def yellow_bold(msg):
-        print("\033[1;33m" + msg + "\033[0;m")
+    def yellow_bold(msg, e ='\n'):
+        print("\033[1;33m" + msg + "\033[0;m", end = e)
         
-    def cian_bold(msg):
-        print("\033[1;36m" + msg + "\033[0;m")
+    def cian_bold(msg, e ='\n'):
+        print("\033[1;36m" + msg + "\033[0;m", end = e)
+        
+    # Algunos mensajes muy recurrentes en el programa
+    def cancel_info(msg = USER_CANCEL_MSG):
+        Logger.info("Recuerde que puede anular el registro introduciendo '"+ USER_CANCEL_MSG +"'.\n")
+        
+    def cancel_pause(t = 1):
+        Logger.warn("Cancelando...")
+        time.sleep(t)
+    
+    def cancel_input():
+        Logger.warn("Se ha cancelado el registro.")
+        input("Presione ENTER para continuar...")
+        
+    def bad_option():
+        Logger.warn("Opción inválida. Elija una opción válida.")
+        input("Pulsa [ENTER] para continuar...")
+        
+        
+        
+    
     
     

@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
 """
+Proyecto: HardVIU
 Created on Fri Mar 24 16:18:11 2023
-
-@author: Jose
+@author: José Luis Rosa Maiques
 """
 
 from utils.menu import MenuDrawer
 from utils.logger import Logger
 
-from core.entities import Componente, TipoComponente
+from core.entities  import Componente, TipoComponente
+from core.constants import USER_CANCEL_MSG
 
 class ManagerComponentes:
     def __init__(self):
         self.componentes = []
         self.menu = MenuDrawer([
-            "Alta", 
-            "Modificación"], "- HardVIU Menu - 1) Componentes")
+            "Alta", "Modificación"], "- HardVIU Menu -> 1) Componentes")
         self._logger = Logger()
 
     def agregar_componente(self, id, nombre, tipo, peso, precio, cantidad):
@@ -52,30 +52,32 @@ class ManagerComponentes:
             for componente in self.componentes:
                 print(componente.to_string())
                 return True
-            
+          
+    def register_quit(self):
+        Logger.cancel_input()
+        self.menu.scroll_screen()
+        return
             
     def alta_componente(self):
-        Logger.cian_bold("1) Alta de un componente:")
-        Logger.warn("Introduce 'cancel' si deseas anular el registro.")
-        id = input("Introduce el ID del componente: ")
+        Logger.cian_bold("\n"+"1) Alta de un componente:")
+        Logger.cancel_info()
+        id = input("Identificador (nombre) del componente = ")
+        if id == USER_CANCEL_MSG:
+            Logger.cancel_input()
+            self.menu.scroll_screen()
+            return
         if self.componente_por_id(id):
-            print("El identificador ya existe. Por favor, elija otro.")
+            print("Ese identificador ya existe. Por favor, elija otro.")
             return
         
         componente = Componente()
-        componente.user_set_values(id)
+        if not componente.user_set_values(id):
+            Logger.cancel_input()
+            self.menu.scroll_screen()
+            return
+            
         self.componentes.append(componente)
-        print("Componente agregado con éxito.")
-        
-        
-        #nombre = input("Introduce el nombre del componente: ")
-        #tipo = input("Introduce el tipo de componente (Fuente, PB, TG, CPU, RAM, Disco): ")
-        #peso = int(input("Introduce el peso en gramos del componente: "))
-        #precio = float(input("Introduce el precio en euros del componente: "))
-        #cantidad = int(input("Introduce la cantidad del componente: "))
-
-        #self.agregar_componente(id, nombre, tipo, peso, precio, cantidad)
-        #print("Componente agregado con éxito.")
+        Logger.info("Componente agregado con éxito.")
             
 
     def modificar_componente(self):
@@ -122,7 +124,7 @@ class ManagerComponentes:
             print("Opción inválida. Por favor, elija una opción válida.")
             input("Presione ENTER para continuar...")
             
-    def run(self):
+    def update(self):
         self.menu.scroll_screen(100)
         while True:            
             self.menu.display()
@@ -136,8 +138,8 @@ class ManagerComponentes:
             elif opcion == 2:
                 self.modificar_componente()
             else:
-                print("Opción inválida. Por favor, elija una opción válida.")
-                input("Presione ENTER para continuar...")
+                Logger.bad_option()
+                self.menu.scroll_screen()
                 
                 
                 

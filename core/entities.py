@@ -15,53 +15,86 @@ S = ';' # Definimos como constante el valor que queremos usar como separador.
 
 # Entidad Componente ----------------------------------------------------------
 
+from utils.logger import Logger
+from core.constants import USER_CANCEL_MSG
+
 from enum import Enum
 
 class TipoComponente(Enum):
+    
     FUENTE = "Fuente"
-    PB = "PB"
-    TG = "TG"
-    CPU = "CPU"
-    RAM = "RAM"
-    DISCO = "Disco"
+    PB     = "PB"
+    TG     = "TG"
+    CPU    = "CPU"
+    RAM    = "RAM"
+    DISCO  = "Disco"
+    
+    # metodo de clase para mostrar el listado
+    @classmethod
+    def display(cls):
+        print("Tipos de componentes:")
+        index = 1
+        for tipo_componente in cls:
+            print("\t" + str(index) + ". " + tipo_componente.value)            
+            index += 1
+            
 
 class Componente:
-    def __init__(self, id = None, nombre = None, tipo = None, peso = None, precio = None, cantidad = None):
-        self.id = id
-        self.nombre = nombre
+    def __init__(self, id = None, tipo = None, peso = None, precio = None, cantidad = None):
+        self.id = id        
         self.tipo = TipoComponente(tipo) if tipo else None
         self.peso = peso
         self.precio = precio
         self.cantidad = cantidad
         
-    def set_values(self, id, nombre, tipo, peso, precio, cantidad):
-        self.id = id
-        self.nombre = nombre
+    def set_values(self, id, tipo, peso, precio, cantidad):
+        self.id = id        
         self.tipo = TipoComponente(tipo)
         self.peso = peso
         self.precio = precio
         self.cantidad = cantidad       
         
-    def user_set_values(self, id, msg = "cancel"):
-        id = id
-        nombre = input("Introduce el nombre del componente: ")
-
-        # Solicitar el tipo de componente hasta que sea válido
+    def user_set_values(self, id):
+        Logger.info("[saved]> ID de componente: " + id)                
+        # Solicitamos el tipo de componente hasta que sea válido
         while True:
-            tipo = input("Introduce el tipo de componente (Fuente, PB, TG, CPU, RAM, Disco): ")
-            if tipo in [t.value for t in TipoComponente]:
+            TipoComponente.display()      
+            cad = input("Seleccione número del tipo de componente = ")
+            if cad == USER_CANCEL_MSG: return False
+            elif cad.isdigit():
+                index = int(cad) - 1          
+                if index < 0 or index >= len(TipoComponente):
+                    Logger.warn("El Tipo de componente no está en la lista. Inténtalo de nuevo.")
+                    continue
+            
+                tipo = TipoComponente(list(TipoComponente)[index].value)
+                Logger.info("[saved]> Tipo de componente: " + tipo.value)
                 break
-            else:
-                print("El Tipo de componente no está en la lista. Inténtalo de nuevo.")
+            else: 
+                Logger.warn("Por favor, introduce un número entero válido.")
+                continue
         
-        peso = int(input("Introduce el peso en gramos del componente: "))
-        precio = float(input("Introduce el precio en euros del componente: "))
-        cantidad = int(input("Introduce la cantidad del componente: "))       
-        
-        self.set_values(id, nombre, tipo, peso, precio, cantidad)
+        peso = input("Peso en gramos del componente = ")
+        if peso == USER_CANCEL_MSG: return False         
+        peso = int(peso)
+
+        precio = input("Precio en euros del componente = ")
+        if precio == USER_CANCEL_MSG: return False         
+        precio = float(precio)
+
+        cantidad = input("Cantidad de componentes = ")
+        if cantidad == USER_CANCEL_MSG: return False
+        cantidad = int(cantidad)
+
+        self.set_values(id, tipo.value, peso, precio, cantidad)
+        return True
         
     def to_string(self):
         return f'{self.id};{self.nombre};{self.tipo.value};{self.peso};{self.precio};{self.cantidad}'
+    
+    
+    
+    #   return str(self.id) + S + self.nombre + S + self.marca + S + str(self.precio) + S + str(self.cantidad)
     
     
 #class Componente:

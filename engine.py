@@ -2,7 +2,7 @@
 """
 Proyecto: HardVIU
 Created on Tue Mar 21 09:53:06 2023
-Author: José Luis Rosa Maiques
+@author: José Luis Rosa Maiques
 
 la clase Engine que se encarga de gestionar y ejecutar cualquier sistema que se desee implementar,
 en este caso, solo tenemos el sistema HardVIU.
@@ -26,6 +26,7 @@ class Engine:
         self._sistema = Sistema()
     
     def run(self):
+        
         Logger.starting()
-        self._sistema.run()
+        self._sistema.update()
         Logger.shutdown()
