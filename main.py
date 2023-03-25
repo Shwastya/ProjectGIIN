@@ -23,8 +23,8 @@ def main():
     
     Aunque se ha llamado a la variable 'sistemas' en plural, 
     en este proyecto solo se ejecuta un sistema. 
-    Sin embargo, se ha mantenido el nombre en plural 
-    para mantener la coherencia con el propósito del diseño.1111
+    Sin embargo, se ha mantenido el nombre en plural para mantener 
+    la coherencia con el propósito del diseño.
     """
     sistemas = Engine()
     sistemas.run()
