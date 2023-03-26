@@ -5,7 +5,7 @@ Created on Tue Mar 21 09:53:06 2023
 @author: José Luis Rosa Maiques
 
 Este archivo implementa el punto de entrada del programa y se encarga de crear y 
-ejecutar un objeto Engine, que a su vez ejecu1tará los sistemas del proyecto. 
+ejecutar un objeto Engine, que a su vez ejecutará los sistemas del proyecto. 
 
 En este momento, el Engine solo se ha implementado para gestionar un sistema:
     'HardVIU'.

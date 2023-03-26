@@ -41,7 +41,7 @@ class Logger:
         print("\033[92mSystem: " + msg + "\033[0;m")   
         
     def trace(msg):
-        print("\033[97m" + msg + "\033[0;m")
+        print("\033[97m" + msg + "\033[0;m")        
     
     def info(msg):
         print("\033[32m" + msg + "\033[0;m")
@@ -58,10 +58,10 @@ class Logger:
     """
     def starting():
         print("\n")
-        Logger.core("starting system")
+        Logger.core("Starting System")
         
     def shutdown():
-        Logger.core("shutting down system")
+        Logger.core("Shutting-down System")
         
     def white_bold(msg, e ='\n'):
         print("\033[1;37m" + msg + "\033[0;m", end = e)
@@ -72,9 +72,12 @@ class Logger:
     def cian_bold(msg, e ='\n'):
         print("\033[1;36m" + msg + "\033[0;m", end = e)
         
+    def green_bold(msg, e ='\n'):
+        print("\033[1;36m" + msg + "\033[0;m", end = e)
+        
     # Algunos mensajes muy recurrentes en el programa
     def cancel_info(msg = USER_CANCEL_MSG):
-        Logger.info("Recuerde que puede anular el registro introduciendo '"+ USER_CANCEL_MSG +"'.\n")
+        Logger.info("Introduciendo '"+ USER_CANCEL_MSG +"' se anulará el registro actual.\n")
         
     def cancel_pause(t = 1):
         Logger.warn("Cancelando...")
@@ -82,11 +85,20 @@ class Logger:
     
     def cancel_input():
         Logger.warn("Se ha cancelado el registro.")
-        input("Presione ENTER para continuar...")
+        input("Presione [ENTER] para continuar...")
         
     def bad_option():
         Logger.warn("Opción inválida. Elija una opción válida.")
         input("Pulsa [ENTER] para continuar...")
+        
+    def succes(msg1, obj, msg2):
+        print("\033[1;32m" + msg1 + "\033[0;m" + "\033[1;36m" + obj + "\033[0;m" + "\033[1;32m" + msg2 + "\033[0;m")
+        input("\nPresione [ENTER] para continuar...")
+        
+    def draw_list(msg, obj):
+        print("\033[1;32m" + msg + " " + obj + "\033[0;m")
+        
+    
         
         
         

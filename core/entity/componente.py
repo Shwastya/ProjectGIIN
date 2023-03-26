@@ -24,7 +24,8 @@ class TipoComponente(Enum):
     RAM    = "RAM"
     DISCO  = "Disco"
     
-    # metodo de clase, es necesario poner @classmethod
+    # metodo de clase, es necesario poner @classmethod y usar cls
+    # para poder llamar de manera estatica a la función (sin instanciar)
     @classmethod
     def display(cls):
         print("Tipos de componentes:")
@@ -52,11 +53,50 @@ class Componente:
         self.tipo = TipoComponente(tipo)
         self.peso = peso
         self.precio = precio
-        self.cantidad = cantidad       
-        
-    def user_set_values(self, id):
-        
-        is_cancel = USER_CANCEL_MSG.lower()
+        self.cantidad = cantidad      
+    
+    def patata(self):
+        print("PATATA")         
+    
+    # Tipo de componente hasta que sea válido ---------------------------------        
+    def get_tipo_input(self):
+        while True: 
+            cad = input("Seleccione un número para el tipo de componente o 'L' para listar de nuevo = ")
+            if cad.lower() == USER_CANCEL_MSG.lower(): return None
+            elif cad.isdigit():
+                index = int(cad) - 1
+                if index < 0 or index >= len(TipoComponente):
+                    Logger.warn("El Tipo de componente no está en la lista.")
+                else: return TipoComponente(list(TipoComponente)[index].value)
+            elif cad.lower() == 'l': TipoComponente.display()
+            else: Logger.warn("Error. Introduce un número entero válido.")
+           
+    # Peso hasta que sea válido -----------------------------------------------
+    def get_peso_input(self):
+        while True:
+            peso = input("Peso en gramos del componente = ")
+            if peso.lower() == USER_CANCEL_MSG.lower(): return None
+            elif peso.isdigit() and int(peso) > 0: return int(peso)
+            else: Logger.warn("Error. El número debe ser entero y mayor que 0.")
+    
+    # Precio hasta que sea válido ---------------------------------------------
+    def get_precio_input(self):
+        while True:
+            precio = input("Precio en euros del componente = ")
+            if precio.lower() == USER_CANCEL_MSG.lower(): return None
+            elif precio.replace('.', '', 1).isdigit() and float(precio) > 0: return float(precio)
+            else: Logger.warn("Error. Introduce un número real mayor que 0.")
+            
+    # Cantidad hasta que sea válido -------------------------------------------
+    def get_cantidad_input(self, msg = "Cantidad"):
+        while True:
+            cantidad = input(msg + " de componentes = ")
+            if cantidad.lower() == USER_CANCEL_MSG.lower(): return None
+            elif cantidad.isdigit() and int(cantidad) > 0: return int(cantidad)
+            else: Logger.warn("Por favor, introduce un número entero mayor que 0.")
+    
+    
+    def user_set_values(self, id):        
         
         # se ha superado la comprobación del indentificado en el manager
         Logger.info("[saved]> ID de componente: " + id)   
@@ -64,61 +104,47 @@ class Componente:
         # Mostrar la lista de componentes
         TipoComponente.display()
 
-        
-        while True: # tipo de componente hasta que sea válido -----------------
-        
-            cad = input("Seleccione un número para el tipo de componente o 'L' para listar de nuevo = ")
-            if cad.lower() == is_cancel:
-                return False
-            elif cad.isdigit(): 
-                index = int(cad) - 1
-                if index < 0 or index >= len(TipoComponente):
-                    Logger.warn("El Tipo de componente no está en la lista.")
-                else:
-                    tipo = TipoComponente(list(TipoComponente)[index].value)
-                    Logger.info("[saved]> Tipo de componente: " + tipo.value)
-                    break
-            elif cad.lower() == 'l': TipoComponente.display()
-            else: Logger.warn("Por favor, introduce un número entero válido.")
-       
-        while True: # peso hasta que sea válido -------------------------------
-        
-            peso = input("Peso en gramos del componente = ")
-            if peso.lower() == is_cancel: return False
-            elif peso.isdigit() and int(peso) > 0:
-                Logger.info("[saved]> Peso del componente: " + peso)
-                peso = int(peso)                
-                break
-            else: Logger.warn("El número debe ser entero y mayor que 0.")
+        ti = self.get_tipo_input()
+        if ti is None: return False
+        Logger.info("[saved]> Tipo de componente: " + str(ti.value))        
 
-        
-        while True: # precio hasta que sea válido -----------------------------
-        
-            precio = input("Precio en euros del componente = ")
-            if precio.lower() == is_cancel: return False
-            elif precio.replace('.', '', 1).isdigit() and float(precio) > 0:
-                Logger.info("[saved]> Precio del componente: " + precio)
-                precio = float(precio)
-                break
-            else: Logger.warn("Por favor, introduce un número real mayor que 0.")
-            
-        
-        while True: # cantidad hasta que sea válido ---------------------------
-        
-            cantidad = input("Cantidad de componentes = ")
-            if cantidad.lower() == is_cancel: return False
-            elif cantidad.isdigit() and int(cantidad) > 0:
-                Logger.info("[saved]> Cantidad de componentes: " + cantidad)
-                cantidad = int(cantidad)
-                break
-            else: Logger.warn("Por favor, introduce un número entero mayor que 0.")
+        pe = self.get_peso_input()
+        if pe is None: return False
+        Logger.info("[saved]> Peso del componente: " + str(pe))        
 
-        self.set_values(id, tipo.value, peso, precio, cantidad)
+        pr = self.get_precio_input()
+        if pr is None: return False
+        Logger.info("[saved]> Precio del componente: " + str(pr))
+
+        ca = self.get_cantidad_input()
+        if ca is None: return False
+        Logger.info("[saved]> Cantidad de componentes: " + str(ca))
+
+        self.set_values(id, ti.value, pe, pr, ca)        
+        
+        Logger.succes("\nComponente: ", self.display_componente(), " agregado con éxito.") 
         return True
+    
+    # Para modificar un Stock ya existente, igual podria tratar de usarse la
+    # función get_cantidad_input, siempre que se mantuviera la lógica de mensajes
+    def user_set_new_stock(self):
         
+        while True:
+            cantidad = input("Nueva cantidad de componentes = ")
+            if cantidad.lower() == USER_CANCEL_MSG.lower():
+                return self.register_quit()
+            elif cantidad.isdigit() and int(cantidad) > 0:
+                Logger.info("[Modified]> Stock actualizado: " + cantidad)
+                #componente.cantidad = int(cantidad)                
+                break
+            else:
+                Logger.warn("Por favor, introduce un número entero mayor que 0.")
+    
+    
     # Para mostrar en consola
     def display_componente(self):
-        return f'"{self.id}", {self.tipo.value}, {self.peso}, {self.precio} ,{self.cantidad}'
+        return f'"{self.id}": {self.tipo.value}, {self.peso}, {self.precio}, {self.cantidad}'
+    
     # Para guardar en archivo
     def serialize_to_string(self):
         return f'{self.id};{self.tipo.value};{self.peso};{self.precio};{self.cantidad}'

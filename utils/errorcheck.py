@@ -11,7 +11,7 @@ from utils.logger import Logger
 def alnumcheck(obj, length = 3, nom = "El identificador"):
     succes = obj.isalnum() and len(obj) >= length
     if not succes:
-        Logger.warn(nom + " debe ser alfanumérico y tener al menos " + str(length) + " caracteres. Inténtalo de nuevo.")
+        Logger.warn("Error. " + nom + " debe ser alfanumérico y tener al menos " + str(length) + " caracteres.")
     return succes
 
 # Funciones para control de errores

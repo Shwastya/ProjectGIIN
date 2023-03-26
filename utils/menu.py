@@ -37,17 +37,18 @@ class MenuDrawer:
     def draw_empty(self, width):
         print("│" + " " * width + "│")    
 
-    def draw_title(self, width):
+    def draw_title(self, width, obj = "", color = 1):
         title_length = len(self.titulo)
         padding = (width - title_length) // 2
-        
-        print("│\033[1;36m" + " " * padding + self.titulo + " " * (width - title_length - padding) + "\033[0;m│")
-        
-        #print("│" + " " * padding + "\033[1;37m" + self.titulo +  + "\033[0;m" + " " * (width - title_length - padding) + "│")
-        
-        
-        padding = (width + title_length) // 2
-        print("│" + " " * padding + " " * (width - title_length - padding) + "  │")
+
+        if color == 1:
+            print("│\033[1;36m" + " " * padding + self.titulo + " " * (width - title_length - padding) + "\033[0;m│")
+        else:
+            new_length = len(obj)
+            newpadding = (width - new_length) // 2
+            print("│\033[1;32m" + " " * newpadding + obj + " " * (width - new_length - newpadding) + "\033[0;m│")
+
+        print("│" + " " * width + "│")
         
 
     def draw_option(self, option_number, option_text, width):
@@ -56,13 +57,16 @@ class MenuDrawer:
     def draw_down(self, width):
         print("└" + "─" * width + "┘")
         
-    def display(self):
+    def display(self, extra = False, obj = "unknow"):
         max_width = max(len(opcion) for opcion in self.opciones)
         width = max(len(self.titulo), max_width) + 4
 
         self.draw_up(width)
         self.draw_empty(width)
         self.draw_title(width)
+
+        if extra:
+            self.draw_title(width, obj, 2)
 
         index = 1
         for opcion in self.opciones:

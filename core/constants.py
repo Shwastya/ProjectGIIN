@@ -17,5 +17,5 @@ S = SEPARATOR # nombre corto
 Se define constante, mensaje que el usuario introducirá si quiere cancelar 
 un registro en ejecución, cambiarlo aquí funcionará para todo el programa
 """
-USER_CANCEL_MSG = "exit"
+USER_CANCEL_MSG = "q"
 

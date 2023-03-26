@@ -18,12 +18,12 @@ class ManagerComponentes:
         
         # Menu principal
         self._menu_componentes = MenuDrawer([
-            "Alta", "Modificación"], "- HardVIU Menu -> 1) Componentes")
+            "Alta", "Modificación"], "- HardVIU -> 1) Componentes")
         
         # Submenu modificacion componente
         self._menu_modificacion = MenuDrawer([
             "Cambiar stock", "Cambiar información", "Dar de baja"], 
-            "- HardVIU Menu -> 1) Componentes -> 2. Modificación")
+            "- HardVIU -> 1) Componentes -> 2. Modificación")
 
     def componente_por_id(self, id):
         for componente in self._componentes:
@@ -32,11 +32,10 @@ class ManagerComponentes:
 
     def listar_componentes(self):
         if not self._componentes:
-            print("No hay componentes para listar, debes de dar de alta algún componente primero.")
             return False
         else:
             for componente in self._componentes:
-                print(componente.display_componente())
+                Logger.draw_list("\t-", componente.display_componente())
             return True
           
     def register_quit(self):
@@ -51,12 +50,12 @@ class ManagerComponentes:
 
         while True: # Pide el nombre (id) hasta que sea valido
         
-            id = input("Identificador (nombre) del componente (alfanumérico, mínimo 3 caracteres) = ")
-            if id.lower() == USER_CANCEL_MSG.lower():
-                return self.register_quit()
+            id = input("Nombre/ID del componente (alfanumérico, mínimo 3 caracteres) = ")
+            if id.lower() == USER_CANCEL_MSG.lower(): return self.register_quit()
                 
             if not alnumcheck(id, 3): continue
-            if self.componente_por_id(id): Logger.warn("Ese identificador ya existe. Por favor, elija otro.")
+            if self.componente_por_id(id): 
+                Logger.warn("Ese identificador ya existe. Por favor, elija otro.")
                 continue
             break
 
@@ -64,63 +63,72 @@ class ManagerComponentes:
         if not component_to_add.user_set_values(id):
             return self.register_quit()
 
-        self._componentes.append(component_to_add)
-        Logger.info("Componente agregado con éxito.")        
+        self._componentes.append(component_to_add)    
+        self._menu_componentes.scroll_screen(100)
             
     # submenu de componentes -> MODIFICAR componente
     def modificar_componente(self):
-        Logger.cian_bold("\n" + "2) Modificación de un componente:")
-        Logger.cancel_info()
-
-        while True:
-            id = input("Identificador (nombre) del componente que desea modificar o 'L' para listar componentes = ")
-            if id.lower() == USER_CANCEL_MSG.lower():
-                return self.register_quit()
-            elif id.lower() == 'l':
-                if not self.listar_componentes():
-                    continue
-            else:
-                componente = self.componente_por_id(id)
-                if componente:
-                    break
-                else:
-                    Logger.warn("No se encontró el componente con ese identificador. Por favor, intente de nuevo.")
-                    continue
-
         
-
-        while True:
-            self._menu_modificacion.display()
-            opcion = self._menu_modificacion.get_option()
-
-            if opcion == 0: return self.register_quit()
-            elif opcion == 1:
-                # Cambiar stock
-                while True:
-                    cantidad = input("Introduzca la nueva cantidad de componentes: ")
-                    if cantidad.lower() == USER_CANCEL_MSG.lower():
-                        return self.register_quit()
-                    elif cantidad.isdigit() and int(cantidad) > 0:
-                        componente.cantidad = int(cantidad)
-                        Logger.info("Stock actualizado con éxito.")
+        if self._componentes: 
+            
+            self._menu_componentes.scroll_screen(100)
+            Logger.cian_bold("\n" + "2) Modificación de un componente:")
+            Logger.cancel_info()       
+               
+            while True:
+                id = input("Identificador (nombre) del componente que desea modificar o 'L' para listar componentes = ")
+                if id.lower() == USER_CANCEL_MSG.lower():
+                    return self.register_quit()
+                elif id.lower() == 'l':
+                    self.listar_componentes()
+                else:
+                    componente = self.componente_por_id(id)
+                    if componente: 
+                        self._menu_componentes.scroll_screen(100)
                         break
                     else:
-                        Logger.warn("Por favor, introduce un número entero mayor que 0.")
-                break
-            elif opcion == 2:
-                # Cambiar información
-                if not componente.user_set_values(id):
-                    return self.register_quit()
-                Logger.info("Información del componente actualizada con éxito.")
-                break
-            elif opcion == 3:
-                # Dar de baja
-                self._componentes.remove(componente)
-                Logger.info("Componente dado de baja con éxito.")
-                break
-            else:
-                Logger.bad_option()
-                self._menu_modificacion.scroll_screen(100)
+                        Logger.warn("No se encontró el componente con ese identificador. Por favor, intente de nuevo.")
+                        continue
+    
+            
+    
+            while True:
+                self._menu_modificacion.display(True, "->  "+ id +"  <-")
+                opcion = self._menu_modificacion.get_option()
+    
+                if opcion == 0: return self.register_quit()
+                elif opcion == 1:
+                    # Cambiar stock
+                    while True:
+                        cantidad = input("Nueva cantidad de componentes: ")
+                        if cantidad.lower() == USER_CANCEL_MSG.lower():
+                            return self.register_quit()
+                        elif cantidad.isdigit() and int(cantidad) > 0:
+                            componente.cantidad = int(cantidad)
+                            Logger.info("Stock actualizado con éxito.")
+                            break
+                        else:
+                            Logger.warn("Por favor, introduce un número entero mayor que 0.")
+                    break
+                elif opcion == 2:
+                    # Cambiar información
+                    if not componente.user_set_values(id):
+                        return self.register_quit()
+                    Logger.info("Información del componente actualizada con éxito.")
+                    break
+                elif opcion == 3:
+                    # Dar de baja
+                    self._componentes.remove(componente)
+                    Logger.info("Componente dado de baja con éxito.")
+                    break
+                else:
+                    Logger.bad_option()
+                    self._menu_modificacion.scroll_screen(100)
+        else:            
+            Logger.warn("No hay componentes para modificar.\nAcceda al menú de Alta para registrar nuevos componentes.")
+            input("\nPresione [ENTER] para continuar...")
+            self._menu_modificacion.scroll_screen(100)
+            
             
     def update(self):
         self._menu_componentes.scroll_screen(100)
