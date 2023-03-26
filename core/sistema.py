@@ -18,7 +18,6 @@ Se busca simular técnicas de puntero a implementación similares a las utilizad
 no se puede hacer exactamente en Python, pero se busca experimentar técnicas de programación
 similares a las que suelo usar con mis proyectos de C++ con motores gráficos.
 Un poco buscando la diversión, conforme se me vaya ocurriendo.
-
 """
 
 from utils.menu import MenuDrawer
