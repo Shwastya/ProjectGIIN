@@ -23,9 +23,9 @@ Algunos de los colores:
     Amarillo: mensajes de alerta
     Rojo: mensajes de error
 """
-
 import time
-from core.constants import USER_CANCEL_MSG
+
+from core.constsk import K_USER_CANCEL_MSG
 
 # Clase con métodos estáticos.
 class Logger:    
@@ -76,16 +76,30 @@ class Logger:
         print("\033[1;36m" + msg + "\033[0;m", end = e)
         
     # Algunos mensajes muy recurrentes en el programa
-    def cancel_info(msg = USER_CANCEL_MSG):
-        Logger.info("Introduciendo '"+ USER_CANCEL_MSG +"' se anulará el registro actual.\n")
+    def cancel_info(n1 = '', n2 = '\n' ):
+        
+        Logger.info(n1 + "Introduzca '"+ K_USER_CANCEL_MSG +"'si desea cancelar el registro actual." + n2)
         
     def cancel_pause(t = 1):
-        Logger.warn("Cancelando...")
+        Logger.warn("Anulando registro ...")
         time.sleep(t)
     
-    def cancel_input():
-        Logger.warn("Se ha cancelado el registro.")
-        input("Presione [ENTER] para continuar...")
+    def cancel_input_by_user():
+        input("\033[1;33mRegistro cancelado. Presione [ENTER] para continuar...\033[0;m")
+        
+    def there_is_the_question(msg):
+        while True:
+            r = input("¿" + msg + "? (Y/N): ")
+            if r.lower()   == 'y': return True
+            elif r.lower() == 'n': return False
+            else: print("\033[1;33mIntroduzca 'y' para sí o 'n' para no.\033[0;m")
+            
+    def cancel_question():
+        while True:
+            answer = input("\033[1;33m¿Desea anular el registro? (y/n) \033[0;m")
+            if answer.lower() == 'y' or answer.lower() == 'y': return True
+            elif answer.lower() == 'n': return False
+            else: Logger.warn("Introduce 'S' o 'N'.")
         
     def bad_option():
         Logger.warn("Opción inválida. Elija una opción válida.")
@@ -93,10 +107,15 @@ class Logger:
         
     def succes(msg1, obj, msg2):
         print("\033[1;32m" + msg1 + "\033[0;m" + "\033[1;36m" + obj + "\033[0;m" + "\033[1;32m" + msg2 + "\033[0;m")
-        input("\nPresione [ENTER] para continuar...")
+        #input("\nPresione [ENTER] para continuar...")
         
     def draw_list(msg, obj):
         print("\033[1;32m" + msg + " " + obj + "\033[0;m")
+        
+    
+        
+
+        
         
     
         

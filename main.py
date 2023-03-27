@@ -4,14 +4,14 @@ Proyecto: HardVIU
 Created on Tue Mar 21 09:53:06 2023
 @author: José Luis Rosa Maiques
 
-Este archivo implementa el punto de entrada del programa y se encarga de crear y 
-ejecutar un objeto Engine, que a su vez ejecutará los sistemas del proyecto. 
+Este archivo implementa el punto de entrada del programa.
+Main crea un objeto Engine, que ejecutará los sistemas del proyecto. 
 
 En este momento, el Engine solo se ha implementado para gestionar un sistema:
     'HardVIU'.
     
-Se busca seguir las convenciones de estilo en Python (PEP 8), 
-que pueden consultarse en el siguiente enlace: 
+Se busca seguir las convenciones de estilo en Python (PEP 8). 
+Puede consultarse en el siguiente enlace: 
     https://www.python.org/dev/peps/pep-0008/.
 """
 

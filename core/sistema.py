@@ -20,8 +20,9 @@ similares a las que suelo usar con mis proyectos de C++ con motores gráficos.
 Un poco buscando la diversión, conforme se me vaya ocurriendo.
 """
 
-from utils.menu import MenuDrawer
+from utils.drawer import MenuDrawer
 from utils.logger import Logger
+
 from core.entitymanager.componentes import ManagerComponentes
 
 class Sistema:
