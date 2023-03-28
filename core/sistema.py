@@ -23,7 +23,7 @@ Un poco buscando la diversión, conforme se me vaya ocurriendo.
 from utils.drawer import MenuDrawer
 from utils.logger import Logger
 
-from core.entitymanager.componentes import ManagerComponentes
+from core.entitymanager.manager_componentes import ManagerComponentes
 
 class Sistema:
     """    

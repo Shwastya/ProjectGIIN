@@ -61,7 +61,7 @@ class ManagerComponentes:
                     return None
                 elif id.lower() == 'l': self.listar_entidades()
                 else:
-                    componente = self.componente_por_id(id)
+                    componente = self.entidad_por_id(id)
                     if componente:
                         self._menu_comp.scroll_screen()
                         return componente
