@@ -12,12 +12,13 @@ para clear_screen() se consulta:
     https://www.youtube.com/watch?v=SC-wyZpE93M&ab_channel=JohnOrtizOrdo%C3%B1ez
     
 """
-from core.constsk import K_SCROLL
+
+from core.kconfig import K_SCROLL, K_USER_CANCEL
 
 class MenuDrawer:
-    def __init__(self, opciones, titulo="Menu"):
+    def __init__(self, titulo, opciones = [""]):
         self.opciones = opciones
-        self.titulo = titulo
+        self.titulo   = titulo
         
     def scroll_screen(self, l = 100):
         if K_SCROLL: print("\n" * l)
@@ -32,13 +33,16 @@ class MenuDrawer:
         padding = (width - title_length) // 2
 
         if color == 1:
-            print("│\033[1;36m" + " " * padding + self.titulo + " " * (width - title_length - padding) + "\033[0;m│")
+            print("│\033[1;36m" + " " * padding + self.titulo + " " * (width - title_length - padding) + "\033[0;m│")            
         else:
             title_length = len(obj)
             padding = (width -  title_length) // 2
-            print("│\033[1;32m" + " " * padding + obj + " " * (width -  title_length - padding) + "\033[0;m│")
+            if color == 2:                
+                print("│\033[1;32m" + " " * padding + obj + " " * (width -  title_length - padding) + "\033[0;m│")
+            else:
+                print("│\033[0;32m" + " " * padding + obj + " " * (width -  title_length - padding) + "\033[0;m│")           
 
-        print("│" + " " * width + "│")        
+        if color < 3: print("│" + " " * width + "│")        
 
     def draw_option(self, option_number, option_text, width):
         print("│ " + str(option_number) + ") " + option_text + " " * (width - len(option_text) - 4) + "│")
@@ -46,7 +50,10 @@ class MenuDrawer:
     def draw_down(self, width):
         print("└" + "─" * width + "┘")
         
-    def display(self, extra = False, zero = "Salir" ,obj = "unknow"):
+    def display(self, extra=False, show_options=True, zero="Salir", obj="unknow", show_info = ""):
+        
+        self.scroll_screen()
+        
         max_width = max(len(opcion) for opcion in self.opciones)
         width = max(len(self.titulo), max_width) + 4
 
@@ -54,18 +61,22 @@ class MenuDrawer:
         self.draw_empty(width)
         self.draw_title(width)
 
-        if extra: self.draw_title(width, obj, 2)
+        if extra:
+            self.draw_title(width, obj, 2)
 
-        index = 1
-        for opcion in self.opciones:
-            self.draw_option(index, opcion, width)
-            index += 1
+        if show_options:
+            index = 1
+            for opcion in self.opciones:
+                self.draw_option(index, opcion, width)
+                index += 1
+            self.draw_option(0, zero, width)
+        if show_info: 
+            self.draw_title(width, "Ingresa '"+ K_USER_CANCEL +"' para cancelar", 3)
 
-        self.draw_option(0, zero, width)
         self.draw_empty(width)
         self.draw_down(width)
 
-    def get_option(self):
-        op = input("Seleccione una opción: ")
+    def get_option(self, inp = "Seleccione una opción"):
+        op = input(inp + " = ")
         if op.isdigit(): return int(op)
         else: return -1

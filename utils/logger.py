@@ -25,7 +25,7 @@ Algunos de los colores:
 """
 import time
 
-from core.constsk import K_USER_CANCEL_MSG
+from core.kconfig import K_USER_CANCEL
 
 # Clase con métodos estáticos.
 class Logger:    
@@ -76,36 +76,35 @@ class Logger:
         print("\033[1;36m" + msg + "\033[0;m", end = e)
         
     # Algunos mensajes muy recurrentes en el programa
-    def cancel_info(n1 = '', n2 = '\n' ):
+    def cancel_info(n1 = '', n2 = '' ):  
+        Logger.info(n1 + "Ingresa '"+ K_USER_CANCEL +"' para cancelar." + n2)
         
-        Logger.info(n1 + "Introduzca '"+ K_USER_CANCEL_MSG +"'si desea cancelar el registro actual." + n2)
+    def succes_pause(msg = "Presione [ENTER] para continuar...", newline = False):
+        n = ''
+        if newline: n = '\n'
+        input(n + msg)
         
-    def cancel_pause(t = 1):
-        Logger.warn("Anulando registro ...")
-        time.sleep(t)
     
-    def cancel_input_by_user():
-        input("\033[1;33mRegistro cancelado. Presione [ENTER] para continuar...\033[0;m")
+    def cancel_input_by_user(msg):
+        input("\033[1;33m"+ msg +". Presione [ENTER] para continuar...\033[0;m")
         
+    
+  
+    
     def there_is_the_question(msg):
         while True:
-            r = input("¿" + msg + "? (Y/N): ")
+            r = input(msg + " (Y/N) = ")
             if r.lower()   == 'y': return True
             elif r.lower() == 'n': return False
             else: print("\033[1;33mIntroduzca 'y' para sí o 'n' para no.\033[0;m")
             
-    def cancel_question():
-        while True:
-            answer = input("\033[1;33m¿Desea anular el registro? (y/n) \033[0;m")
-            if answer.lower() == 'y' or answer.lower() == 'y': return True
-            elif answer.lower() == 'n': return False
-            else: Logger.warn("Introduce 'S' o 'N'.")
+  
         
     def bad_option():
         Logger.warn("Opción inválida. Elija una opción válida.")
         input("Pulsa [ENTER] para continuar...")
         
-    def succes(msg1, obj, msg2):
+    def succes(msg1, obj, msg2 = ""):
         print("\033[1;32m" + msg1 + "\033[0;m" + "\033[1;36m" + obj + "\033[0;m" + "\033[1;32m" + msg2 + "\033[0;m")
         #input("\nPresione [ENTER] para continuar...")
         

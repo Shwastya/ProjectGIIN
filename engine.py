@@ -4,11 +4,11 @@ Proyecto: HardVIU
 Created on Tue Mar 21 09:53:06 2023
 @author: José Luis Rosa Maiques
 
-la clase Engine que se encarga de gestionar y ejecutar cualquier sistema que se desee implementar,
-en este caso, solo tenemos el sistema HardVIU.
-Cada sistema que se implemente tendrá su propio menú. 
-Del mismo modo, cada elemento o componente del sistema tendrá su propio menú si es necesario. 
-Todos los menús son creados por la misma clase/modulo Menu.
+La clase Engine se encarga de gestionar y ejecutar sistemas.
+En este caso, solo tenemos el sistema HardVIU.
+
+Todos los menús son creados utilizando la misma clase/módulo Menu.
+Cada elemento o componente del sistema empleará dicha clase para su propio menú.
 """
 
 from core.sistema import Sistema
@@ -17,9 +17,7 @@ from utils.logger import Logger
 class Engine:
     """
     La clase Engine se encarga de gestionar y ejecutar el sistema deseado.
-
-    Atributos:
-        _sistema (obj): objeto de la clase SistemaHardVIU que representa el sistema a ejecutar.
+    Logger es una clase personalizada con métodos estáticos.
     """
 
     def __init__(self):        
@@ -28,5 +26,7 @@ class Engine:
     def run(self):
         
         Logger.starting()
+        # ->
         self._sistema.update()
+        # <-
         Logger.shutdown()

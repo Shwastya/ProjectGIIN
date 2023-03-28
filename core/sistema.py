@@ -38,10 +38,9 @@ class Sistema:
     """
     def __init__(self):
         
-        self._menu = MenuDrawer([
+        self._menu = MenuDrawer("- HardVIU Menu -", [
             "Componentes", "Equipos", "Distribuidores", "Despachar",
-            "Días", "Info sistema", "Ficheros"], "- HardVIU Menu -")
-        self._menu.scroll_screen()
+            "Días", "Info sistema", "Ficheros"])        
         
         self._componentes = ManagerComponentes()
         #self.componentes = []

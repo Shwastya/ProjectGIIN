@@ -4,15 +4,20 @@ Created on Sat Mar 25 10:16:27 2023
 
 @author: Jose
 """
-
-#from core.constants import USER_CANCEL_MSG
+from core.kconfig import K_ALLOWED_CHARS
 from utils.logger import Logger
 
 def alnumcheck(obj, length = 3, nom = "El identificador"):
-    succes = obj.isalnum() and len(obj) >= length
-    if not succes:
-        Logger.warn("Error. " + nom + " debe ser alfanumérico y tener al menos " + str(length) + " caracteres.")
-    return succes
+    
+    if len(obj) < length:
+        Logger.warn(nom + " debe tener al menos " + str(length) + " caracteres.")
+        return False
+    
+    for char in obj:
+        if not (char.isalnum() or char in K_ALLOWED_CHARS):
+            Logger.warn("Solo se permiten caracteres alfanuméricos o los caracteres específicos (" + K_ALLOWED_CHARS + ").")
+            return False
+    return True
 
 # Funciones para control de errores
 #def inputcheck(user_input):

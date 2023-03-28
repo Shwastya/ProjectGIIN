@@ -9,10 +9,6 @@ Main crea un objeto Engine, que ejecutará los sistemas del proyecto.
 
 En este momento, el Engine solo se ha implementado para gestionar un sistema:
     'HardVIU'.
-    
-Se busca seguir las convenciones de estilo en Python (PEP 8). 
-Puede consultarse en el siguiente enlace: 
-    https://www.python.org/dev/peps/pep-0008/.
 """
 
 from engine import Engine
@@ -20,15 +16,10 @@ from engine import Engine
 def main():
     """
     Punto de entrada del programa:
-        Crea y ejecuta un objeto Engine para ejecutar los sistemas.    
-    
-    Aunque se ha llamado a la variable 'sistemas' en plural, 
-    en este proyecto solo se ejecuta un sistema. 
-    Sin embargo, se ha mantenido el nombre en plural para mantener 
-    la coherencia con el propósito del diseño.
+        Crea y ejecuta un objeto Engine para ejecutar los sistemas.
     """
-    sistemas = Engine()
-    sistemas.run()
+    hardviu = Engine()
+    hardviu.run()
 
 if __name__ == '__main__':
     main()
