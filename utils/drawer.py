@@ -13,15 +13,13 @@ para clear_screen() se consulta:
     
 """
 
-from core.kconfig import K_SCROLL, K_USER_CANCEL
+from core.kconfig import K_USER_CANCEL
+from utils.logger import Logger
 
 class MenuDrawer:
     def __init__(self, titulo, opciones = [""]):
         self.opciones = opciones
         self.titulo   = titulo
-        
-    def scroll_screen(self, l = 100):
-        if K_SCROLL: print("\n" * l)
     
     def draw_up(self, width):        
         print("┌" + "─" * width + "┐")
@@ -50,9 +48,9 @@ class MenuDrawer:
     def draw_down(self, width):
         print("└" + "─" * width + "┘")
         
-    def display(self, extra=False, show_options=True, zero="Salir", obj="unknow", show_info = ""):
+    def display(self, extra=False, show_options=True, zero="Salir", obj="unknow", show_info = "", first_init = False):
         
-        self.scroll_screen()
+        if not first_init: Logger.scroll_screen()
         
         max_width = max(len(opcion) for opcion in self.opciones)
         width = max(len(self.titulo), max_width) + 4
@@ -61,8 +59,7 @@ class MenuDrawer:
         self.draw_empty(width)
         self.draw_title(width)
 
-        if extra:
-            self.draw_title(width, obj, 2)
+        if extra: self.draw_title(width, obj, 2)
 
         if show_options:
             index = 1
@@ -70,8 +67,7 @@ class MenuDrawer:
                 self.draw_option(index, opcion, width)
                 index += 1
             self.draw_option(0, zero, width)
-        if show_info: 
-            self.draw_title(width, "Ingresa '"+ K_USER_CANCEL +"' para cancelar", 3)
+        if show_info: self.draw_title(width, "Ingresa '"+ K_USER_CANCEL +"' para cancelar", 3)
 
         self.draw_empty(width)
         self.draw_down(width)

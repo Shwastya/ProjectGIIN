@@ -23,9 +23,11 @@ Un poco buscando la diversión, conforme se me vaya ocurriendo.
 from utils.drawer import MenuDrawer
 from utils.logger import Logger
 
-from core.entitymanager.manager_componentes import ManagerComponentes
+from core.entitymanager.manager_components import ManagerComponents
+from core.entitymanager.manager_devices import ManagerDevices
 
-class Sistema:
+
+class System:
     """    
     La clase Sistema representa el sistema completo de componentes, equipos, distribuidores y despachos.
 
@@ -34,53 +36,58 @@ class Sistema:
         equipos (list): lista de objetos Equipo.
         distribuidores (list): lista de objetos Distribuidor.
         despachos (list): lista de objetos Despacho.
-        historico (list): lista de objetos Despacho.
     """
+
     def __init__(self):
-        
+
+        self._first_init = True
+
         self._menu = MenuDrawer("- HardVIU Menu -", [
             "Componentes", "Equipos", "Distribuidores", "Despachar",
-            "Días", "Info sistema", "Ficheros"])        
-        
-        self._componentes = ManagerComponentes()
-        #self.componentes = []
-        #self.equipos = []
+            "Días", "Info sistema", "Ficheros"])
+
+        self._components = ManagerComponents()  # Componentes
+        self._devices = ManagerDevices()        # Equipos
         #self.distribuidores = []
         #self.despachos = []
         #self.historico = []
 
-    def update(self):     
-        while True :            
-            self._menu.display()
+    def update(self):
+
+        while True:
+
+            self._menu.display(first_init=self._first_init)
+            if self._first_init:
+                self._first_init = False
+
             option = self._menu.get_option()
-            
-            if option == 1:   self._componentes.update()
+
+            if option == 1:
+                self._components.update()
             elif option == 2:
-                #import equipos
-                #equipos.run()
-                print("Option 2")
+                self._devices.update()
             elif option == 3:
                 #import distribuidores
-                #distribuidores.run()
+                # distribuidores.run()
                 print("Option 3")
             elif option == 4:
                 #import despachar
-                #despachar.run()
+                # despachar.run()
                 print("Option 4")
             elif option == 5:
                 #import dias
-                #dias.run()
+                # dias.run()
                 print("Option 5")
             elif option == 6:
                 #import info_sistema
-                #info_sistema.run()
+                # info_sistema.run()
                 print("Option 6")
             elif option == 7:
                 #import ficheros
-                #ficheros.run()
+                # ficheros.run()
                 print("Option 7")
-            elif option == 0: break
+            elif option == 0:
+                break
             else:
                 Logger.bad_option()
-                self._menu.scroll_screen()
-    
+                Logger.scroll_screen()

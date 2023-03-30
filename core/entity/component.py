@@ -4,18 +4,19 @@ Proyecto: HardVIU
 Created on Tue Mar 24 19:28:54 2023
 @author: José Luis Rosa Maiques
 
-Entidades:
-    La clases de este modulo representan la estructura de datos del sistema como entidades.
-    La función to_string se usará para facilitar el guardado de ficheros con el separador ';'
+
+Se separa la estructura y funcionalidad de Component separada en este módulo.
+La función to_string se usará para facilitar el guardado de ficheros con el separador ';'.
+El separador ';' está definidad como constante en el archivo de configuración kconfig.py. 
 """
 
 # Entidad Componente ----------------------------------------------------------
 
 from utils.logger import Logger
-from core.kconfig import K_USER_CANCEL
+from core.kconfig import K_USER_CANCEL, K_SEPARATOR as sep
 
 from enum import Enum
-class TipoComponente(Enum):
+class ComponentType(Enum):
     
     FUENTE = "Fuente"
     PB     = "PB"
@@ -28,17 +29,18 @@ class TipoComponente(Enum):
     # para poder llamar de manera estatica a la función (sin instanciar)
     @classmethod
     def display(cls):
-        #print("Tipos de componentes:")
+        # print("Tipos de componentes:")
         index = 1
-        for tipo_componente in cls:
-            print("\t" + str(index) + ". " + tipo_componente.value)            
+        for ct in cls:
+            print("\t" + str(index) + ". " + ct.value)            
             index += 1            
 
-class Componente:
+class Component:
     def __init__(self):
         """
         Sin argumentos, se quiere poder instanciar la clase,
         pero sin necesidad de dar valores al crear el objeto.
+        Atributos privados en Python... no es posible, son todo convenciones.                
         """
         self._id       = None       
         self._tipo     = None
@@ -46,15 +48,17 @@ class Componente:
         self._precio   = None
         self._cantidad = None
         
-        self._u_peso   = "gramos"
-        self._u_precio = "euros"
-        
     def set_values(self, id, tipo, peso, precio, cantidad = 0):
         self._id = id        
-        self._tipo = TipoComponente(tipo)
+        self._tipo = ComponentType(tipo)
         self._peso = peso
         self._precio = precio
         if cantidad != 0: self._cantidad = cantidad
+        
+    def set_id(self, id): self._id = id
+    
+    def get_id(self): return self._id    
+    def get_type(self, t): return self._tipo        
     
     # Tipo de componente hasta que sea válido ---------------------------------        
     def get_tipo_input(self):
@@ -64,15 +68,15 @@ class Componente:
                 return None
             elif cad.isdigit():
                 index = int(cad) - 1
-                if index < 0 or index >= len(TipoComponente):
+                if index < 0 or index >= len(ComponentType):
                     Logger.warn("El Tipo de componente no está en la lista.")
-                else: return TipoComponente(list(TipoComponente)[index].value)
+                else: return ComponentType(list(ComponentType)[index].value)
             else: Logger.warn("Introduce un número válido de la lista.")
            
     # Peso hasta que sea válido -----------------------------------------------
     def get_peso_input(self):
         while True:
-            peso = input("Peso en " + self._u_peso + " del componente = ")
+            peso = input("Peso en gramos del componente = ")
             if peso.lower() == K_USER_CANCEL.lower(): return None
             elif peso.isdigit() and int(peso) > 0: return int(peso)
             else: Logger.warn("El número debe ser entero y mayor que 0.")
@@ -80,7 +84,7 @@ class Componente:
     # Precio hasta que sea válido ---------------------------------------------
     def get_precio_input(self):
         while True:
-            precio = input("Precio en " + self._u_precio + " del componente = ")
+            precio = input("Precio en euros del componente = ")
             if precio.lower() == K_USER_CANCEL.lower(): return None
             elif precio.replace('.', '', 1).isdigit() and float(precio) > 0: return float(precio)
             else: Logger.warn("Introduce un número real mayor que 0.")
@@ -101,7 +105,7 @@ class Componente:
             Si no se trata de "Nueva cantidad", la función se llama para registrar 
             un nuevo componente. Primero, se muestra el listado de componentes existentes.
             """            
-            TipoComponente.display()            
+            ComponentType.display()            
             
             ti = self.get_tipo_input()
             if ti is None: return False
@@ -126,11 +130,15 @@ class Componente:
     
     # Para mostrar en consola
     def display(self):
-        return f'"{self._id}": {self._tipo.value}, {self._peso}, {self._precio}, {self._cantidad}'
+        return self._id + ": " + self._tipo.value + ", " + str(self._peso) + ", " + str(self._precio) + ", " + str(self._cantidad)
+    
+        #return f'"{self._id}": {self._tipo.value}, {self._peso}, {self._precio}, {self._cantidad}'
     
     # Para guardar en archivo
     def serialize_to_string(self):
-        return f'{self._id};{self._tipo.value};{self._peso};{self._precio};{self._cantidad}'
+        
+        return self._id + sep + str(self._tipo.value) + sep + str(self._peso) + sep + str(self._precio) + sep + str(self._cantidad)
+        #return f'{self._id}{sep}{self._tipo.value}{sep}{self._peso}{sep}{self._precio}{sep}{self._cantidad}'
     
     
   

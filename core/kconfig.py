@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """
+Project: HardVIU
 Created on Sat Mar 25 10:16:27 2023
+@author: José Luis Rosa Maiques
 
-@author: Jose
+
 """
 
 """
@@ -11,7 +13,7 @@ Hay que tener en cuenta que si se modifica el separador y se intenta acceder
 a archivos antiguos con otro separador, pueden surgir problemas.
 """
 K_SEPARATOR = ';'
-K_S = K_SEPARATOR # nombre corto
+K_S = K_SEPARATOR  # nombre corto
 
 """
 Constante K_USER_CANCEL, mensaje que el usuario ingresará si desea cancelar 
@@ -20,11 +22,11 @@ un registro en curso. Esta constante se aplicará en todo el programa.
 K_USER_CANCEL = "X"
 
 """
-K_ENABLE_SCROLL, para habilitar o deshabilitar el desplazamiento en la aplicación
-Según preferencias del usuario.
+K_ENABLE_SCROLL, para habilitar o deshabilitar el desplazamiento en la 
+aplicación según preferencias del usuario.
 """
 K_ENABLE_SCROLL = True
-K_SCROLL = K_ENABLE_SCROLL # nombre corto
+K_SCROLL = K_ENABLE_SCROLL  # nombre corto
 
 """
 Para validaciones en entradas alfanuméricas que permitan caracteres especiales 

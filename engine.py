@@ -11,7 +11,7 @@ Todos los menús son creados utilizando la misma clase/módulo Menu.
 Cada elemento o componente del sistema empleará dicha clase para su propio menú.
 """
 
-from core.sistema import Sistema
+from core.system  import System
 from utils.logger import Logger
 
 class Engine:
@@ -21,12 +21,12 @@ class Engine:
     """
 
     def __init__(self):        
-        self._sistema = Sistema()
+        self._system = System()
     
     def run(self):
         
         Logger.starting()
         # ->
-        self._sistema.update()
+        self._system.update()
         # <-
         Logger.shutdown()
