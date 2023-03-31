@@ -72,12 +72,16 @@ class Logger:
     def cancel_info(n1='', n2=''):
         Logger.info(n1 + "Ingresa '" + K_USER_CANCEL + "' para cancelar." + n2)
 
-    def succes_pause(msg="Presione [ENTER] para continuar...", newline=False):
+    def succes(msg1, obj, msg2=""):
+        print("\033[1;32m" + msg1 + "\033[0;m" + "\033[1;36m" +
+              obj + "\033[0;m" + "\033[1;32m" + msg2 + "\033[0;m")
+        
+    def success_pause(msg1, obj, msg2, newline=True):
+        Logger.succes(msg1, obj, msg2)        
         n = ''
-        if newline:
-            n = '\n'
-        input(n + msg)
-
+        if newline: n = '\n'
+        input(n + "Presione [ENTER] para continuar...")
+        
     def cancel_input_by_user(msg):
         input("\033[1;33m" + msg +
               ". Presione [ENTER] para continuar...\033[0;m")
@@ -96,9 +100,7 @@ class Logger:
         Logger.warn("Opción inválida. Elija una opción válida.")
         input("Pulsa [ENTER] para continuar...")
 
-    def succes(msg1, obj, msg2=""):
-        print("\033[1;32m" + msg1 + "\033[0;m" + "\033[1;36m" +
-              obj + "\033[0;m" + "\033[1;32m" + msg2 + "\033[0;m")
+    
 
     def draw_list(msg, obj):
         print("\033[1;32m" + msg + " " + obj + "\033[0;m")

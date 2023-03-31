@@ -7,8 +7,9 @@ Created on Tue Mar 28 16:43:02 2023
 
 from core.kconfig import K_USER_CANCEL
 from utils.drawer import MenuDrawer
+from utils.inputs import InputUser
 from utils.logger import Logger
-from utils.icheck import alfnum_check
+
 
 from core.entity.device import Device
 
@@ -73,8 +74,8 @@ class ManagerDevices:
             if id.lower() == K_USER_CANCEL.lower():
                 Logger.register_quit("Cancelado por usuario")
                 return None
-            if not alfnum_check(id, 3):
-                continue
+            #if not alfnum_check(id, 3):
+            #    continue
             if self.entity_by_id(id):
                 Logger.warn(
                     "Ese identificador ya existe. Por favor, elija otro.")

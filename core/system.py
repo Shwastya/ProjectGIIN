@@ -43,8 +43,8 @@ class System:
         self._first_init = True
 
         self._menu = MenuDrawer("- HardVIU Menu -", [
-            "Componentes", "Equipos", "Distribuidores", "Despachar",
-            "Días", "Info sistema", "Ficheros"])
+            "Componentes", "Equipos", "Distribuidores", "Despachar", "Días",
+            "Info sistema", "Ficheros"])
 
         self._components = ManagerComponents()  # Componentes
         self._devices = ManagerDevices()        # Equipos
@@ -56,7 +56,8 @@ class System:
 
         while True:
 
-            self._menu.display(first_init=self._first_init)
+            self._menu.display(first_init = self._first_init)
+            
             if self._first_init:
                 self._first_init = False
 
@@ -91,3 +92,4 @@ class System:
             else:
                 Logger.bad_option()
                 Logger.scroll_screen()
+                

@@ -27,13 +27,13 @@ class MenuDrawer:
         print("│" + " " * width + "│")    
 
     def draw_title(self, width, obj = "", color = 1):
-        title_length = len(self.titulo)
+        title_length = len(self.titulo)        
         padding = (width - title_length) // 2
-
+        
         if color == 1:
             print("│\033[1;36m" + " " * padding + self.titulo + " " * (width - title_length - padding) + "\033[0;m│")            
         else:
-            title_length = len(obj)
+            title_length = len(str(obj))
             padding = (width -  title_length) // 2
             if color == 2:                
                 print("│\033[1;32m" + " " * padding + obj + " " * (width -  title_length - padding) + "\033[0;m│")
@@ -48,7 +48,7 @@ class MenuDrawer:
     def draw_down(self, width):
         print("└" + "─" * width + "┘")
         
-    def display(self, extra=False, show_options=True, zero="Salir", obj="unknow", show_info = "", first_init = False):
+    def display(self, extra=False, show_options=True, show_info = "", first_init = False, obj="unknow", zero="Salir"):
         
         if not first_init: Logger.scroll_screen()
         

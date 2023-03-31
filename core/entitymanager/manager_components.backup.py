@@ -27,9 +27,8 @@ List vs Tuples vs Sets vs Dictionaries:
 
 from core.kconfig import K_USER_CANCEL
 from utils.drawer import MenuDrawer
-from utils.inputs import InputUser
 from utils.logger import Logger
-
+from utils.icheck import alfnum_check
 
 from core.entity.component import Component
 
@@ -46,7 +45,7 @@ class ManagerComponents:
             "Alta", "Modificación"])
 
         # Submenu nueva alta
-        self._menu_add  = MenuDrawer("HardVIU / 1) Componentes / 1) Alta")
+        self._menu_add = MenuDrawer("HardVIU / 1) Componentes / 1) Alta")
 
         # Submenu modificación componente
         self._menu_modi = MenuDrawer(
@@ -57,72 +56,24 @@ class ManagerComponents:
         self._menu_info = MenuDrawer(
             "HardVIU / 1) Componentes / 2) Modificación / 2) Cambiar información")
 
-    
-        
     # Crea objeto entidad = Component() con input de clase Component para alta
-    def add_entity(self, add_loop = True):
-        
-        o = "Componente" # Objeto   
-        
-        while True:
-            
-            self._menu_add.display(True, False, True, obj = "Nuevo " + o)
-            
-            q = "Nombre/ID " + o                     # Cuestión
-            r = "alfanumérico, mínimo 3 caracteres"  # Regla
-            
-            id = InputUser.get_alphanum(q, r, 3, o, self._components)
-            if id is None: 
-                return
-    
-            self._menu_add.display(True, False, True, obj=str(id))
-            
-            # Nueva instancia de la entidad
-            component = Component()
-            if not component.user_set_values(id):
-                Logger.register_quit("Cancelado por usuario")
-                return
-            
-            # Se procede a añadir la entidad:
-            Logger.succes(o + ": ", id, " dado de alta con éxito.")
-            self._components[id] = component
-    
-            if add_loop and not Logger.there_is_the_question(
-                    "\n¿Introducir otro/a "+o+"?"):
-                    break
-        return id
-    
 
-    # Selecciona entidad = Component mediante input de usuario con controles
-    def select_entity(self):        
-        
-        o = "Componente" # Objeto       
-        
-        if self._components:
-            
-            Logger.cancel_info()
-            
-            while True:               
-                
-                q = "Nombre/ID para acceder a menú Modificación"  # Cuestión
-                r = "o 'L' para listar "+ o +"s"                  # Regla                
-                
-                # comprueba no existencia (activado)
-                c = True 
-                
-                id = InputUser.get_alphanum(q, r, 3, o , self._components, c)
-                
-                if id is None:            # rompe este menú bucle
-                    break 
-                elif id.lower() == 'l':   # haz un listado
-                    self.list_entities()
-                else:                     # devuelve el id
-                    Logger.scroll_screen()                    
-                    return id
-        else:
-            Logger.register_quit("No existen "+ o +"s")
-            return None
-
+    def add_entity(self, again=True):
+        self._menu_add.display(True, show_options=False, show_info=True,
+                               obj="Nuevo Componente")
+        id = self.get_entity_id_input()
+        if id is None:
+            return
+        self._menu_add.display(True, show_options=False, show_info=True,
+                               obj=str(id))
+        component = Component()
+        if not component.user_set_values(id):
+            Logger.register_quit("Cancelado por usuario")
+            return
+        Logger.succes("Componente: ", id, " dado de alta con éxito.")
+        self._components[id] = component
+        if Logger.there_is_the_question("\n¿Introducir otro componente?"):
+            self.add_entity()
 
     # Lista todas entidades = Components del Dic _components
     def list_entities(self):
@@ -133,6 +84,70 @@ class ManagerComponents:
                 Logger.draw_list("\t-", component.display(id))
             return True
 
+    # Selecciona entidad = Component mediante input de usuario con controles
+    def input_select_entity(self, entity="componente", menu="Modificación"):
+        if self._components:
+            Logger.cancel_info()
+            while True:
+                id = input("Nombre/ID para acceder a " + menu +
+                           " o 'L' para listar " + entity + "s = ")
+                if id.lower() == K_USER_CANCEL.lower():
+                    Logger.register_quit("Cancelado por usuario")
+                    return None
+                elif id.lower() == 'l':
+                    self.list_entities()
+                else:
+                    # Verifica si el ID ingresado por el usuario
+                    # está en el  diccionario de entidades
+                    if id in self._components:
+                        Logger.scroll_screen()
+                        return id  # Devuelve el ID ingresado por el usuario
+                    else:
+                        Logger.warn(
+                            "No se encontró " + entity
+                            + " con ese identificador. Intentelo de nuevo.")
+                        continue
+        else:
+            Logger.register_quit("No existen " + entity + "s")
+            return None
+
+    # Pregunta por el id entidad = Component por input para registro
+    def get_entity_id_input(self, entity="componente",
+                            regla="(alfanumérico, mínimo 3 caracteres)"):
+        while True:
+            id = input("Nombre/ID " + entity + " " + regla + " = ")
+            if id.lower() == K_USER_CANCEL.lower():
+                Logger.register_quit("Cancelado por usuario")
+                return None
+            if not alfnum_check(id, 3):
+                continue
+            if id in self._components:
+                Logger.warn("Ese identificador ya existe. Elija otro.")
+                continue
+            return id
+
+    # Crea objeto entidad = Component() con input de clase Component para alta
+    def add_entity(self, again=True):
+        self._menu_add.display(True, show_options=False, show_info=True,
+                               obj="Nuevo Componente")
+
+        id = self.get_entity_id_input()
+        if id is None:
+            return
+
+        self._menu_add.display(True, show_options=False,
+                               show_info=True, obj=id)
+
+        component = Component()
+        if not component.user_set_values(id):
+            Logger.register_quit("Cancelado por usuario")
+            return
+
+        Logger.succes("Componente: ", id, " dado de alta con éxito.")
+        self._components[id] = component
+
+        if Logger.there_is_the_question("\n¿Introducir otro componente?"):
+            self.add_entity()
 
     def modify_entity_stock(self, id):
         Logger.cancel_info()
@@ -172,7 +187,7 @@ class ManagerComponents:
                 self.add_entity()
             # Acceder a Menu Modificación
             elif option == 2:
-                id = self.select_entity()
+                id = self.input_select_entity()
                 if id is None:
                     continue
                 while True:

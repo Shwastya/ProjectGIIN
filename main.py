@@ -19,8 +19,8 @@ from engine import Engine
 
 def main():
     """
-    Punto de entrada del programa:
-        Crea y ejecuta un objeto Engine para ejecutar los sistemas.
+    'EntryPoint' del programa: Crea y ejecuta un objeto Engine que a su vez,
+    se encarga de ejecutar sistemas.
     """
     hardviu = Engine()
     hardviu.run()
