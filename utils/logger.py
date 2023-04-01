@@ -27,7 +27,7 @@ se ha tomado la decisión de personalizar un poco los mensajes utilizando este m
 """
 
 
-from core.kconfig import K_USER_CANCEL, K_SCROLL
+from core.kconfig import K_USER_CANCEL, K_SCROLL#, delete_constants
 
 
 class Logger:
@@ -42,7 +42,7 @@ class Logger:
         print("\033[1;33m" + msg + "\033[0;m")
 
     def error(msg):
-        print("\033[31m" + msg + "\033[0;m")
+        print("\033[1;31m" + "Error:" + msg + "\033[0;m")
 
     def core(msg):
         """ Color: Magenta (35) """
@@ -59,6 +59,7 @@ class Logger:
         Logger.core("Starting System")
 
     def shutdown():
+        # delete_constants()
         Logger.core("Shutting-down System")
         
     def scroll_screen(l=100):

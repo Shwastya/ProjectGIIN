@@ -35,3 +35,21 @@ Se han incluido algunos caracteres adicionales para probar.
 Modifique esta variable para controlar este tipo de entradas.
 """
 K_ALLOWED_CHARS = "-*+.#@€%&/"
+
+
+"""
+Por si se quisiera el explorador de variables de Spyder o el IDLE en uso limpio
+"""
+def delete_constants():
+    if K_SEPARATOR:
+        del K_SEPARATOR
+    if K_SE:
+        del K_S
+    if K_USER_CANCEL:
+        del K_USER_CANCEL
+    if K_ENABLE_SCROLL:
+        del K_ENABLE_SCROLL
+    if K_SCROLL:
+        del K_SCROLL
+    if K_ALLOWED_CHARS:
+        del K_ALLOWED_CHARS

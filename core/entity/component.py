@@ -17,8 +17,6 @@ from utils.inputs import InputUser
 from core.kconfig import K_SEPARATOR as sep
 
 from enum import Enum
-
-
 class ComponentType(Enum):
 
     FUENTE = "Fuente"
@@ -44,63 +42,66 @@ class Component:
         """
         Sin argumentos, se quiere poder instanciar la clase,
         pero sin necesidad de dar valores al crear el objeto.
-        Atributos privados en Python... no es posible, son todo convenciones.                
-        """
-        # self._id     = None
+        Atributos privados en Python... no exactamente, son convenciones.                
+        """    
         self._tipo = None
         self._peso = None
         self._precio = None
         self._cantidad = None
 
-    def set_values(self, tipo, peso, precio, cantidad=0):
-        # self._id = id
+    def set_values(self, tipo, peso, precio, cantidad = 0):     
         self._tipo = ComponentType(tipo)
         self._peso = peso
         self._precio = precio
-        if cantidad != 0:
-            self._cantidad = cantidad
+        if cantidad != 0: self._cantidad = cantidad
 
     def get_type(self, t): return self._tipo
 
-    def user_set_values(self, id, stock="Cantidad"):
-        
+    def user_set_values(self, id, prmtrs): # stock = "Cantidad"
+        """
+        # La función devuelve los valores o False en caso 
+        de cancelación o fallo.
+        """
+       # id        = pr
+        stock     = prmtrs.get("stock", None)
         stock_msg = "Nueva cantidad"
         
-        if stock == "Cantidad":
-            # Si no se trata de "Nueva cantidad", la función se llama para
-            # registrar un nuevo componente. Primero, se muestra el listado
-            # de componentes existentes,
+        # Si se trata de nueva cantidad, la función se llama para modificar
+        # el stock.
+        
+        # Si no se trata de "Nueva cantidad", la función se llama para
+        # registrar un nuevo componente y mostramos primero el listado
             
-            stock_msg = "Cantidad"            
+        if stock == "Cantidad":
+            
+            stock_msg = stock            
             
             ComponentType.display()
 
-            ti = InputUser.get_enum(ComponentType,
+            tipo = InputUser.get_enum(ComponentType,
                 "Elija un número de la lista para el tipo de componente = ",
                 "El Tipo de componente no está en la lista.")
-            if ti is None:
-                return False
-            Logger.info(ti.value + ' "' + id + '".')
+            if tipo is None: return False
+            Logger.info(tipo.value + ' "' + id + '".')
 
-            pe = InputUser.get_int("Peso en gramos del componente = ")
-            if pe is None:
-                return False
-            Logger.info(ti.value + ' "' + id + '". ' + str(pe) + ' gramos.')
+            peso = InputUser.get_int("Peso en gramos del componente = ")
+            if peso is None: return False
+            Logger.info(tipo.value +' "'+ id +'". '+ str(peso) +' gramos.')
 
-            pr = InputUser.get_float("Precio en euros del componente = ")
-            if pr is None:
-                return False
-            Logger.info(ti.value + ' "' + id + '". ' + str(pr) + ' euros.')
+            precio = InputUser.get_float("Precio en euros del componente = ")
+            if precio is None: return False
+            Logger.info(tipo.value +' "'+ id +'". '+ str(precio) +' euros.')
 
-            self.set_values(ti.value, pe, pr)
+            self.set_values(tipo.value, peso, precio)
 
         ca = InputUser.get_int(stock_msg + " de componentes = ")
-        if ca is None:
-            return False
-        Logger.info(self._tipo.value + ' "' + id +
-                    '". ' + str(ca) + ' de stock.')
+        
+        if ca is None: return False
+        
+        Logger.info(self._tipo.value +' "'+ id +'". '+ str(ca) +' de stock.')
         self._cantidad = ca
 
+        #return tipo.value, 
         return True
 
     # Para mostrar en consola
@@ -110,3 +111,6 @@ class Component:
     # Para guardar en archivo
     def serialize_to_string(self, id):
         return id + sep + str(self._tipo.value) + sep + str(self._peso) + sep + str(self._precio) + sep + str(self._cantidad)
+    
+    
+    

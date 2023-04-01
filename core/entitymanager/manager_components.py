@@ -7,8 +7,8 @@ Created on Fri Mar 24 16:18:11 2023
 El ManagerComponent se encarga de gestionar los Componentes, proporcionando 
 una lógica de menú. La estructura de datos y la funcionalidad de la entidad 
 Componente se mantienen en la clase Componente, mientras que el Manager no 
-necesita conocer su funcionamiento interno, solo debe conservar el ID como 
-atributo relacional.
+necesita conocer su funcionamiento interno, puesto que tiene un Dic de 
+componentes solo conoce y maneja su Identificador (ID) como Key del Dic.
 
 En una primera versión, se implementó el atributo 'components' como una lista,
 lo que requería que muchas funciones iteraran sobre ella para llevar a cabo su 
@@ -23,30 +23,35 @@ en un enum en el archivo component.py -> ComponentType (enum class)
 List vs Tuples vs Sets vs Dictionaries: 
     https://realpython.com/python-data-structures/
     
+
+En una decisión de diseño posterior, trasladamos las funcionalidades y el Dic
+a una clase padre llamada EntityManager. El resto de entidades se heredarán 
+de ella, utilizando métodos genéricos que a su vez emplearán clases de entidad 
+específicas.    
 """
 
-from core.kconfig import K_USER_CANCEL
+
 from utils.drawer import MenuDrawer
-from utils.inputs import InputUser
 from utils.logger import Logger
 
+from core.entitymanager.EntityManager import EntityType, EntityManager
 
-from core.entity.component import Component
+# NOTA IMPORTANTE:
+# Evaluamos Herencia (ahorro en código) frente a Composición (flexibilidad)
+# La clase ManagerComponents hereda de la clase EntityManager e implementa sus 
+# métodos, que tienen como objetivo ser genéricos para todas las entidades.
 
-
-class ManagerComponents:
+class ManagerComponents(EntityManager):
 
     def __init__(self):
-
-        # Atributo Componentes de tipo Dic
-        self._components = {}
+        super().__init__(EntityType.COMPONENT)
 
         # Menu principal
         self._menu_comp = MenuDrawer("HardVIU / 1) Componentes", [
             "Alta", "Modificación"])
 
         # Submenu nueva alta
-        self._menu_add  = MenuDrawer("HardVIU / 1) Componentes / 1) Alta")
+        self._menu_add = MenuDrawer("HardVIU / 1) Componentes / 1) Alta")
 
         # Submenu modificación componente
         self._menu_modi = MenuDrawer(
@@ -54,155 +59,70 @@ class ManagerComponents:
                 "Cambiar stock", "Cambiar información", "Dar de baja"])
 
         # Submenu cambiar información
-        self._menu_info = MenuDrawer(
-            "HardVIU / 1) Componentes / 2) Modificación / 2) Cambiar información")
-
+        self._menu_info = MenuDrawer("HardVIU / 1) Componentes / 2) " + 
+                                     "Modificación / 2) Cambiar información")            
+       
+    def get_components_dic(self): # Método get para acceso a componentes
+        """ NOTA:
+        se debe acceder directamente al atributo _entities_dic de la instancia 
+        actual, ya que super() se utiliza para acceder a métodos y atributos
+        """
+        return self._entities_dic    
     
-        
-    # Crea objeto entidad = Component() con input de clase Component para alta
-    def add_entity(self, add_loop = True):
-        
-        o = "Componente" # Objeto   
-        
-        while True:
+    def add_component(self, repeat = True): # Alta de componente
+        prmtrs = {   
             
-            self._menu_add.display(True, False, True, obj = "Nuevo " + o)
-            
-            q = "Nombre/ID " + o                     # Cuestión
-            r = "alfanumérico, mínimo 3 caracteres"  # Regla
-            
-            id = InputUser.get_alphanum(q, r, 3, o, self._components)
-            if id is None: 
-                return
-    
-            self._menu_add.display(True, False, True, obj=str(id))
-            
-            # Nueva instancia de la entidad
-            component = Component()
-            if not component.user_set_values(id):
-                Logger.register_quit("Cancelado por usuario")
-                return
-            
-            # Se procede a añadir la entidad:
-            Logger.succes(o + ": ", id, " dado de alta con éxito.")
-            self._components[id] = component
-    
-            if add_loop and not Logger.there_is_the_question(
-                    "\n¿Introducir otro/a "+o+"?"):
-                    break
-        return id
-    
+            "menu"    : self._menu_add,                      # Menu de alta
+            "question": "Nombre/ID componente:",             # Pregunta (input)
+            "rule"    : "alfanumérico, mínimo 3 caracteres", # regla en input
+            "minim"   : 3,                                   # min. chars
+            "succes"  : "dado de alta con éxito",            # exito alta
+            "repeat"  : repeat,                              # activa repetic.
+            "is_add"  : True                                 # llamada Alta
+        }       
+        return super().add_entity(prmtrs)
 
     # Selecciona entidad = Component mediante input de usuario con controles
-    def select_entity(self):        
+    def select_component(self):        
+        return super().select_entity(
+            "Nombre/ID para acceder a menú Modificación", "o 'L' para listar")
+    
+    def modify_stock(self, id):
+        prmtrs = {"stock": "Nueva cantidad"}
+        super().modify_entity_stock(id, "stock actualizado", prmtrs)
         
-        o = "Componente" # Objeto       
+    def modify_info(self, id):
+        super().modify_entity_info(id, "Cantidad", "modificado con éxito")
         
-        if self._components:
+    def remove_component(self, id):
+        return super().remove_entity(id,
+                                     "Seguro de que desea dar de baja este",
+                                     "eliminado del sistema")
             
-            Logger.cancel_info()
-            
-            while True:               
-                
-                q = "Nombre/ID para acceder a menú Modificación"  # Cuestión
-                r = "o 'L' para listar "+ o +"s"                  # Regla                
-                
-                # comprueba no existencia (activado)
-                c = True 
-                
-                id = InputUser.get_alphanum(q, r, 3, o , self._components, c)
-                
-                if id is None:            # rompe este menú bucle
-                    break 
-                elif id.lower() == 'l':   # haz un listado
-                    self.list_entities()
-                else:                     # devuelve el id
-                    Logger.scroll_screen()                    
-                    return id
-        else:
-            Logger.register_quit("No existen "+ o +"s")
-            return None
-
-
-    # Lista todas entidades = Components del Dic _components
-    def list_entities(self):
-        if not self._components:
-            return False
-        else:
-            for id, component in self._components.items():
-                Logger.draw_list("\t-", component.display(id))
-            return True
-
-
-    def modify_entity_stock(self, id):
-        Logger.cancel_info()
-        if not self._components[id].user_set_values(id, "Nueva cantidad"):
-            Logger.register_quit("Cancelado por usuario")
-        else:
-            Logger.success_pause("Componente: ", self._components[id].display(id),
-                                 " stock actualizado.", True)
-
-    def modify_entity_info(self, id):
-        self._menu_info.display(
-            True, show_options=False, show_info=True, obj=id)
-        if not self._components[id].user_set_values(id):
-            Logger.register_quit("Cancelado por usuario")
-        else:
-            Logger.success_pause("Componente: ", self._components[id].display(id),
-                                 " modificado con éxito.", True)
-
-    def remove_entity(self, id):
-        Logger.succes("Componente a dar de baja: ", id)
-        if Logger.there_is_the_question(
-                "¿Está seguro de que desea dar de baja este componente?"):
-            Logger.success_pause("Componente: ", id,
-                                 " eliminado del sistema.", True)
-            del self._components[id]
-            return True
-        else:
-            Logger.register_quit("Cancelado por usuario")
-            return False
-
-    def update(self):
+    """  Función a llamar desde sistema """
+    def update(self): 
         while True:
-            self._menu_comp.display(zero="Salir")
+            self._menu_comp.display()
             option = self._menu_comp.get_option()
-            # Alta componente
-            if option == 1:
-                self.add_entity()
-            # Acceder a Menu Modificación
-            elif option == 2:
-                id = self.select_entity()
-                if id is None:
-                    continue
+            if option == 1: self.add_component() # Alta componente                    
+            elif option == 2:                    # Sub Menú Modificación           
+                id = self.select_component()
+                if id is None: continue
                 while True:
-                    print(id)
-                    self._menu_modi.display(
-                        True, show_options=True, zero="Salir", obj=id)
-                    option = self._menu_modi.get_option()
-                    # Salir de Menu modificación
-                    if option == 0:
+                    self._menu_modi.display(True, True, obj = id)
+                    option = self._menu_modi.get_option()                    
+                    if option == 0:                # Salir de modificación
                         Logger.scroll_screen()
                         break
-                    # Cambiar stock
-                    elif option == 1:
-                        self.modify_entity_stock(id)
+                    elif option == 1:              # Cambiar stock            
+                        self.modify_stock(id)
                         continue
-                    # Cambiar información
-                    elif option == 2:
-                        self.modify_entity_info(id)
+                    elif option == 2:              # Cambiar información
+                        self.modify_info(id)
                         continue
-                    # Dar de baja
-                    elif option == 3:
-                        if self.remove_entity(id):
-                            break
+                    elif option == 3:              # Dar de baja                    
+                        if self.remove_component(id): break
                         continue
-                    # Opción no encontrada
-                    else:
-                        Logger.bad_option()
-            # Salir de menu Componentes
-            elif option == 0:
-                break
-            # Opción no encontrada
-            else:
-                Logger.bad_option()
+                    else: Logger.bad_option()
+            elif option == 0: break             # Salir de menu Componentes
+            else: Logger.bad_option()           # Opción no encontrada

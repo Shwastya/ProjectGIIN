@@ -46,8 +46,8 @@ class System:
             "Componentes", "Equipos", "Distribuidores", "Despachar", "Días",
             "Info sistema", "Ficheros"])
 
-        self._components = ManagerComponents()  # Componentes
-        self._devices = ManagerDevices()        # Equipos
+        self._components = ManagerComponents()                # Componentes
+        self._devices    = ManagerDevices(self._components)   # Equipos
         #self.distribuidores = []
         #self.despachos = []
         #self.historico = []

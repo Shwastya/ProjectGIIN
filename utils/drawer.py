@@ -52,7 +52,7 @@ class MenuDrawer:
         
         if not first_init: Logger.scroll_screen()
         
-        max_width = max(len(opcion) for opcion in self.opciones)
+        max_width = max(len(opcion) for opcion in self.opciones) 
         width = max(len(self.titulo), max_width) + 4
 
         self.draw_up(width)
