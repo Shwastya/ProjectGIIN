@@ -75,34 +75,29 @@ class EntityManager:
         
         while True:
             
-            # Preguntamos a usuario por ID (menu New Entity)
-            p["menu"].display(True, False, True, obj = "Nuevo " + o)
-            
-            id = self.set_id_from_user_input(self, p)           
+            # Preguntamos a usuario por ID, mostramos -menu New Entity-
+            p["menu"].display(True, False, True, obj = "Nuevo " + o)            
+            id = self.set_id_from_user_input(p)           
             if id is None: 
                 return
             
-            # Tenemos ID, preguntamos datos a usuario (menu 'Entity ID')
+            # Tenemos ID, mostramos -menu 'Entity ID'-
             p["menu"].display(True, False, True, obj = str(id))
             
-            data = self.set_data_from_user_input(p):
-            
-            
-            
-            # Nueva instancia de la entidad que hereda
-            entity = self._entity_type.instance_entity() 
-            
-            if not entity.user_set_values(id, prmtrs or {}):
+            # Preguntamos al usuario (llamadas InputUser). True si va bien.
+            succes = self.set_data_from_user_input(id)
+            if not succes:
                 Logger.register_quit("Cancelado por usuario")
                 return
+                        
+            # Mensaje de exito en la operación
+            Logger.succes(o + ": ", id, " "+ p["succes"] + ".")                  
             
-            # Se procede a añadir la entidad:
-            Logger.succes(o + ": ", id, " "+ stock_succes + ".") # dado de alta con éxito
-            self._entities_dic[id] = entity
-
-            if add_loop and not Logger.there_is_the_question(
+            # Si está activado el modo repetición
+            if p["repeat"] and not Logger.there_is_the_question(
                     "\n¿Introducir otro/a "+o+"?"):
                 break
+            
         return id
 
     
@@ -172,22 +167,42 @@ class EntityManager:
         
         
         
-    """ Métodos de ayuda para EntityManager """  
+
+    """ 
+    Métodos auxiliares para EntityManager, no se invocan desde clases hijas 
+    La responsabilidad para los inputs están todas en el archivo inputs.py
+    clase 'InputUser'
+    """  
     
+    # Función usada en add_entity, se le pregunta al usuario por un ID
     def set_id_from_user_input(self, p):
         entity = self._entity_type._name
         id = InputUser.get_alphanum(p["question"], p["rule"], p["minim"],
-                                    entity, self._entities_dic)
+                                      entity, self._entities_dic)
+        return id
     
-    def set_data_from_user_input(self, p):        
+    # IMPORTANTE: La siguiente función, junto con las funciones de InputUser y
+    # el enumerate EntityType, son clave, si se desea agregar más entidades.
+    
+    # Se cuenta con un ID y una instancia de 'entity'. Se le pregunta al 
+    # usuario por todos los datos, dependiendo de la entidad instanciada y se 
+    # llamará a un método específico de InputUser (separación respons.).
+     
+    def set_data_from_user_input(self, id):        
         
+        entity = self._entity_type.instance_entity() 
+        
+        # Usuario define un componente
         if self._entity_type == EntityType.COMPONENT:
+            entity.display_component_type_list()
+            enum = entity.get_component_type_enum()
+            data = InputUser.get_new_component(id, enum)
             
+        if not data: return None        
+        # Exito. Lo guardamos en el Diccionario de Entidades                
+        self._entities_dic[id] = entity         
+        return True
             
 
-    def set_entity_values(entity, stock_order_or_dic):
-        id = InputUser.get_alphanum(question, rule, l, obj, dic)
-        return entity.user_set_values(id, stock_order_or_dic)
-    
         
         

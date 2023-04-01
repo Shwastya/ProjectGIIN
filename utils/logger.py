@@ -13,7 +13,8 @@ Colores y secuencias de escape ANSI:
     
     https://python-para-impacientes.blogspot.com/2016/09/dar-color-las-salidas-en-la-consola.html
 
-La implementación básica de colores suele estar asociada al nivel de alerta del mensaje:
+La implementación básica de colores suele estar asociada al nivel de alerta 
+del mensaje:
     
     Trace (Blanco): mensajes normales
     Info (verde): mensajes informativos
@@ -22,8 +23,9 @@ La implementación básica de colores suele estar asociada al nivel de alerta de
     Core (magenta): mensajes del núcleo del programa (preferencia personal)
     
 Incluir funciones adicionales podría exceder la responsabilidad del Logger. 
-Sin embargo, dado que se trata de una aplicación que funciona a nivel de consola, 
-se ha tomado la decisión de personalizar un poco los mensajes utilizando este módulo.
+Sin embargo, dado que se trata de una aplicación que funciona a nivel de 
+consola, se ha tomado la decisión de personalizar un poco los mensajes 
+utilizando este módulo.
 """
 
 

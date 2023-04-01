@@ -121,31 +121,31 @@ class InputUser:
     """ Métodos específicos para las clases de tipo Entity: """
     # NOTA:
     # Este método es específico y se utiliza en la clase entidad 'Component' 
-    # en el método 'set_values'.
+    # en el método 'set_values'. Devuelve una tupla con lo valores o None.
     
-    def get_component_input(id, components_dic):
+    def get_new_component(id, ComponentType):   
         
-        id = InputUser.get_alphanum("Identificador del componente", "alfanumérico, mínimo 3 caracteres", 3, "Identificador", components_dic)
-        if id is None: return False
-
-        ComponentType.display()
+        msg1 = "Elija un número de la lista para el tipo de componente = "
+        msg2 = "El Tipo de componente no está en la lista."
+        tipo = InputUser.get_enum(ComponentType, msg1, msg2)
+        if tipo is None: return None
+        Logger.info(tipo.value + ' "' + id + '".')
+    
+        peso = InputUser.get_int("Peso en gramos del componente = ")        
+        if peso is None: return None
+        Logger.info(tipo.value + ' "' + id + '". ' + str(peso) + ' gramos.')
+    
+        precio = InputUser.get_float("Precio en euros del componente = ")
+        if precio is None: return None
+        Logger.info(tipo.value + ' "' + id + '". ' + str(precio) + ' euros.')
+    
+        cantidad = InputUser.get_int("Cantidad de componentes = ")
+        if cantidad is None: return None
+        Logger.info(tipo.value + ' "'+ id +'". '+ str(cantidad) +' de stock.')            
         
-        ti = InputUser.get_enum(ComponentType, 
-                                "Elija un número de la lista para el tipo " +
-                                "de componente = ", 
-                                "El Tipo de componente no está en la lista.")
-        if ti is None: return False
-    
-        pe = InputUser.get_int("Peso en gramos del componente = ")
-        if pe is None: return False
-    
-        pr = InputUser.get_float("Precio en euros del componente = ")
-        if pr is None: return False
-    
-        ca = InputUser.get_int("Cantidad de componentes = ")
-        if ca is None: return False
-    
-        return id, ti.value, pe, pr, ca
+        # Creamos una tupla
+        component_data = tipo.value, peso, precio, cantidad
+        return component_data
     
     
     

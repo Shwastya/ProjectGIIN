@@ -20,14 +20,14 @@ from enum import Enum
 class ComponentType(Enum):
 
     FUENTE = "Fuente"
-    PB = "PB"
-    TG = "TG"
-    CPU = "CPU"
-    RAM = "RAM"
-    DISCO = "Disco"
+    PB     = "PB"
+    TG     = "TG"
+    CPU    = "CPU"
+    RAM    = "RAM"
+    DISCO  = "Disco"
 
     # metodo de clase, es necesario poner @classmethod y usar cls
-    # para poder llamar de manera estatica a la función (sin instanciar)
+    # para poder llamar de manera estatica a la función sin instanciar
     @classmethod
     def display(cls):
         # Listado de Tipos de componentes:
@@ -53,9 +53,27 @@ class Component:
         self._tipo = ComponentType(tipo)
         self._peso = peso
         self._precio = precio
-        if cantidad != 0: self._cantidad = cantidad
-
-    def get_type(self, t): return self._tipo
+        if cantidad != 0: self._cantidad = cantidad   
+    
+    def set_data_from_tuple(self, data):
+        """
+        Este metodo tiene que ser comun para todas las entidades
+        ¿Se podrá hacer alguna interfaz virtual override como en C++?
+        """
+        self.set_values(data[0], data[1], data[2], data[3])
+        
+    def get_component_type_enum(self):
+        return ComponentType
+    
+    def display_component_type_list(self):
+        """
+        Muestra la lista de componentes del class enum.
+        """
+        ComponentType.display()
+        
+        
+        
+    #def get_type(self, t): return self._tipo
 
     def user_set_values(self, id, prmtrs): # stock = "Cantidad"
         """
@@ -104,12 +122,19 @@ class Component:
         #return tipo.value, 
         return True
 
-    # Para mostrar en consola
-    def display(self, id):
+    
+    def display(self, id): 
+        """ 
+        Para mostrar de manera personalizada en consola 
+        """
         return id + ": " + self._tipo.value + ", " + str(self._peso) + ", " + str(self._precio) + ", " + str(self._cantidad)
 
     # Para guardar en archivo
     def serialize_to_string(self, id):
+        """
+        Serialización personalizada a string para guardar en archivo. 
+        La var.'sep' es una constante definida en kconfig.py, por defecto ';'.
+        """
         return id + sep + str(self._tipo.value) + sep + str(self._peso) + sep + str(self._precio) + sep + str(self._cantidad)
     
     

@@ -70,22 +70,21 @@ class ManagerComponents(EntityManager):
         return self._entities_dic    
     
     def add_component(self, repeat = True): # Alta de componente
-        prmtrs = {   
-            
-            "menu"    : self._menu_add,                      # Menu de alta
-            "question": "Nombre/ID componente:",             # Pregunta (input)
-            "rule"    : "alfanumérico, mínimo 3 caracteres", # regla en input
-            "minim"   : 3,                                   # min. chars
-            "succes"  : "dado de alta con éxito",            # exito alta
-            "repeat"  : repeat,                              # activa repetic.
-            "is_add"  : True                                 # llamada Alta
-        }       
-        return super().add_entity(prmtrs)
+    
+        p = {"menu"    : self._menu_add,                     # Menu de alta
+             "question": "Nombre/ID componente:",            # Pregunta input
+             "rule"    : "alfanumérico, mínimo 3 caracteres",# regla en input
+             "minim"   : 3,                                  # min. chars
+             "succes"  : "dado de alta con éxito",           # exito alta
+             "repeat"  : repeat,                             # activa repetic
+             "is_add"  : True }                              # llamada Alta    
+         
+        return super().add_entity(p)
 
     # Selecciona entidad = Component mediante input de usuario con controles
-    def select_component(self):        
-        return super().select_entity(
-            "Nombre/ID para acceder a menú Modificación", "o 'L' para listar")
+    def select_component(self):  
+        p = {"Nombre/ID para acceder a menú Modificación","o 'L' para listar"}
+        return super().select_entity(p)
     
     def modify_stock(self, id):
         prmtrs = {"stock": "Nueva cantidad"}
