@@ -59,7 +59,8 @@ class ManagerDevices(EntityManager):
              "manager" : self._manager_components,
              "fail"    : "Agregue componentes"  }           
         
-        return super().add_entity(p)
+        #return super().add_entity(p)
+        return super().manage_entity(p)  
     
     def select_device(self, pre_list):
         p = {"question": "Nombre/ID del equipo a modificar",
@@ -76,7 +77,8 @@ class ManagerDevices(EntityManager):
              "id"      : id, 
              "success" : "Configuración actualizada",
              "fail"    : "Agregue componentes"  }
-        super().update_entity_based_on_mode(p) 
+        #super().update_entity_based_on_mode(p) 
+        return super().manage_entity(p)  
     
     def remove_device(self, id):
         p = {"mode"     : "remove",
@@ -86,7 +88,8 @@ class ManagerDevices(EntityManager):
              "action"   : "Equipo a desemsamblar",
              "question" : "Seguro de que desea dar de baja este Equipo",
              "success"  : "desemsamblado. Componentes devueltos a stock"}
-        return super().update_entity_based_on_mode(p)
+        #return super().update_entity_based_on_mode(p)
+        return super().manage_entity(p)  
     
     
         # device = self._entities_dic[device_id]

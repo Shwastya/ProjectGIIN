@@ -116,7 +116,8 @@ class ManagerComponents(EntityManager):
              "repeat"   : repeat,                              # activa repetic
              "manager"  : None, 
              "fail"     : "Alta de componente cancelada" }         
-        return super().add_entity(p)   
+        #return super().add_entity(p)   
+        return super().manage_entity(p)   
     
 
     def select_component(self, pre_list):  
@@ -128,14 +129,16 @@ class ManagerComponents(EntityManager):
         p = {"mode"     : "stock",
              "id"       : id,  
              "success"  : "Stock modificado con exito"}
-        super().update_entity_based_on_mode(p)   
+        #super().update_entity_based_on_mode(p)   
+        super().manage_entity(p)   
         
     def modify_info(self, id):
         p = {"mode"     : "modify", 
              "id"       : id, 
              "menu"     : self._menu_info,             
              "success"  : "modificado con exito"}
-        super().update_entity_based_on_mode(p)
+        #super().update_entity_based_on_mode(p)
+        super().manage_entity(p)   
         
     def remove_component(self, id):        
         p = {"mode"     : "remove",
@@ -143,13 +146,14 @@ class ManagerComponents(EntityManager):
              "action"   : "Componente a dar de baja",
              "question" : "Seguro de que desea dar de baja este componente",
              "success"  : "eliminado del sistema"}
-        return super().update_entity_based_on_mode(p)
+        #return super().update_entity_based_on_mode(p)
+        return super().manage_entity(p)   
             
     def update_stock_by_component_list(self, component_list, increment): 
         """
         Por ejemplo, se ha guardado en una lista temporal de componentes
         al dar de baja un equipo, podemos usar esta función para actualizar
-        el stock usando la función de la clase Component 'update_stock'
+        el stock usando la función de la clase Component 'update_quantity'
         """
         for comp_id in component_list:
             updated = self._entities_dic[comp_id].update_quantity(increment)

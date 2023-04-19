@@ -85,11 +85,11 @@ class Logger:
         print("\033[1;32m" + msg1 + "\033[0;m" + "\033[1;36m" +
               obj + "\033[0;m" + "\033[1;32m" + msg2 + "\033[0;m")
         
-    def success_pause(msg1, obj, msg2, newline=True):
+    def success_pause(msg1, obj, msg2, newline=True, no_pause = False):
         Logger.success(msg1, obj, msg2)        
         n = ''
         if newline: n = '\n'
-        input(n + "Presione [ENTER] para continuar...")
+        if not no_pause: input(n + "Presione [ENTER] para continuar...")
         
     def cancel_input_by_user(msg):
         input("\033[1;33m" + msg +
