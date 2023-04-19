@@ -4,17 +4,12 @@ Proyecto: HardVIU
 Created on Tue Mar 24 19:28:54 2023
 @author: José Luis Rosa Maiques
 
-
-Se separa la estructura y funcionalidad de Component separada en este módulo.
-La función to_string se usará para facilitar el guardado de ficheros con el separador ';'.
-El separador ';' está definidad como constante en el archivo de configuración kconfig.py. 
+Se separa la estructura y funcionalidad de Component en este módulo.
+La función to_string se usará para facilitar el guardado de ficheros con el 
+separador ';' definido como constante en el archivo de config. kconfig.py. 
 """
 
-# Entidad Componente ----------------------------------------------------------
-
-from utils.logger import Logger
-from utils.inputs import InputUser
-from core.kconfig import K_SEPARATOR as sep
+from core.kconfig import K_SEPARATOR
 
 from enum import Enum
 class ComponentType(Enum):
@@ -31,111 +26,76 @@ class ComponentType(Enum):
     @classmethod
     def display(cls):
         # Listado de Tipos de componentes:
+        print("Tipos de componente definidos en el sistema:")
         index = 1
-        for ct in cls:
-            print("\t" + str(index) + ". " + ct.value)
+        for ct in cls:           
+            print("\033[1;36m\t" + str(index) + ". " + ct.value + "\033[0;m")
             index += 1
-
 
 class Component:
     def __init__(self):
         """
-        Sin argumentos, se quiere poder instanciar la clase,
-        pero sin necesidad de dar valores al crear el objeto.
-        Atributos privados en Python... no exactamente, son convenciones.                
+        Algunos método tienen que ser comunes para todas las entidades.
+        Nota: 
+            investigar si se puede hacer interfaz virtual override como en C++               
         """    
         self._tipo = None
         self._peso = None
         self._precio = None
-        self._cantidad = None
+        self._cantidad = None      
 
-    def set_values(self, tipo, peso, precio, cantidad = 0):     
+    def set_values(self, tipo, peso, precio, cantidad = 0):  
+        
         self._tipo = ComponentType(tipo)
         self._peso = peso
         self._precio = precio
-        if cantidad != 0: self._cantidad = cantidad   
-    
-    def set_data_from_tuple(self, data):
-        """
-        Este metodo tiene que ser comun para todas las entidades
-        ¿Se podrá hacer alguna interfaz virtual override como en C++?
-        """
-        self.set_values(data[0], data[1], data[2], data[3])
+        if cantidad != 0: self._cantidad = cantidad  
         
-    def get_component_type_enum(self):
-        return ComponentType
+    def set_quantity(self, n): 
+        """
+        Si queremos cambiar el stock directamente
+        """
+        self._cantidad = n
+    def update_quantity(self, n):
+        """
+        Se añaden o agregan unidades al stock existente por acciones del 
+        usuario. Se puede agregar o substraer dependiendo de si es -n o +n
+        """
+        self._cantidad += n
+        if self._cantidad < 0: return False
+        return True    
+    
+    def set_from_user_data(self, data):
+        self.set_values(data[0], data[1], data[2], data[3])   
+        
+    def get_type(self): 
+        return self._tipo.value 
     
     def display_component_type_list(self):
         """
         Muestra la lista de componentes del class enum.
         """
         ComponentType.display()
-        
-        
-        
-    #def get_type(self, t): return self._tipo
-
-    def user_set_values(self, id, prmtrs): # stock = "Cantidad"
-        """
-        # La función devuelve los valores o False en caso 
-        de cancelación o fallo.
-        """
-       # id        = pr
-        stock     = prmtrs.get("stock", None)
-        stock_msg = "Nueva cantidad"
-        
-        # Si se trata de nueva cantidad, la función se llama para modificar
-        # el stock.
-        
-        # Si no se trata de "Nueva cantidad", la función se llama para
-        # registrar un nuevo componente y mostramos primero el listado
-            
-        if stock == "Cantidad":
-            
-            stock_msg = stock            
-            
-            ComponentType.display()
-
-            tipo = InputUser.get_enum(ComponentType,
-                "Elija un número de la lista para el tipo de componente = ",
-                "El Tipo de componente no está en la lista.")
-            if tipo is None: return False
-            Logger.info(tipo.value + ' "' + id + '".')
-
-            peso = InputUser.get_int("Peso en gramos del componente = ")
-            if peso is None: return False
-            Logger.info(tipo.value +' "'+ id +'". '+ str(peso) +' gramos.')
-
-            precio = InputUser.get_float("Precio en euros del componente = ")
-            if precio is None: return False
-            Logger.info(tipo.value +' "'+ id +'". '+ str(precio) +' euros.')
-
-            self.set_values(tipo.value, peso, precio)
-
-        ca = InputUser.get_int(stock_msg + " de componentes = ")
-        
-        if ca is None: return False
-        
-        Logger.info(self._tipo.value +' "'+ id +'". '+ str(ca) +' de stock.')
-        self._cantidad = ca
-
-        #return tipo.value, 
-        return True
-
     
-    def display(self, id): 
+    def display(self, id, show_type = True): 
         """ 
         Para mostrar de manera personalizada en consola 
-        """
-        return id + ": " + self._tipo.value + ", " + str(self._peso) + ", " + str(self._precio) + ", " + str(self._cantidad)
+        """       
+        tipo = self._tipo.value
+        if not show_type: tipo = ""
+        
+        return "\t" + '"' + id + '": ' + tipo + ", " + str(self._peso) + "g, " + str(self._precio) + "€, " + str(self._cantidad) + " stock."
 
     # Para guardar en archivo
     def serialize_to_string(self, id):
         """
         Serialización personalizada a string para guardar en archivo. 
-        La var.'sep' es una constante definida en kconfig.py, por defecto ';'.
+        La var.'s' de una constante definida en kconfig.py. Por defecto ';'.
         """
-        return id + sep + str(self._tipo.value) + sep + str(self._peso) + sep + str(self._precio) + sep + str(self._cantidad)
+        s = K_SEPARATOR
+        to_string = id + s + str(self._tipo.value) + s + str(self._peso) 
+        + s + str(self._precio) + s + str(self._cantidad)
+        return to_string
     
     
     

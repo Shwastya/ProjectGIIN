@@ -16,11 +16,10 @@ En la medida de lo posible, se intenta seguir las reglas de estilo PEP 8:
 
 from engine import Engine
 
-
 def main():
     """
-    'EntryPoint' del programa: Crea y ejecuta un objeto Engine que a su vez,
-    se encarga de ejecutar sistemas.
+    'EntryPoint' del programa: Crea y ejecuta un objeto Engine encargado de 
+    ejecutar la clase System hardviu.
     """
     hardviu = Engine()
     hardviu.run()

@@ -5,10 +5,7 @@ Created on Tue Mar 28 16:42:39 2023
 @author: Jose
 """
 
-
-from utils.inputs import InputUser
-
-from core.entity.component import ComponentType
+from core.kconfig import K_SEPARATOR
 
 class Device:
     def __init__(self):
@@ -19,15 +16,23 @@ class Device:
         componentes según su tipo, se ha decidido redefinir la estructura
         como un diccionario, donde la clave será el tipo de componente.
         """
-        self._components = {}
+        self._components = {} # clave = tipo de componente
 
-    def set_id(self, id):
-        self._id = id
-
-    def add_component(self, component):
-        component_type = component.get_type()
-        self._components[component_type] = component
-
+    def add_component(self, component_type, compact_component):
+        """
+        Agrega un componente compacto al dispositivo. El componente compacto es
+        un diccionario que contiene la información esencial del componente como 
+        su ID, peso y precio, no se incluye el tipo de componente ni el stock,
+        ya que el tipo de componente se utiliza como clave en el diccionario 
+        de componentes del dispositivo y el stock no es relevante para 
+        el ensamblaje de un equipo.
+        """
+        self._components[component_type] = compact_component
+        
+    def set_from_user_data(self, data): # data -> Dic. recibido del usuario 
+        for component_type, compact_component in data.items():
+            self.add_component(component_type, compact_component)
+            
     def get_component_by_type(self, component_type):
         return self._components.get(component_type)
 
@@ -36,43 +41,53 @@ class Device:
             del self._components[component_type]
 
     def get_componente(self, tipo):
-        return self._componentes.get(tipo, None)
+        return self._components.get(tipo, None)
     
-    def user_set_values(self, id, stock_dic):
+    def get_components_list(self):
         """
-        Permite al usuario ingresar información para configurar el dispositivo.
-
-        Args:
-            stock (dict): 
-                diccionario de componentes disponibles donde las claves son 
-                tipos de componentes y los valores son listas de componentes 
-                disponibles de ese tipo.
+        Devuelve una lista de componentes presentes en el dispositivo.
         """
+        components_list = []
+        for component_type, component_info in self._components.items():
+            components_list.append(component_info["id"])
 
-        for component_type, components in stock_dic.items():
-            print(f"\nComponentes disponibles de tipo {component_type}:")
-            
-            # Mostrar los componentes disponibles de este tipo
-            for component in components:
-                print(f"  - {component.serialize_to_string()}")
-            
-            # Solicitar al usuario que seleccione un componente de este tipo
-            selected_component_id = InputUser.get_string(f"Seleccione un componente de tipo {component_type} (ID): ")
-            
-            # Agregar el componente seleccionado al dispositivo
-            selected_component = next((c for c in components if c.get_id() == selected_component_id), None)
-            if selected_component is not None:
-                self.add_component(selected_component)
-            else:
-                print(f"No se encontró ningún componente con ID {selected_component_id}.")
+        return components_list
 
-    def display(self): 
-        return self.to_string()
+    def display(self, id):
+        device_info = "Equipo/ID = '" + id + "'\n"
+        comps_info = ""
+        for comp_type, comp in self._components.items():
+            comps_info += ("\t- " + comp_type.value + ": "
+                           + '"' + comp['id'] + '", '
+                           + str(comp['peso']) + "g, "
+                           + str(comp['precio']) + "€"
+                           + "\n")
+        return device_info + comps_info
+
+    def serialize_to_string(self, id):
+        s = K_SEPARATOR
+        device_info = "#" + id + "\n"
+        comps_info = ""
+        for comp_type, comp in self._components.items():
+            comps_info += (comp['id'] + s + comp_type.value
+                           + s + str(comp['peso']) + s
+                           + str(comp['precio']) + "\n")
+        return device_info + comps_info
+
+    """
     
-    def to_string(self):
-        device_info = 'Device ID: ' + self._id + '\n'
-        components_info = ''
-        for component_type, component in self._components.items():
-            components_info += component_type + ': ' 
-            + component.serialize_to_string() + '\n'
-        return device_info + components_info
+    display mostraria de la siguiente manera
+    
+    Equipo: id
+        - "Fuente": "cp1", peso, etc..
+        - ... (otros componentes: PB, TB, TG, CPU, RAM, Disco)
+        
+        
+    serialize_to_string, para guardar en archivo y recuperar despues
+    mostraria de la siguiente manera
+    
+    #id
+        componente serializado 1
+        componente serializado 2
+        ... (otros componentes serializados)
+    """

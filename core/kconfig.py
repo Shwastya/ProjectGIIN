@@ -19,7 +19,7 @@ K_S = K_SEPARATOR  # nombre corto
 Constante K_USER_CANCEL, mensaje que el usuario ingresará si desea cancelar 
 un registro en curso. Esta constante se aplicará en todo el programa.
 """
-K_USER_CANCEL = "X"
+K_USER_CANCEL = "x"
 
 """
 K_ENABLE_SCROLL, para habilitar o deshabilitar el desplazamiento en la 
@@ -34,22 +34,35 @@ adicionales, como el '-' en: i9-13900KS".
 Se han incluido algunos caracteres adicionales para probar.
 Modifique esta variable para controlar este tipo de entradas.
 """
-K_ALLOWED_CHARS = "-*+.#@€%&/"
+#K_ALLOWED_CHARS = "- *+.#@€%&/\"_"
 
 
 """
-Por si se quisiera el explorador de variables de Spyder o el IDLE en uso limpio
+No hace falta borrar estas variables, pero por si acaso, costumbres de C++
 """
 def delete_constants():
-    if K_SEPARATOR:
-        del K_SEPARATOR
-    if K_SE:
-        del K_S
-    if K_USER_CANCEL:
-        del K_USER_CANCEL
-    if K_ENABLE_SCROLL:
-        del K_ENABLE_SCROLL
-    if K_SCROLL:
-        del K_SCROLL
-    if K_ALLOWED_CHARS:
-        del K_ALLOWED_CHARS
+    try:
+        del globals()['K_SEPARATOR']
+    except KeyError:
+        pass
+    try:
+        del globals()['K_SE']
+    except KeyError:
+        pass
+    try:
+        del globals()['K_USER_CANCEL']
+    except KeyError:
+        pass
+    try:
+        del globals()['K_ENABLE_SCROLL']
+    except KeyError:
+        pass
+    try:
+        del globals()['K_SCROLL']
+    except KeyError:
+        pass
+    #try:
+    #    del globals()['K_ALLOWED_CHARS']
+    #except KeyError:
+    #    pass
+        

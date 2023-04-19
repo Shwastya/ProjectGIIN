@@ -3,24 +3,24 @@
 Proyecto: HardVIU
 Created on Tue Mar 21 09:53:06 2023
 @author: José Luis Rosa Maiques
-
-Menu 
-
-
-para clear_screen() se consulta:
-    // NO FUNCIONA BIEN EN LA CONSOLA SPYDER
-    https://www.youtube.com/watch?v=SC-wyZpE93M&ab_channel=JohnOrtizOrdo%C3%B1ez
-    
 """
 
 from core.kconfig import K_USER_CANCEL
 from utils.logger import Logger
 
 class MenuDrawer:
-    def __init__(self, titulo, opciones = [""]):
+    def __init__(self, titulo, opciones = [""], max_options = None):
         self.opciones = opciones
         self.titulo   = titulo
-    
+        
+        # Queremos controlar el número de opciones a mostrar, evitando que 
+        # aparezca la opción de modificación si no se ha realizado ninguna 
+        # alta previamente, por ejemplo        
+        self.max_options = max_options
+        
+    def set_max_options(self, num_options):
+        self.max_options = num_options
+        
     def draw_up(self, width):        
         print("┌" + "─" * width + "┐")
     def draw_empty(self, width):
@@ -31,29 +31,34 @@ class MenuDrawer:
         padding = (width - title_length) // 2
         
         if color == 1:
-            print("│\033[1;36m" + " " * padding + self.titulo + " " * (width - title_length - padding) + "\033[0;m│")            
+            print("│\033[1;36m" + " " * padding + self.titulo + " " 
+                  * (width - title_length - padding) + "\033[0;m│")            
         else:
             title_length = len(str(obj))
             padding = (width -  title_length) // 2
             if color == 2:                
-                print("│\033[1;32m" + " " * padding + obj + " " * (width -  title_length - padding) + "\033[0;m│")
+                print("│\033[1;32m" + " " * padding + obj + " " 
+                      * (width -  title_length - padding) + "\033[0;m│")
             else:
-                print("│\033[0;32m" + " " * padding + obj + " " * (width -  title_length - padding) + "\033[0;m│")           
+                print("│\033[0;32m" + " " * padding + obj + " " 
+                      * (width -  title_length - padding) + "\033[0;m│")           
 
         if color < 3: print("│" + " " * width + "│")        
 
     def draw_option(self, option_number, option_text, width):
-        print("│ " + str(option_number) + ") " + option_text + " " * (width - len(option_text) - 4) + "│")
+        print("│ " + str(option_number) + ") " + option_text + " " 
+              * (width - len(option_text) - 4) + "│")
 
     def draw_down(self, width):
         print("└" + "─" * width + "┘")
         
-    def display(self, extra=False, show_options=True, show_info = "", first_init = False, obj="unknow", zero="Salir"):
+    def display(self, extra=False, show_options=True, show_info = "", 
+                first_init = False, obj="unknow", zero="Salir"):
         
         if not first_init: Logger.scroll_screen()
         
         max_width = max(len(opcion) for opcion in self.opciones) 
-        width = max(len(self.titulo), max_width) + 4
+        width     = max(len(self.titulo), max_width) + 4
 
         self.draw_up(width)
         self.draw_empty(width)
@@ -62,12 +67,22 @@ class MenuDrawer:
         if extra: self.draw_title(width, obj, 2)
 
         if show_options:
+            
             index = 1
-            for opcion in self.opciones:
+            
+            if self.max_options is not None:
+                options_to_show = self.opciones[:self.max_options]
+            else:
+                options_to_show = self.opciones
+                
+            for opcion in options_to_show:
                 self.draw_option(index, opcion, width)
                 index += 1
+                
             self.draw_option(0, zero, width)
-        if show_info: self.draw_title(width, "Ingresa '"+ K_USER_CANCEL +"' para cancelar", 3)
+            
+        cancel = "Ingrese '"+K_USER_CANCEL+"' si desea cancelar"
+        if show_info: self.draw_title(width, cancel, 3)
 
         self.draw_empty(width)
         self.draw_down(width)

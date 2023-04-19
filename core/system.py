@@ -29,13 +29,10 @@ from core.entitymanager.manager_devices import ManagerDevices
 
 class System:
     """    
-    La clase Sistema representa el sistema completo de componentes, equipos, distribuidores y despachos.
-
-    Atributos:
-        componentes (list): lista de objetos Componente.
-        equipos (list): lista de objetos Equipo.
-        distribuidores (list): lista de objetos Distribuidor.
-        despachos (list): lista de objetos Despacho.
+    La clase Sistema representa el sistema completo de componentes:
+        equipos
+        distribuidores
+        despachos.
     """
 
     def __init__(self):
@@ -45,6 +42,7 @@ class System:
         self._menu = MenuDrawer("- HardVIU Menu -", [
             "Componentes", "Equipos", "Distribuidores", "Despachar", "Días",
             "Info sistema", "Ficheros"])
+        
 
         self._components = ManagerComponents()                # Componentes
         self._devices    = ManagerDevices(self._components)   # Equipos
@@ -56,17 +54,12 @@ class System:
 
         while True:
 
-            self._menu.display(first_init = self._first_init)
-            
-            if self._first_init:
-                self._first_init = False
-
+            self._menu.display(first_init = self._first_init)            
+            if self._first_init: self._first_init = False
             option = self._menu.get_option()
 
-            if option == 1:
-                self._components.update()
-            elif option == 2:
-                self._devices.update()
+            if   option == 1: self._components.update()
+            elif option == 2: self._devices.update()
             elif option == 3:
                 #import distribuidores
                 # distribuidores.run()

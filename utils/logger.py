@@ -29,7 +29,7 @@ utilizando este módulo.
 """
 
 
-from core.kconfig import K_USER_CANCEL, K_SCROLL#, delete_constants
+from core.kconfig import K_USER_CANCEL, K_SCROLL, delete_constants
 
 
 class Logger:
@@ -39,12 +39,15 @@ class Logger:
 
     def info(msg):
         print("\033[32m" + msg + "\033[0;m")
-
+    
+    def info_bold(msg):
+        print("\033[1;32m" + msg + "\033[0;m")
+        
     def warn(msg):
         print("\033[1;33m" + msg + "\033[0;m")
 
     def error(msg):
-        print("\033[1;31m" + "Error:" + msg + "\033[0;m")
+        print("\033[1;31m" + "Error: " + msg + "\033[0;m")
 
     def core(msg):
         """ Color: Magenta (35) """
@@ -61,7 +64,7 @@ class Logger:
         Logger.core("Starting System")
 
     def shutdown():
-        # delete_constants()
+        delete_constants()
         Logger.core("Shutting-down System")
         
     def scroll_screen(l=100):
@@ -73,14 +76,17 @@ class Logger:
         Logger.scroll_screen()
 
     def cancel_info(n1='', n2=''):
-        Logger.info(n1 + "Ingresa '" + K_USER_CANCEL + "' para cancelar." + n2)
+        
+        Logger.info(n1 + 
+                    "Puede cancelar el actual registro ingresando '" 
+                    + K_USER_CANCEL + "'" + n2)
 
-    def succes(msg1, obj, msg2=""):
+    def success(msg1, obj = "", msg2 = ""):
         print("\033[1;32m" + msg1 + "\033[0;m" + "\033[1;36m" +
               obj + "\033[0;m" + "\033[1;32m" + msg2 + "\033[0;m")
         
     def success_pause(msg1, obj, msg2, newline=True):
-        Logger.succes(msg1, obj, msg2)        
+        Logger.success(msg1, obj, msg2)        
         n = ''
         if newline: n = '\n'
         input(n + "Presione [ENTER] para continuar...")
@@ -104,6 +110,13 @@ class Logger:
         input("Pulsa [ENTER] para continuar...")
 
     
-
-    def draw_list(msg, obj):
-        print("\033[1;32m" + msg + " " + obj + "\033[0;m")
+    def info_m(msg1, c_type = "", obj = "", msg2 = ""):
+        """ Color: Magenta (35) """
+        print("\033[0;35m" + msg1 + "\033[0;m" + "\033[1;35m " + 
+              c_type + "\033[0;m" + "\033[1;32m " 
+              + obj + " \033[0;m" + "\033[0;35m" 
+              + msg2 + "\033[0;m")
+        
+        
+    #def draw_list(msg, obj):
+    #    print("\033[1;32m" + msg + " " + obj + "\033[0;m")
