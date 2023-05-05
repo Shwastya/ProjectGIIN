@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """
 Proyecto: HardVIU
@@ -6,83 +5,66 @@ Created on Tue Mar 21 19:54:47 2023
 @author: José Luis Rosa Maiques
 
 La clase Sistema tiene como objetivo crear un sistema de gestión de:
-    componentes, equipos, distribuidores y despachos.    
+    componentes, equipos, distribuidores, despachos, Etc.    
 
-Esta clase tiene el sistema completo, pero la implementación se encuentra en los atributos.
-Cada atributo puede modificarse en archivos separados, y luego en Sistema se llamarían a los métodos.
-
-También tenemos la clase Menu, que se quiere utilizar para todas las clases con su propio menú.
-Esta clase sistema se ejecutará en el Engine, se da la opción a que la aplicación pueda ejecutar más de un sistema
-
-Se busca simular técnicas de puntero a implementación similares a las utilizadas en C++,
-no se puede hacer exactamente en Python, pero se busca experimentar técnicas de programación
-similares a las que suelo usar con mis proyectos de C++ con motores gráficos.
-Un poco buscando la diversión, conforme se me vaya ocurriendo.
+Esta clase tiene el sistema completo, pero la implementación se encuentra en 
+los modelos, vistas y controladores. en Sistema se llamarán principalmente a 
+los métodos de la vista y algunas herramientas especificas como 'serializer'
+clase para gestionar archivos.
 """
 
-from utils.drawer import MenuDrawer
-from utils.logger import Logger
+from core.views.drawer import MenuDrawer
+from core.views.logger import Logger
 
-from core.entitymanager.manager_components import ManagerComponents
-from core.entitymanager.manager_devices import ManagerDevices
 
+
+from core.views.menu_components   import MenuComponents
+from core.views.menu_devices      import MenuDevices
+from core.views.menu_distributors import MenuDistributors
+from core.views.menu_dispatches   import MenuDispatches
 
 class System:
     """    
-    La clase Sistema representa el sistema completo de componentes:
+    La clase System representa el sistema completo de componentes:
         equipos
         distribuidores
         despachos.
     """
 
-    def __init__(self):
+    def __init__(self):             
 
-        self._first_init = True
-
-        self._menu = MenuDrawer("- HardVIU Menu -", [
+        self._components     = MenuComponents()                
+        self._equipos        = MenuDevices(self._components)   
+        self._distribuidores = MenuDistributors(self._equipos) 
+        self._despachos      = MenuDispatches(self._distribuidores)
+        # self.dias      = ...
+        # self.historico = ...
+        
+        self._main_menu = MenuDrawer("- HardVIU Menu -", [
             "Componentes", "Equipos", "Distribuidores", "Despachar", "Días",
             "Info sistema", "Ficheros"])
         
+        self._main_menu.set_first_init(True)    
 
-        self._components = ManagerComponents()                # Componentes
-        self._devices    = ManagerDevices(self._components)   # Equipos
-        #self.distribuidores = []
-        #self.despachos = []
-        #self.historico = []
-
-    def update(self):
-
+    def run(self):
         while True:
-
-            self._menu.display(first_init = self._first_init)            
-            if self._first_init: self._first_init = False
-            option = self._menu.get_option()
+            self._main_menu.display()  
+            
+            option = self._main_menu.get_option()
 
             if   option == 1: self._components.update()
-            elif option == 2: self._devices.update()
-            elif option == 3:
-                #import distribuidores
-                # distribuidores.run()
-                print("Option 3")
-            elif option == 4:
-                #import despachar
-                # despachar.run()
-                print("Option 4")
+            elif option == 2: self._equipos.update()                
+            elif option == 3: self._distribuidores.update()                
+            elif option == 4: self._despachos.update()
             elif option == 5:
-                #import dias
-                # dias.run()
-                print("Option 5")
+                print("Option 5 (En implemtación)")
+                Logger.pause();
             elif option == 6:
-                #import info_sistema
-                # info_sistema.run()
-                print("Option 6")
+                print("Option 6 (En implemtación)")
+                Logger.pause();
             elif option == 7:
-                #import ficheros
-                # ficheros.run()
-                print("Option 7")
-            elif option == 0:
-                break
-            else:
-                Logger.bad_option()
-                Logger.scroll_screen()
+                print("Option 7 (En implemtación)")
+                Logger.pause();
+            elif option == 0: break
+            else: Logger.UI.bad_option()  
                 

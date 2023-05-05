@@ -1,22 +1,17 @@
 # -*- coding: utf-8 -*-
 """
+Proyecto: HardVIU
 Created on Tue Mar 28 16:42:39 2023
-
-@author: Jose
+@author: José Luis Rosa Maiques
 """
 
-from core.kconfig import K_SEPARATOR
+from config.settings   import K_SEPARATOR
+from core.views.drawer import Displayer
 
 class Device:
     def __init__(self):
         
-        """
-        Se planteaba inicialmente una lista de componentes, pero
-        considerando que contamos con una función que selecciona los
-        componentes según su tipo, se ha decidido redefinir la estructura
-        como un diccionario, donde la clave será el tipo de componente.
-        """
-        self._components = {} # clave = tipo de componente
+        self._components    = {}   # clave = tipo de componente
 
     def add_component(self, component_type, compact_component):
         """
@@ -46,6 +41,8 @@ class Device:
     def get_components_list(self):
         """
         Devuelve una lista de componentes presentes en el dispositivo.
+        Esta función, se ha hecho debido a que, cuando se elimina un Equipo, 
+        se desea restaurar el stock correspondiente.
         """
         components_list = []
         for component_type, component_info in self._components.items():
@@ -53,16 +50,15 @@ class Device:
 
         return components_list
 
-    def display(self, id):
-        device_info = "Equipo/ID = '" + id + "'\n"
-        comps_info = ""
-        for comp_type, comp in self._components.items():
-            comps_info += ("\t- " + comp_type.value + ": "
-                           + '"' + comp['id'] + '", '
-                           + str(comp['peso']) + "g, "
-                           + str(comp['precio']) + "€"
-                           + "\n")
-        return device_info + comps_info
+    def display(self, id, col = False, tab = True, p_l = True, max_id_len = 0):
+        """
+        TODO: Display debería ser parte de la 'view'. Hay que replantear mejor 
+        las responsabilidades:
+            - ¿En Logger o en Drawer?
+            - ¿LLamar desde las clases menu de la 'view'?
+        """
+        Displayer.device(self, id, col, tab, p_l, max_id_len)
+        
 
     def serialize_to_string(self, id):
         s = K_SEPARATOR
@@ -74,20 +70,3 @@ class Device:
                            + str(comp['precio']) + "\n")
         return device_info + comps_info
 
-    """
-    
-    display mostraria de la siguiente manera
-    
-    Equipo: id
-        - "Fuente": "cp1", peso, etc..
-        - ... (otros componentes: PB, TB, TG, CPU, RAM, Disco)
-        
-        
-    serialize_to_string, para guardar en archivo y recuperar despues
-    mostraria de la siguiente manera
-    
-    #id
-        componente serializado 1
-        componente serializado 2
-        ... (otros componentes serializados)
-    """
