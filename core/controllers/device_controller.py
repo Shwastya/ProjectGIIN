@@ -23,6 +23,8 @@ class DeviceController:
         
     def set_add_or_modify_mode(self, mode): self._mode = mode
     
+    
+    
     def get_model_data_from_user(self, id):
         """        
         IMPORTANTE:
@@ -130,23 +132,20 @@ class DeviceController:
             Logger.low_info(e +  id + '": (' + c_t + ') ' + c, newline = True)            
 
     
+        
+        Logger.Core.info("Actualizando stock de componentes...")
+        
         """ Aquí usamos el controlador de componentes """ # mode (modify) 
         # Agregamos los componentes desmontados al stock solo después de 
         # seleccionar todos los componentes nuevos.        
-        if self._mode == "modify":
-            
-            Logger.Core.info("Devolviendo componentes desmontados al stock...")
-            
+        if self._mode == "modify":           
             self._component_controller.update_stock_by_component_list(
                 disassembled_components, 1, old_component_data)            
         
         """ Aquí usamos el controlador de componentes """ # mode (add)
         # Actualizamos el stock una vez que se hayan seleccionado todos 
         # los componentes correctamente
-        for component_type, compact_component in device_components.items():
-            
-            Logger.Core.info("Actualizando stock de componentes...")
-            
+        for component_type, compact_component in device_components.items():           
             self._component_controller.update_stock_by_component_list(
                 [compact_component["id"]], -1)
         
@@ -178,7 +177,14 @@ class DeviceController:
         del self._device_dic[id]          
         return True
     
-    
+    """ 
+    Las siguientes funciones son para factorizar un poco la funcionalidad de 
+    esta clase (de ahí que empiecen con barra baja). Estas funciones son para
+    usarlas desde la misma clase, no desde las clases controller ni la clase 
+    del menu (parte 'view')
+    """
+   
+
     
     
     

@@ -12,11 +12,10 @@ los modelos, vistas y controladores. en Sistema se llamarán principalmente a
 los métodos de la vista y algunas herramientas especificas como 'serializer'
 clase para gestionar archivos.
 """
+from core.controllers.system_controller import SystemController
 
 from core.views.drawer import MenuDrawer
 from core.views.logger import Logger
-
-
 
 from core.views.menu_components   import MenuComponents
 from core.views.menu_devices      import MenuDevices
@@ -30,9 +29,7 @@ class System:
         distribuidores
         despachos.
     """
-
-    def __init__(self):             
-
+    def __init__(self):          
         self._components     = MenuComponents()                
         self._equipos        = MenuDevices(self._components)   
         self._distribuidores = MenuDistributors(self._equipos) 
@@ -45,6 +42,8 @@ class System:
             "Info sistema", "Ficheros"])
         
         self._main_menu.set_first_init(True)    
+        
+        self._system = SystemController()
 
     def run(self):
         while True:
@@ -65,6 +64,7 @@ class System:
             elif option == 7:
                 print("Option 7 (En implemtación)")
                 Logger.pause();
-            elif option == 0: break
+            elif option == 0: 
+                if self._system.exit_control(): break
             else: Logger.UI.bad_option()  
                 

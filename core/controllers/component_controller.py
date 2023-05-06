@@ -119,13 +119,12 @@ class ComponentController:
                     
             # Si el usuario eliminó anteriormente el componente del stock
             else:               
-                Logger.Core.info(
+                Logger.Core.warn(
                     "Componente '" + id 
-                    + "'. Ya no está registrado en el sistema.");  
-                q1 = "¿Quiere darlo de alta de nuevo?"
-                q2 = "('s' para alta, 'n' para desechar) = "
+                    + "'  ya no está registrado en el sistema.");  
+                q1 = "¿Quiere darlo de alta de nuevo o desecharlo?"
                                            
-                if InputUser.ask_yes_no_question(q1 + " " + q2):                
+                if InputUser.ask_yes_no_question(q1):                
                 
                     tipo, peso, precio = component_data[id]
                     new_comp = Component()

@@ -107,6 +107,8 @@ class MenuDrawer:
         op = input(inp + " = ")
         if op.isdigit(): return int(op)
         else: return -1
+        
+
 
 
 #from core.models.component import ComponentType
