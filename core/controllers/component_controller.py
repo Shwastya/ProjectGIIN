@@ -79,28 +79,70 @@ class ComponentController:
               
         data = (tipo, peso, precio, cantidad)
         return data
+    
+    def remove(self, id):
+        """
+        TODO: Empezamos a realizar cierta parte de la separación de
+        responsabilidades 
+        """
+        del self._component_dic[id]       
+        return True
         
-    def remove(self, id):        
-        Logger.Core.action("Componente a dar de baja", id, pause = False)         
-        question = "¿Seguro que desea eliminar este componente del sistema?"        
-        if InputUser.ask_yes_no_question("\n" + question):            
-            del self._component_dic[id]            
-            return True
-        else: return False
-        
-    def update_stock_by_component_list(self, component_list, increment): 
+    def update_stock_by_component_list(self, component_list, increment, 
+                                       component_data = None): 
         """
         Podemos usar esta función para actualizar el stock usando la función 
         de la clase Component 'update_quantity'. Este método lo usará 
-        principalmente el 'controller' de equipos, al ensamblar o desensamblar.
-        El 'controller' devices tendrá un enlace a este controlador.
-        """
-        for id in component_list:
-            updated = self._component_dic[id].update_quantity(increment)
-            if not updated:
-                Logger.Core.warn('Stock de componente "' 
-                                 + id + "' es menor a 0.")
+        principalmente el 'controller' de equipos que tiene enlace a este mismo
+        controlador, de momento lo usa en lo siguientes casos:
+            
+            . Al dar de alta un equipo (se restan componentes)
+            . Al modificar un equipo (componentes extraidos se devuelven)
+            . Al eliminar un equipo (componentes extraidos se devuelven)
+        
+        En el caso de que se esté tratando de devolver un componente que se 
+        haya eliminado del sistema, en lugar el método 'update_quantity()'
+        se le preguntará al usuario qué quiere hacer:
+            
+            . Dar de alta de nuevo el componente al stock
+            . Desechar ese componente
+        """     
+        
+        for id in component_list:             
+            
+            # Si el componente sigue existiendo en stock de componentes 
+            if id in self._component_dic:            
+                updated = self._component_dic[id].update_quantity(increment)
+                if not updated:
+                    Logger.Core.warn('Stock de componente "' 
+                                     + id + "' es menor a 0.")
+                    
+            # Si el usuario eliminó anteriormente el componente del stock
+            else:               
+                Logger.Core.info(
+                    "Componente '" + id 
+                    + "'. Ya no está registrado en el sistema.");  
+                q1 = "¿Quiere darlo de alta de nuevo?"
+                q2 = "('s' para alta, 'n' para desechar) = "
+                                           
+                if InputUser.ask_yes_no_question(q1 + " " + q2):                
+                
+                    tipo, peso, precio = component_data[id]
+                    new_comp = Component()
+                    new_comp.set_from_user_data((tipo, peso, precio, increment))
+                    self._component_dic[id] = new_comp
+                    Logger.Core.info("Componente '" + id 
+                                     + "' dado de alta en el stock.")
+                
+                else:
+                    Logger.Core.info("Componente '" + id + "' desechado.")
+                
+                
+                
+                
     
+                
+                
     
     
     

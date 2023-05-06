@@ -46,7 +46,7 @@ class MenuComponents(Controller):
         self._menu_info = MenuDrawer("HardVIU / 1) Componentes / 2) " + 
                                      "Modificar / 2) Cambiar información") 
                        
-        self._result = "Dado de alta con éxito."        
+        self._result = "dado de alta con éxito."        
     
     def get_controller(self): return self._controller
     
@@ -80,20 +80,26 @@ class MenuComponents(Controller):
     def modify_stock(self, id):
         Logger.UI.cancel_info()        
         if self._controller.get_new_stock_from_user(id):        
-            success = "Stock actualizado con éxito."
+            success = "nuevo stock actualizado."
             Logger.UI.success("Componente", id, success)  
         
     def modify_info(self, id):        
         Logger.UI.cancel_info()
         if super().modify_model_info(id):
-            success = "Información actualizada con éxito."
+            success = "ha actualizado su información con éxito."
             Logger.UI.success("Componente", id, success)  
         
-    def remove_component(self, id):       
-        if self._controller.remove(id):   
-            success = "Eliminado del sistema."
-            Logger.UI.success("Componente", id, success)  
-            return True
+    def remove_component(self, id): 
+        
+        Logger.Core.action("Componente a dar de baja", id, pause = False)
+        
+        question = "Seguro que desea eliminar este componente del sistema"
+        if self.ask_this_question(question):  
+            if self._controller.remove(id):
+                success = "eliminado del sistema."
+                Logger.UI.success("Componente", id, success)  
+                return True
+            
             
     """  Función a llamar desde 'System' """
     def update(self):                  

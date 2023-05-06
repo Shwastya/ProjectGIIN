@@ -24,6 +24,7 @@ class MenuDispatches(Controller):
         # Menú único de despachos        
         self._menu_disp = MenuDrawer(4*" " + "HardVIU / 4) Despachar" + 4*" ")
         
+        self._result = "asignado con éxito."
         
     def add_dispatch(self): # Nuevo despacho
         

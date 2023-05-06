@@ -47,8 +47,10 @@ class Logger:
     def pause(msg = "Pulsa [ENTER] para continuar..."):
         input(msg)
         
-    def low_info(msg):
-        print("\033[0;37m" + msg + ".\033[0m")
+    def low_info(msg, newline = False):
+        n = ""
+        if newline: n = "\n"
+        print("\033[0;37m" + msg + ".\033[0m" + n)
         
     def pluralize(word):
         if   word.lower() == "componente"  : return "Componentes"
@@ -81,13 +83,22 @@ class Logger:
             Logger.Core.warn(msg2)
             Logger.pause()
             
-        def action(msg1, obj, msg2 = "", newline = True, pause = True):                        
-            print('\033[1;32m' + msg1 + ' \033[0;m\033[1;34m"' + obj 
-                  + '"\033[0;m\033[1;32m ' + msg2 + "\033[0;m")            
-            n = ''
-            if newline: n = '\n'
-            if pause: 
-                input(n + "Presione [ENTER] para continuar...") 
+        def action(msg1, obj, msg2="", newline = True, pause = True, 
+                   c1 = "green", c2 = "green"):
+            
+            color_codes = {"green": "\033[1;32m", 
+                           "white": "\033[1;37m", 
+                           "reset": "\033[0;m"}
+            
+            colored_msg1 = color_codes[c1] + msg1 + color_codes["reset"]
+            colored_msg2 = color_codes[c2] + msg2 + color_codes["reset"]
+            
+            print(colored_msg1 + ' \033[1;34m"' + obj + '" \033[0;m' + colored_msg2)
+            
+            n = ""
+            if newline: n = "\n"
+            if pause: input(n + "Presione [ENTER] para continuar...")
+
                 
         def two_actions(msg1, obj1, msg2, obj2, newline = True, pause = True):
             print('\033[1;30m' + msg1 + ' \033[0;m\033[0;35m"' + obj1 
@@ -124,7 +135,7 @@ class Logger:
             
         def success(msg1, obj, msg2, newline = True, pause = True):                        
             print('\033[1;32m' + msg1 + ' \033[0;m\033[1;34m"' + obj 
-                  + '"\033[0;m\033[1;32m. ' + msg2 + "\033[0;m")            
+                  + '"\033[0;m\033[1;32m ' + msg2 + "\033[0;m")            
             n = ''
             if newline: n = '\n'
             if pause: 

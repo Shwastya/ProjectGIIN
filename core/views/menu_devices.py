@@ -49,7 +49,7 @@ class MenuDevices(Controller):
         self._menu_info = MenuDrawer("HardVIU / 1) Equipos / 2) " + 
                                      "Modificar / 2) Cambiar configuración")
                        
-        self._result = "Ensamblado con éxito."    
+        self._result = "ensamblado con éxito."    
     
     def get_controller(self): return self._controller
     
@@ -73,7 +73,7 @@ class MenuDevices(Controller):
                     id = True
                     o  = "Nuevo Equipo"
                 else: break            
-                if not super().ask_this_question("Introducir otro componente"):                
+                if not super().ask_this_question("Ensamblar otro equipo"):                
                     break
                 
     def select_device(self, pre_list):         
@@ -86,14 +86,19 @@ class MenuDevices(Controller):
         self._controller.set_add_or_modify_mode("modify")        
         Logger.UI.cancel_info()
         if super().modify_model_info(id):
-            success = "Ensamblaje actualizado con éxito."
+            success = "ha actualizado su configuración con éxito."
             Logger.UI.success("Equipo", id, success)  
         
-    def remove_device(self, id):       
-        if self._controller.remove(id):   
-            success = "Desensamblado y eliminado del sistema."
-            Logger.UI.success("Equipo", id, success)  
-            return True            
+    def remove_device(self, id):
+        Logger.Core.action("Equipo a desensamblar", id, pause = False)  
+        
+        question = "Seguro que desea eliminar este equipo del sistema"
+        if self.ask_this_question(question): 
+            if self._controller.remove(id):
+                success = "desensamblado y eliminado del sistema."
+                Logger.UI.success("Equipo", id, success)  
+                return True
+            
             
     """  Función a llamar desde 'System' """
     def update(self):                   

@@ -56,21 +56,34 @@ class DeviceController:
         # en caso de que el modo esté en "modify"
         disassembled_components = []  
         
+        # La siguiente lista temporal es para controlar el caso en el que
+        # se extraiga un componente y al actualizar el stock resulta que el 
+        # usuario eliminó ese componente del sistema. 
+        old_component_data = {}
+        
         # recorremos lista de componentes basandonos en el enum de 'Component'
         for component_type in ComponentType: 
             
             c_t = component_type.value
             if self._mode == "modify" and component_type in self._device_dic[id]._components:
                 
-                # Guardamos en una lista temporal los componentes a desmontar
+                # Guardamos temporalm los IDs de los componentes a desmontar
                 device = self._device_dic[id]
-                old_comp_id = device._components[component_type]["id"]
-                disassembled_components.append(old_comp_id) 
+                old_comp_id = device._components[component_type]["id"]               
+                disassembled_components.append(old_comp_id)    
+                
+                # Guardamos tambien (desde device) una lista de componentes
+                # de los componentes desmontados
+                old_component_data[old_comp_id] = (
+                    component_type, device._components[
+                        component_type]["peso"], device._components[
+                            component_type]["precio"])
                 
                 # Mensaje de sustitución
                 o_c = old_comp_id
                 Logger.Core.action("Cambiar (" + c_t +")", o_c, "por:",
-                                   newline = False, pause = False)
+                                   newline = True, pause = False, 
+                                   c1 = "white", c2 = "white")
     
             disp_components = []
             for comp_id, comp in comp_dic.items():
@@ -79,11 +92,13 @@ class DeviceController:
     
             if not disp_components:                
                 tipo  = component_type.value                
-                error = "No se dispone de Componentes (" + tipo + "). " 
+                error = "Stock vacio para el Componente (" + tipo + "). " 
                 Logger.Core.error_warn_pause(error + cancel, warn)
                 return False            
             
-            print("Componentes disponibles de tipo " + c_t + ":")
+            if self._mode != "modify":
+                print("Componentes disponibles de tipo " + c_t + ":")
+                
             for index, (comp_id,component) in enumerate(
                     disp_components,start=1):                
                
@@ -112,40 +127,71 @@ class DeviceController:
             # Mensaje de ensamblado
             e = 'Ensamblando en equipo "'
             c = '"'+ selected_comp_id +'"'            
-            Logger.low_info(e +  id + '": (' + c_t + ') ' + c)            
+            Logger.low_info(e +  id + '": (' + c_t + ') ' + c, newline = True)            
 
     
-        """ Aquí usamos el controlador de componentes """ # modify
+        """ Aquí usamos el controlador de componentes """ # mode (modify) 
         # Agregamos los componentes desmontados al stock solo después de 
         # seleccionar todos los componentes nuevos.        
         if self._mode == "modify":
-            Logger.Core.info("Devolviendo componentes desmontados al stock.")
+            
+            Logger.Core.info("Devolviendo componentes desmontados al stock...")
+            
             self._component_controller.update_stock_by_component_list(
-                disassembled_components, 1)            
+                disassembled_components, 1, old_component_data)            
         
-        """ Aquí usamos el controlador de componentes """ # add
+        """ Aquí usamos el controlador de componentes """ # mode (add)
         # Actualizamos el stock una vez que se hayan seleccionado todos 
         # los componentes correctamente
         for component_type, compact_component in device_components.items():
+            
+            Logger.Core.info("Actualizando stock de componentes...")
+            
             self._component_controller.update_stock_by_component_list(
                 [compact_component["id"]], -1)
         
         return device_components
+      
+    def remove(self, id):
+        """
+        TODO: Empezamos a realizar cierta parte de la separación de
+        responsabilidades
+        """
+        device = self._device_dic[id]
+        c_list = device.get_components_list()
         
-  
-    def remove(self, id):       
-        """
-        Para todos los métodos de los 'controllers' especificos, la función 
-        debe tener el mismo nombre.
-        """
-        Logger.Core.action("Equipo a desensamblar", id, pause = False)         
-        question = "¿Seguro que desea eliminar este equipo del sistema?"        
-        if InputUser.ask_yes_no_question("\n" + question):   
-            c_list = self._device_dic[id].get_components_list()
-            self._component_controller.update_stock_by_component_list(c_list,1)           
-            del self._device_dic[id]          
-            return True
-        else: 
-            return False
-       
+        component_data = {}        
+        
+        for component_type, compact_component in device._components.items():
+            # creamos un componente del component_data del equipo para 
+            # controlar  el caso del que el componente que se desea hacer 
+            # el update ya no exista en el sistema
+            component_data[compact_component["id"]] = (
+                component_type, 
+                compact_component["peso"], 
+                compact_component["precio"])
+            
+        Logger.Core.info("Devolviendo componentes desmontados al stock...")
+        
+        self._component_controller.update_stock_by_component_list(
+            c_list, 1, component_data)           
+        del self._device_dic[id]          
+        return True
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     

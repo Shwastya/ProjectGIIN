@@ -50,7 +50,7 @@ class MenuDistributors(Controller):
             "HardVIU / 3) Distribuidores / 2) Modificar", [
                 "Cambiar información", "Dar de baja"])
 
-        self._result = "Dado de alta con éxito."
+        self._result = "dado de alta con éxito."
         
     def get_controller(self): return self._controller
 
