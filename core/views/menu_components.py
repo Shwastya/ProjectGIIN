@@ -51,7 +51,10 @@ class MenuComponents(Controller):
     def get_controller(self): return self._controller
     
     def add_component(self): # Alta de componente        
-        self._id_config["rule"] = "alfanumérico, mínimo 3 caracteres"         
+    
+        self._id_config["question"] = "Nombre/ID de " + self._model._name
+        self._id_config["rule"]     = "alfanumérico, mínimo 3 caracteres"         
+        
         id = True
         o  = "Nuevo Componente"               
         while True:                        
@@ -71,27 +74,30 @@ class MenuComponents(Controller):
                 if not super().ask_this_question("Introducir otro componente"):                
                     break
                 
-    def select_component(self, pre_list):               
-        self._id_config["rule"] = "o 'l' para listar Componentes"          
+    def select_component(self, pre_list):          
+        self._id_config["question"] = "Nombre/ID o número de la lista"
+        self._id_config["rule"] = "'l' para listar"          
         if pre_list: super().list_models_from_dic()      
-        Logger.UI.cancel_info()
+        Logger.UI.cancel_info(n1 = '\n', level = 1)
         return super().select_model_from_dic()
     
     def modify_stock(self, id):
-        Logger.UI.cancel_info()        
+        Logger.UI.cancel_info(level = 1)        
         if self._controller.get_new_stock_from_user(id):        
-            success = "nuevo stock actualizado."
+            success = "stock actualizado."
             Logger.UI.success("Componente", id, success)  
         
     def modify_info(self, id):        
-        Logger.UI.cancel_info()
+        Logger.UI.cancel_info(level = 1)
         if super().modify_model_info(id):
-            success = "ha actualizado su información con éxito."
+            success = "ha sido modificado con éxito."
             Logger.UI.success("Componente", id, success)  
         
     def remove_component(self, id): 
         
-        Logger.Core.action("Componente a dar de baja", id, pause = False)
+        Logger.UI.success("Componente", id, 'seleccionado para su eliminación.',
+                          newline = False, 
+                          pause   = False)  
         
         question = "Seguro que desea eliminar este componente del sistema"
         if self.ask_this_question(question):  

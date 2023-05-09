@@ -7,14 +7,9 @@ Created on Sat Mar 25 10:16:27 2023
 Clase 'InputUser' métodos estáticos de tipo input con controles
 """
 
-#from core.kconfig import K_ALLOWED_CHARS, K_USER_CANCEL
-#from core.entity.component import ComponentType
-from config.settings import K_USER_CANCEL, K_LIST
-
 from core.views.logger import Logger
+from config.settings   import K_USER_CANCEL, K_LIST
 
-#from core.controllers.model_factory import ModelType
-#from core.models.component          import ComponentType
 
 class InputUser:   
     
@@ -23,8 +18,7 @@ class InputUser:
         while True:
             i = input(msg)
             if i.lower() == K_USER_CANCEL.lower():
-                Logger.Core.warn("Proceso anulado por usuario.")
-                Logger.pause();
+                Logger.Core.deregistration()
                 return None
             elif i.isdigit() and int(i) > 0:
                 return int(i)
@@ -35,8 +29,7 @@ class InputUser:
         while True:
             r = input(msg)
             if r.lower() == K_USER_CANCEL.lower():
-                Logger.Core.warn("Proceso anulado por usuario.")
-                Logger.pause();
+                Logger.Core.deregistration()
                 return None
             elif r.replace('.', '', 1).isdigit() and float(r) > 0:
                 return float(r)
@@ -70,8 +63,7 @@ class InputUser:
             id = input(question + r + " = ")
     
             if id.lower() == K_USER_CANCEL.lower():
-                Logger.Core.warn("Proceso anulado por usuario.")
-                Logger.pause()
+                Logger.Core.deregistration()
                 return None
             
             if id.lower() == K_LIST and need_list: return id    
@@ -105,8 +97,7 @@ class InputUser:
         while True:
             cad = input(msg1)
             if cad.lower() == K_USER_CANCEL.lower():
-                Logger.Core.warn("Proceso anulado por usuario.")
-                Logger.pause();
+                Logger.Core.deregistration()
                 return None
             elif cad.isdigit():
                 index = int(cad) - 1
@@ -121,7 +112,7 @@ class InputUser:
     
     def ask_yes_no_question(msg):
         while True:
-            r = input(msg + " (s/n) = ")
+            r = input(msg + " (s/n): ")
             info = "Las opciones son 's' (sí) o 'n' (no). Intente de nuevo."
             if r.lower()   == 's': return True
             elif r.lower() == 'n': return False
@@ -129,43 +120,85 @@ class InputUser:
    
 
     @staticmethod
-    def get_valid_index_or_id(question, max_index, id_list):
+    def get_valid_index_or_id(question, max_index, id_list, need_list=False):
+        """
+        TODO: Esta función controla tambien un caso de ambiguedad entre indice
+        y Nombre/ID
+        
+        Solicita al usuario que ingrese un índice o ID válido.
+        
+        Parámetros:
+        - question: La pregunta que se le hará al usuario.
+        - max_index: El índice máximo permitido.
+        - id_list: La lista de IDs válidos.
+        - need_list: Si se necesita la opción de mostrar la lista (opcional).
+        
+        Retorno:
+        - Una tupla que contiene el tipo de entrada ("index" o "id"), el valor 
+        de entrada y un booleano que indica si se debe mostrar la lista.
+    
+        La función verifica si la entrada del usuario es un número dentro del 
+        rango permitido de índices. Si el usuario ingresa un número de 3 
+        caracteres que también está presente en la lista de IDs, se le pedirá 
+        que ingrese directamente el ID para evitar confusiones. Si la entrada 
+        es válida, devuelve una tupla con el tipo de entrada, el valor y un 
+        booleano que indica si se debe mostrar la lista de elementos 
+        (si need_list es True).
+    
+        Si el usuario cancela la operación, devuelve None en lugar del tipo y 
+        el valor de entrada.
+        """
         while True:
             input_str = input(question)
-
+    
             if input_str.lower() == K_USER_CANCEL.lower():
-                Logger.Core.warn("Proceso anulado por usuario.")
-                Logger.pause()
-                return None, None
-
+                Logger.Core.deregistration()
+                return None, None, False
+    
+            if need_list and input_str.lower() == K_LIST.lower():
+                return None, None, True
+    
             if input_str.isdigit():
                 index = int(input_str)
                 if 1 <= index <= max_index:
-                    return "index", index
-
+                    if input_str in id_list:
+                        Logger.Core.info("Ambiguedad entre índice e ID.")                        
+                        Logger.Core.warn(
+                            "El número ingresado coincide con un ID.")
+                        s="Ingrese el ID directamente para evitar confusiones."
+                        Logger.Core.warn(s)
+                        continue
+                    return "index", index, False
+    
             if input_str in id_list:
-                return "id", input_str
-
+                return "id", input_str, False
+    
             Logger.Core.warn("La entrada no es válida. Intento de nuevo.")
 
+
     @staticmethod
-    def get_valid_component(question, disp_components):
+    def get_valid_model(q, r, disp_models, need_list = False):
         
-        max_index = len(disp_components)
-        id_list = [comp_id for comp_id, comp in disp_components]
+        question = q + " " + r # question + rule
+        
+        max_index = len(disp_models)
+        id_list = [model_id for model_id, model in disp_models]
 
-        input_type, input_value = InputUser.get_valid_index_or_id(question, max_index, id_list)
+        i_type, i_value, show_list =InputUser.get_valid_index_or_id(question,
+                                                                    max_index,
+                                                                    id_list,
+                                                                    need_list)
+        if i_type is None:  return None, None, show_list
 
-        if input_type is None:
-            return None, None
+        if i_type == "index":
+            selected_model_id, selected_model = disp_models[i_value - 1]
+        elif i_type == "id":
+            selected_model_id = i_value
+            selected_model = next(model for model_id, 
+                                  model in disp_models 
+                                  if model_id == selected_model_id)
 
-        if input_type == "index":
-            selected_comp_id, selected_comp = disp_components[input_value - 1]
-        elif input_type == "id":
-            selected_comp_id = input_value
-            selected_comp = next(comp for comp_id, comp in disp_components if comp_id == selected_comp_id)
-
-        return selected_comp_id, selected_comp
+        return selected_model_id, selected_model, show_list
     
     
    

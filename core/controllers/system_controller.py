@@ -17,7 +17,7 @@ class SystemController:
         self._nada = "nada"
     
     def exit_control(self):        
-        warn = "El sistema perderá la información que no se haya guardado."
+        warn = "La información no guardada se perderá."
         Logger.Core.info(warn)
         question = "¿Está seguro de querer salir?"
         return InputUser.ask_yes_no_question(question)

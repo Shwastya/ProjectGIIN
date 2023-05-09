@@ -23,7 +23,17 @@ class DispatcherController:
     def get_dic(self):
         return self._dispatcher_dic
     
+    # ADD
     def get_model_data_from_user(self, id):
         Logger.Core.error("'get_model_data_from_user()' [sin implementar]")
         Logger.pause()
         pass
+    
+    # MODIFY
+    def set_modify_data_from_user(self, id):
+        """
+        No se ha pedido implementación para este caso
+        """
+        pass
+    
+    

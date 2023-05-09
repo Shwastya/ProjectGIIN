@@ -37,21 +37,18 @@ class DistributorController:
     def get_dic(self):
         return self._distributor_dic
 
+    # ADD
     def get_model_data_from_user(self, id):
         """
-        IMPORTANTE:
-        Todos los controllers de los modelos deben implementar esta función
-        Que debe estar en consonancia con la estructura del modelo.
-        
-        Esta función devuelve una tupla para guardar mediante método del model.
+        Devuelve una tupla para guardar mediante método del model.
         """
        
         delivery = InputUser.get_uint(
             "Tiempo de entrega desde fábrica en días = ")
         
         if delivery is None: return False
-        Logger.low_info('[saved]: ' + '"' + id + '". Tiempo de entrega ' 
-                        + str(delivery) + ' días')
+        Logger.Core.info('<── ' + '"' + id + '". Tiempo de entrega ' 
+                         + str(delivery) + ' días')
         
         address = InputUser.get_str(self._address_config["question"],
                                     self._address_config["rule"    ],
@@ -59,10 +56,17 @@ class DistributorController:
                                     self._address_config["maxim"   ], False)
         
         if address is None: return False
-        Logger.low_info('[saved]: ' + '"' + id + '". ' + address)          
+        Logger.Core.info('<── ' + '"' + id + '". ' + address)        
 
         data = (delivery, address)
         return data
+    
+    # MODIFY
+    def set_modify_data_from_user(self, id):
+        """
+        No se ha pedido implementación para este caso
+        """
+        pass
 
     def remove(self, id):
         """

@@ -69,14 +69,15 @@ class Component:
         if self._cantidad < 0: return False
         return True         
     
-    def display(self, id, col= False, tab = False, p_l = True, max_id_len = 0):
+    def display(self, id, col = False, tab = False, p_l = True, max_id_len = 0,
+                idx = 1):
         """
         TODO: Display debería ser parte de la 'view'. Hay que replantear mejor 
         las responsabilidades:
             - ¿En Logger o en Drawer?
             - ¿LLamar desde las clases menu de la 'view'?
         """
-        Displayer.component(self, id, col, tab, p_l, max_id_len)
+        Displayer.component(self, id, col, tab, p_l, max_id_len, idx)
 
 
     # Para guardar en archivo

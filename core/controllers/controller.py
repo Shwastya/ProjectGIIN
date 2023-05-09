@@ -17,6 +17,7 @@ cuenta ya con métodos definidos que son genericos a todos los modelos
 """
 
 from core.views.logger import Logger
+from core.views.drawer import Displayer
 
 from core.controllers.model_factory import ModelFactory, ModelType  
 from core.controllers.inputs        import InputUser, K_LIST
@@ -99,48 +100,66 @@ class Controller:
         Devuelve 'False' si diccionario vacio, 'True' en caso contrario.
         """
         if not self._dic: return False
-        else:            
-            plural_name = Logger.pluralize(self._model._name)
-            Logger.print_line()
-            Logger.Core.info("Listado de '"+ plural_name +"' en el sistema:",1)
-            Logger.print_line()
+        else:
+            
+            plural_name = Logger.pluralize(self._model._name)            
+            title = "Registro de '" + plural_name.upper() + "' en el sistema"            
+            Logger.box_title(title)                       
+            
             total_models = len(self._dic)
             
-            # Buscamos la longitud del ID más largo. (por enmbellecer display)
+            # Buscamos la longitud del ID más largo. (por embellecer display)
             max_id_len = max(len(id) for id in self._dic.keys())
             
             for i, (id, model) in enumerate(self._dic.items()):
                 is_last_model = i == total_models - 1
                 
+                # Todos los modelos usan la misma definición de función.
+                # Hay que tener en cuenta que los modelos llaman a sus 
+                # respectivas versiones de esta función en Drawer.Displayer
+                
+                # TODO: Hay un pequeño error de diseño, no todas las funciones
+                # necesitan los mismo parametros (pequeñas diferencias). Pero
+                # al querer hacerlo generico, todas necesitan la misma estruct.
+                
                 model.display(id, 
                               col        = True,              # Coloreado
                               tab        = True,              # Tabulado
                               p_l        = not is_last_model, # Sep. con lineas
-                              max_id_len = max_id_len)        # ID más largo
+                              max_id_len = max_id_len,        # el ID más largo
+                              idx        = i + 1)             # valor enum
             return True
 
 
-    def select_model_from_dic(self):  
+    def select_model_from_dic(self): 
         """        
-        Permite al usuario ingresar un ID y se comprobará su existencia.
-        Si existe se  mostrará el listado.
+        Permite al usuario ingresar un ID o un índice y se comprobará su 
+        existencia. Se da opción a mostrar el listado.
         """                          
-        while True:                    
-            id = self.get_id(need_list = True) # Usuario entra un ID     
-            if id is None: break            
-            elif id.lower() == K_LIST:  # Si queremos volver a listar            
+        while True:   
+            models = list(self._dic.items())       
+            if not models:
+                Logger.Core.warn("No hay modelos disponibles en la lista.")
+                return None
+                
+            self._id_config["question"] = "Ingrese ID o número de lista"
+            self._id_config["rule"    ] = "('l' para listar) = "            
+            
+            id, m, l = InputUser.get_valid_model(self._id_config["question"],
+                                                 self._id_config["rule"],
+                                                 models, need_list = True)            
+            # El usuario pide lista
+            if l:
                 self.list_models_from_dic()
-                continue                
-            elif not self.check_id(id): # Comprobamos si esta el ID             
-                Logger.Core.warn(
-                    "No existe ese identificador. Inténtelo de nuevo.")
-                continue          
-            else:                       # O devolvemos el id
-                Logger.scroll_screen()                                    
-                return id  
+                continue
+            if id is None and m is None: return None
+
+            #Logger.scroll_screen()                                    
+            return id  
+        
         
     def modify_model_info(self, id):
-        data = self._controller.get_model_data_from_user(id)
+        data = self._controller.set_modify_data_from_user(id)
         if not data: return None      
         self._dic[id].set_from_user_data(data)
         return True

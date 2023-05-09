@@ -28,7 +28,7 @@ consola, se ha tomado la decisión de personalizar un poco los mensajes
 utilizando este módulo.
 """
 
-from config.settings import K_USER_CANCEL, K_SCROLL
+from config.settings import K_ENABLE_SYSTEM_INFO, K_USER_CANCEL, K_SCROLL
 
 class Logger:
     
@@ -38,7 +38,7 @@ class Logger:
     def scroll_screen(l = 100):
         if K_SCROLL: print("\n" * l)
         
-    def print_line(n=60, color=False):
+    def print_line(n = 60, color = False):
         if color:
             print("\033[37m" + n * "─" + "\033[0m")
         else:
@@ -59,8 +59,24 @@ class Logger:
         elif word.lower() == "despacho"    : return "Despachos"
         elif word.lower() == "fichero"     : return "Ficheros"
         else: return word
+    
+    def box_title(title, line_length = 60):
+        padding = (line_length - len(title) - 2) // 2
+        pad_end = line_length - len(title) - padding
+    
+        # Código ANSI para color rojo brillante
+        bright_red_color = "\033[1;35m"
+    
+        # Código ANSI para resetear el color
+        reset_color = "\033[0m"
+    
+        print("┌" + "─" * line_length + "┐")
+        print("│" + " " * padding + bright_red_color + title + reset_color 
+              + " " * pad_end + "│")
+        print("└" + "─" * line_length + "┘")
+
         
-    class Core:       
+    class Core: # Logger.Core 
         
         def trace(msg, b = 0):
             """ Blanco (97) """
@@ -68,7 +84,8 @@ class Logger:
             
         def info(msg, b = 0):            
             """ Magenta (35) """
-            print("\033[" + str(b) + ";35m" + msg + "\033[0;m")        
+            if K_ENABLE_SYSTEM_INFO:
+                print("\033[" + str(b) + ";35m[System]: " + msg + "\033[0;m")        
             
         def warn(msg, b = 1):
             """ Amarillo (33) """
@@ -108,11 +125,18 @@ class Logger:
             n = ''
             if newline: n = '\n'
             if pause: 
-                input(n + "Presione [ENTER] para continuar...") 
+                input(n + "Presione [ENTER] para continuar...")
+        
+        def deregistration():
+            Logger.Core.warn("Se ha cancelado el registro.")
+            Logger.Core.info("Entradas actuales descartadas.")
+            Logger.pause()
+            
+                
                 
         
             
-    class UI:
+    class UI: # Logger.UI
         
         def trace(msg, b = 0):
             """ Blanco (97) """
@@ -127,7 +151,7 @@ class Logger:
             print("\033[" + str(b) + ";34m" + msg + "\033[0;m")
             
         def cancel_info(n1 = '', n2 = '', level = 0):
-            info = "Puede cancelar el actual proceso ingresando"
+            info = "Para cancelar las entradas de registro (=), ingrese"
             if level == 0:
                 Logger.low_info(n1 + info + " '" + K_USER_CANCEL + "'" + n2)
             else:
@@ -148,7 +172,9 @@ class Logger:
   
     def starting():
         print("\n")
-        Logger.Core.info("[Core]: Console Logger Starting")
+        Logger.Core.info("Console Logger Starting")
+        Logger.UI.info(" - Ajuste en (True|False) la info de [System] en 'settings.py'", 0)
+        Logger.UI.info(" - El proposito principal de info [System] es para 'Debug'", 0)
     def shutdown():
-        Logger.Core.info("[Core]: Shutting-down Logger")          
+        Logger.Core.info("Shutting-down Logger")          
 

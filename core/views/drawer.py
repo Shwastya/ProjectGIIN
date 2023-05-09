@@ -122,25 +122,32 @@ class Displayer:
     
     #def __init__(self, colored = True):
     #    self._colored = colored        
-    def component(model, id, col, tab, p_l, max_id_len):        
-        if col:
+    def component(model, id, col, tab, p_l, max_id_len, idx): 
+        
+        if model._cantidad == 0:
+            id_color  = value_color = "\033[0;37m"
+            end_color = "\033[0m"
+        elif col:
             id_color    = "\033[1;34m"
             value_color = "\033[1;32m"
             end_color   = "\033[0m"
         else:
             id_color = value_color = end_color = ""
     
-        t = "\t- " if tab else ""
+        t = "\t " if tab else ""
         quoted_id = '"' + id + '"'
         formatted_id = quoted_id.ljust(max_id_len + 2)
         
-        print(t + id_color + formatted_id + ':' + end_color + " " + value_color
+        enum_idx = id_color
+        if idx != 0: enum_idx =  str(idx).rjust(2) + ". " + id_color
+        
+        print(t + enum_idx + formatted_id + ':' + end_color + " " + value_color
               + model._tipo.value    + ", "
               + str(model._peso)     + "g, "
               + str(model._precio)   + "€, "
               + str(model._cantidad) + " stock." + end_color)
         
-    def device(model, id, col, tab, p_l, max_id_len):
+    def device(model, id, col, tab, p_l, max_id_len, idx):
         
         """
         Para mostrar de manera personalizada en consola (DISPLAY) sin tener
@@ -156,7 +163,9 @@ class Displayer:
         else:
             id_color = info_color = comp_id_color = comp_color = end_color = ""
         
-        equipo      = info_color + "Equipo/ID = " + end_color 
+        enum_idx = info_color + str(idx).rjust(2) + ". "
+        
+        equipo      = enum_idx + "Equipo/ID = " + end_color 
         id_equipo   = id_color + "'" + id + "'" + end_color + "\n"        
         device_info = equipo + id_equipo
         
@@ -164,6 +173,9 @@ class Displayer:
         n_components = len(model._components)
         counter = 0
         max_width = max([len(comp_type.value) for comp_type in model._components])
+        
+        
+        
         for comp_type, comp in model._components.items():
             counter += 1
             comp_type_padded = comp_type.value.ljust(max_width)
@@ -177,7 +189,7 @@ class Displayer:
         print(device_info + comps_info)
         if p_l: Logger.print_line(50, color = True)
         
-    def distributor(model, id, col, tab, p_l, max_id_len):
+    def distributor(model, id, col, tab, p_l, max_id_len, idx):
         name = id
         if col:
             name_color  = "\033[1;34m"
@@ -193,18 +205,19 @@ class Displayer:
         r_b = value_color + ")" + end_color
         msg = value_color + " días desde fábrica" + end_color
         delivery_time = l_b + days + r_b +  msg
-    
-        print(t + name_color + 'Nombre   :' + end_color + value_color + ' "'
-              + name + '"' + end_color)
+        
+        enum_idx = str(idx).rjust(2) + ". Nombre/ID ="
+        
+        print(enum_idx + name_color + ' "' + name + '"' + end_color)
         
         print(t + name_color + "Entrega  :" + end_color + " " + delivery_time)
         
         print(t + name_color + "Dirección:" + end_color + value_color + " "  
               + model._address + end_color)
     
-        if p_l:
-            Logger.print_line(50, color=True)
-        
+        if p_l: Logger.print_line(50, color=True)
+            
+   
         
         
         

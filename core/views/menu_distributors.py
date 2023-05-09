@@ -55,7 +55,10 @@ class MenuDistributors(Controller):
     def get_controller(self): return self._controller
 
     def add_distributor(self):  # Alta de distribuidor    
-        self._id_config["rule"] = "alfanumérico, mínimo 3 caracteres"        
+    
+        self._id_config["question"] = "Nombre/ID de " + self._model._name
+        self._id_config["rule"]     = "alfanumérico, mínimo 3 caracteres" 
+        
         id = True
         o  = "Nuevo Distribuidor"            
         while True:                        
@@ -77,23 +80,23 @@ class MenuDistributors(Controller):
                     break
 
     def select_distributor(self, pre_list):
-        
-        self._id_config["rule"] = "o 'l' para listar"  
+        self._id_config["question"] = "Nombre/ID o número de la lista"
+        self._id_config["rule"] = "'l' para listar"  
         
         if pre_list: super().list_models_from_dic()
-        Logger.UI.cancel_info()
+        Logger.UI.cancel_info(level = 1)
         return super().select_model_from_dic()
 
     def modify_info(self, id):
-        Logger.UI.cancel_info()
+        Logger.UI.cancel_info(n1 = '\n', level = 1)
         if super().modify_model_info(id):
             Logger.UI.success("Distribuidor", id, 
-                              "Información actualizada con éxito.")
+                              "ha sido modificado con éxito.")
 
     def remove_distributor(self, id):
         if self._controller.remove(id):
             Logger.UI.success("Distribuidor", id, 
-                              "Eliminado del sistema.")
+                              "eliminado del sistema.")
             return True
 
     def update(self):

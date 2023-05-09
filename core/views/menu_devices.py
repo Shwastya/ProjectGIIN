@@ -54,7 +54,10 @@ class MenuDevices(Controller):
     def get_controller(self): return self._controller
     
     def add_device(self): # Alta de componente
-        self._id_config["rule"] = "alfanumérico, mínimo 3 caracteres"        
+    
+        self._id_config["question"] = "Nombre/ID de " + self._model._name
+        self._id_config["rule"]     = "alfanumérico, mínimo 3 caracteres" 
+        
         self._controller.set_add_or_modify_mode("add")               
         id = True
         o  = "Nuevo Equipo"               
@@ -77,16 +80,17 @@ class MenuDevices(Controller):
                     break
                 
     def select_device(self, pre_list):         
-        self._id_config["rule"] = "o 'l' para listar"             
+        self._id_config["question"] = "Nombre/ID o número de la lista"
+        self._id_config["rule"] = "'l' para listar"             
         if pre_list: super().list_models_from_dic()      
-        Logger.UI.cancel_info()
+        Logger.UI.cancel_info(n1 = '\n', level = 1)
         return super().select_model_from_dic()    
         
     def modify_info(self, id):            
         self._controller.set_add_or_modify_mode("modify")        
-        Logger.UI.cancel_info()
+        Logger.UI.cancel_info(level = 1)
         if super().modify_model_info(id):
-            success = "ha actualizado su configuración con éxito."
+            success = "ha sido modificado con éxito."
             Logger.UI.success("Equipo", id, success)  
         
     def remove_device(self, id):
@@ -95,7 +99,7 @@ class MenuDevices(Controller):
         question = "Seguro que desea eliminar este equipo del sistema"
         if self.ask_this_question(question): 
             if self._controller.remove(id):
-                success = "desensamblado y eliminado del sistema."
+                success = "desensamblado y eliminado del sistema"
                 Logger.UI.success("Equipo", id, success)  
                 return True
             

@@ -7,14 +7,12 @@ Created on Tue Mar 21 09:53:06 2023
 Se busca en el proyecto hacer un diseño OOP, Los principales retos, sin 
 demasiadas pretensiones, son: 
     
-    1-  Todo con clases y emplear la abstracción a través de la herencia y el
-        polimorfismo, permitiendo que las clases existentes sean extendidas 
-        mediante nuevas clases que hereden su comportamiento.
+    1-  Enfoque OOP, abstracción a través de la herencia y el polimorfismo.        
     
-    2-  Se busca seguir el patrón de diseño  MVC (Model View Controller).         
+    2-  Se busca seguir el patrón de diseño 1MVC (Model View Controller).         
             
-    3-  Se tiene támbien pensado implementar un patrón de diseño algo más
-        sencillo para ciertas clases: Patrón FACTORY Method.
+    3-  Se tiene támbien pensado implementar un patrón de diseño sencillo.
+        Patrón FACTORY Method.
 
 Este archivo implementa el punto de entrada al programa. Main crea un objeto
 System, que ejecuta el sistema del proyecto 'HardVIU'.
@@ -27,8 +25,7 @@ from core.system import System, Logger
 
 def main():
     """
-    EntryPoint del programa: Crea y ejecuta un objeto engine.App 
-    encargado de ejecutar la clase System.
+    EntryPoint del programa: Crea y ejecuta System
     """    
     hardviu = System()
     
