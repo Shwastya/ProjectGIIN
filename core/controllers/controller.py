@@ -92,26 +92,37 @@ class Controller:
         self._dic[id] = model
         return True    
             
-    def list_models_from_dic(self): 
+    # nombre en plural y dic
+    def list_models_from_dic(self, name = None, aux_dic = None): 
         """
         Lista el diccionario de modelos del tipo modelo instanciado.
         'enumerated' permite escoger entre un listado normal o enumerado.
         
         Devuelve 'False' si diccionario vacio, 'True' en caso contrario.
         """
-        if not self._dic: return False
+        dic = self._dic
+        plural_name = Logger.pluralize(self._model._name)
+        if aux_dic is not None: 
+            dic = aux_dic
+            plural_name = name
+            
+        
+        if not dic: return False
         else:
             
-            plural_name = Logger.pluralize(self._model._name)            
+                     
             title = "Registro de '" + plural_name.upper() + "' en el sistema"            
             Logger.box_title(title)                       
             
-            total_models = len(self._dic)
+            total_models = len(dic)
+            
+            
             
             # Buscamos la longitud del ID más largo. (por embellecer display)
-            max_id_len = max(len(id) for id in self._dic.keys())
+            max_id_len = max(len(str(id)) for id in dic.keys())
             
-            for i, (id, model) in enumerate(self._dic.items()):
+            
+            for i, (id, model) in enumerate(dic.items()):
                 is_last_model = i == total_models - 1
                 
                 # Todos los modelos usan la misma definición de función.
@@ -131,31 +142,50 @@ class Controller:
             return True
 
 
-    def select_model_from_dic(self): 
+    def select_model_from_dic(self, aux_dic = None, model_name = None): 
         """        
         Permite al usuario ingresar un ID o un índice y se comprobará su 
         existencia. Se da opción a mostrar el listado.
         """                          
+        
+        dic   = self._dic.items()
+        model = self._model._name
+        
+        if aux_dic is not None: 
+            # VALE ya! me faltaba sacar los .items() que desastre!
+            # No te olvides de esta experiencia, por poca cosa, el horror
+            dic   = aux_dic.items()
+            model = model_name
+        
+        plural_name = Logger.pluralize(model)  
+        info = "Diccionario '" + plural_name + "' vacio.\n"
+        warn = "No hay '" + plural_name + "' disponibles en el sistema."
+        
+        # El añadir user_cancellation es para poder recordar mejor 
+        # la lógica de esta función en el futuro
+        
+        user_cancellation = False
+        
         while True:   
-            models = list(self._dic.items())       
+            models = list(dic)       
             if not models:
-                Logger.Core.warn("No hay modelos disponibles en la lista.")
-                return None
-                
-            self._id_config["question"] = "Ingrese ID o número de lista"
-            self._id_config["rule"    ] = "('l' para listar) = "            
+                Logger.Core.info(info)
+                Logger.Core.warn(warn)
+                return None, user_cancellation        
             
             id, m, l = InputUser.get_valid_model(self._id_config["question"],
                                                  self._id_config["rule"],
                                                  models, need_list = True)            
             # El usuario pide lista
             if l:
-                self.list_models_from_dic()
+                self.list_models_from_dic(plural_name, aux_dic)
                 continue
-            if id is None and m is None: return None
+            if id is None and m is None: 
+                user_cancellation = True
+                return None, user_cancellation
 
-            #Logger.scroll_screen()                                    
-            return id  
+                                           
+            return id, user_cancellation   
         
         
     def modify_model_info(self, id):

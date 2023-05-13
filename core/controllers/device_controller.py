@@ -10,6 +10,9 @@ from core.models.component   import ComponentType
 from core.views.logger       import Logger
 
 class DeviceController:
+    """
+    Fábrica de equipos.
+    """
     def __init__(self, device_dic):
         
         self._device_dic = device_dic   
@@ -17,6 +20,12 @@ class DeviceController:
         
         # "DeviceController" necesita acceso al 'ComponentController'
         self._component_controller = None    
+        
+        # A ver (esto es una idea), los equipo que se despechan a un 
+        # distribuidor guardaremos aquí por. Si por algún motivo se devolvieran
+        # como los 'controllers' Dispatch y Distributor tienen acceso a este
+        # 'controller', podremos devolver el equipo a fábrica facilmente.
+        self._device_dispatched = {}
         
     """
     Las siguientes funciones se pretende que sean privadas (similar a C++).
@@ -111,7 +120,7 @@ class DeviceController:
         return data
             
     def __update_component_stock(self, component_data, operation
-                                 ,info="Accediendo a stock de componentes..."):
+                                 ,info="Actualizando stock de componentes..."):
         """
         Realmente esta función ya tiene suficiente abstracción para separarlo
         como función auxiliar, pero ya que son 3 lineas de código y lo usamos
@@ -157,14 +166,20 @@ class DeviceController:
     Las siguientes funciones son las funciones públicas        
     """  
     
+    def get_dic(self):
+        return self._device_dic
     
+    def get_dispatched_devices_dic(self):
+        return self._device_dispatched 
+        
+        
     def link_component_controller(self, component_controller):
         self._component_controller = component_controller
         
     def set_add_or_modify_mode(self, mode): 
         self._mode = mode            
     
-    # ADD
+    # ADD -DEVICES-
     def get_model_data_from_user(self, id):         
         
         
@@ -206,11 +221,11 @@ class DeviceController:
     
         #.... Actualización del stock de componentes        
         component_data = self.__unpack_component(device_components)            
-        self.__update_component_stock(component_data, -1)
-        Logger.Core.info('"' + id + '" ensamblado.'  ) 
+        self.__update_component_stock(component_data, -1)        
+        Logger.Core.info('Ensamblando equipo "' + id + '"...' , n = '\n' ) 
         return device_components        
   
-    # MODIFY
+    # MODIFY -DEVICES-
     def set_modify_data_from_user(self, id):
         
         # Verificación de la existencia del equipo en el diccionario.
@@ -229,6 +244,8 @@ class DeviceController:
         
         components = self._device_dic[id]._components
         
+        is_modified = False
+        
         # Iteramos sobre todos los componentes del equipo
         for component_type, current in components.items():
             tipo = component_type.value
@@ -245,6 +262,8 @@ class DeviceController:
             if not InputUser.ask_yes_no_question(question):
                 updated_device_components[component_type] = current
                 continue
+            
+            is_modified = True
     
             # Obtenemos los componentes disponibles para escoger
             available_c = self.__available_components(component_type)    
@@ -283,7 +302,12 @@ class DeviceController:
             component_data = self.__unpack_component(modified_components)
             self.__update_component_stock(component_data, -1)
     
-        Logger.Core.info("Equipo '" + id + "' modificado con éxito.")        
+        
+        if is_modified:            
+            Logger.Core.info("Modificando equipo '" + id + "'...", n ='\n')
+        else:
+            Logger.Core.info("No se realizaron modificaciones en el equipo '" 
+                             + id + "'.\n")
         
         # Devolvemos el resultado al controlador principal
         # (y de ahí a la clase 'view' de este modelo)
@@ -299,14 +323,86 @@ class DeviceController:
         info = "Devolviendo componentes desmontados al stock..."
         self.__update_component_stock(c_data, 1, info)
         
-        # Logger.Core.info("Devolviendo componentes desmontados al stock...")          
-        # self._component_controller.update_stock_by_component_list(1, c_data)           
-        # Logger.Core.info("Stock actualizado.")
         
-        Logger.Core.info("Eliminando registro de equipo " + '"' + id + '".')
+        Logger.Core.info("Eliminando registro de equipo " + '"' + id + '"...')
         del self._device_dic[id]          
-        Logger.Core.info("Equipo " + '"' + id + '" eliminado.')
+        Logger.Core.info("Equipo " + '"' + id + '" eliminado.\n')
         return True
 
+
+    """
+    Las siguientes funciones. Si creamos un despacho, he creido oportuno llevar
+    aquí el control de equipos despachados
+    """
+    def dispatch_device_to_distributor(self, id): # device_id
+        """
+        Despacha un dispositivo a un distribuidor, moviéndolo del
+        diccionario principal a self._device_dispatched.        
+        """
+        id_  = '(Equipo: "' + id + '")'
+        info = 'Extrayendo de Fábrica ' + id_ + '...'
+        Logger.Core.info(info, n = '\n')
+        
+        if id in self._device_dic:
+            device = self._device_dic[id]
+            self._device_dispatched[id] = device
+            del self._device_dic[id]            
+            
+            Logger.Core.info('Se ha enviado al distribuidor ' + id_ + '.\n')
+        else:
+            Logger.Core.error('No existe en fábrica: ' + id_ + '.\n')
+
+    def return_device_from_distributor(self, id): # device_id
+        """
+        Devuelve un dispositivo desde un distribuidor, moviéndolo desde
+        self._device_dispatched al diccionario principal.
+        """
+        id_  = 'Equipo: "' + id + '"'
+        info = 'Devolviendo ' + id_ + ' a fábrica...'
+        Logger.Core.info(info)
+        
+        if id in self._device_dispatched:
+            device = self._device_dispatched[id]
+            self._device_dic[id] = device
+            del self._device_dispatched[id]
+            
+            Logger.Core.info(id_+ ' ha sido devuelto del distribuidor.')
+        else:
+            Logger.Core.error(id_+ ' no existe como dispositivo despachado.')
+    
+    def remove_dispatched_device(self, id):
+       """
+       Elimina un dispositivo del diccionario de dispositivos despachados.
+       Esta función es útil cuando un dispositivo ha sido entregado o vendido
+       y, por lo tanto, ya no se encuentra en el control de la empresa.
+       """
+       id_  ='Equipo: "' + id + '"'
+       info ='Eliminando' + id_ + 'del registro de dispositivos despachados...'
+       Logger.Core.info(info)
+       
+       if id in self._device_dispatched:
+           del self._device_dispatched[id]
+           i =' ha sido eliminado del registro de dispositivos despachados.\n'
+           Logger.Core.info(id_ + i)
+       else:
+           Logger.Core.error(id_
+                             + ' no existe como dispositivo despachado.\n')
+
+    def is_device_in_dispatched(self, id):
+        """
+        Comprueba si un dispositivo está en el diccionario de dispositivos despachados.
+        Esta función es útil para verificar si un dispositivo específico se encuentra actualmente
+        en tránsito o ya ha sido entregado al distribuidor.
+        """
+        result = id in self._device_dispatched
+        if result: Logger.Core.info('"' + id + '" en tránsito.')
+        return result
+    
+    
+    
+    
+    
+    
+    
     
     

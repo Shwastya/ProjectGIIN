@@ -64,24 +64,48 @@ class MenuDevices(Controller):
         while True:                        
             self._menu_add.display(True, False, True, obj = '"' + str(o) + '"')             
             if id == True:
-                id = super().get_and_check_id(mode = "add");
+                id = super().get_and_check_id(mode="add", auxiliar_dic=None);
                 if id is None: 
                     break
-                elif id != True: o = id
+                elif id != True: 
+                    
+                    # Tenemos disponible este ID para dar de alto en el
+                    # diccionario principal:
+                    # Pero que pasa con los equipos que están en despacho?
+                    
+                    # Controlamos este caso pues: 
+                    if not self._controller.is_device_in_dispatched(id):
+                        o = id
+                    else:                        
+                        e = 'El ID "' + id + '" no está disponible, '
+                        info1 = e + 'corresponde a un equipo en despacho.'
+                        n = "El ID estará disponible una vez llegue a destino "
+                        info3 = n + "(salvo en caso de devolución)."
+                        Logger.UI.emph(info1)                        
+                        Logger.UI.emph(info3)
+                        Logger.pause()  
+                        
+                        id = True # Reniciamos el tema.
+                        
                 continue
             else:
                 if super().new_model(id):                   
                     Logger.UI.success("Equipo", id, self._result,
-                                      pause = False)                     
+                                      pause = False, newline = False)                     
                     id = True
                     o  = "Nuevo Equipo"
                 else: break            
                 if not super().ask_this_question("Ensamblar otro equipo"):                
                     break
                 
-    def select_device(self, pre_list):         
+    def select_device(self, pre_list):   
+        """
+        Recordar que devuelve tupla (id, user_cancellation).
+        user_cancellation es un bool para saber si es cancelación de usuario
+        el None de los datos recibidos, o es por otro motivo.
+        """
         self._id_config["question"] = "Nombre/ID o número de la lista"
-        self._id_config["rule"] = "'l' para listar"             
+        self._id_config["rule"] = "('l' para listar) = "                
         if pre_list: super().list_models_from_dic()      
         Logger.UI.cancel_info(n1 = '\n', level = 1)
         return super().select_model_from_dic()    
@@ -90,12 +114,11 @@ class MenuDevices(Controller):
         self._controller.set_add_or_modify_mode("modify")        
         Logger.UI.cancel_info(level = 1)
         if super().modify_model_info(id):
-            success = "ha sido modificado con éxito."
-            Logger.UI.success("Equipo", id, success)  
+            success = "ha finalizado el proceso de modificación."
+            Logger.UI.success("Equipo", id, success, newline = False)  
         
     def remove_device(self, id):
-        Logger.Core.action("Equipo a desensamblar", id, pause = False)  
-        
+        Logger.Core.action("Equipo a desensamblar", id, pause = False)        
         question = "Seguro que desea eliminar este equipo del sistema"
         if self.ask_this_question(question): 
             if self._controller.remove(id):
@@ -107,17 +130,21 @@ class MenuDevices(Controller):
     """  Función a llamar desde 'System' """
     def update(self):                   
         while True:                         
-            numero_opciones_visibles = 1
+            numero_opciones_visibles = 1               
+            
             if len(self._dic.items()) > 0: numero_opciones_visibles = 3                  
             self._menu_dev.set_max_options(numero_opciones_visibles)            
             self._menu_dev.display(zero = "Menú anterior")            
-            option = self._menu_dev.get_option()    
+            option = self._menu_dev.get_option()             
             
             if option == 1: # Alta componente                    
                 self.add_device() 
-            elif option == 2 or option == 3: # Sub Menú Modificación  
+            # Sub Menú Modificación  
+            
+            elif (option == 2 or option == 3) and numero_opciones_visibles > 1: 
+                
                 p_list = False if option < 3 else True                           
-                id = self.select_device(pre_list = p_list)                
+                id, user_cancel = self.select_device(pre_list = p_list)                
                 if not id: continue            
                 while True:
                     self._menu_modi.display(True, True, obj = '"'+ id + '"',

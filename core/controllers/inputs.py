@@ -13,6 +13,7 @@ from config.settings   import K_USER_CANCEL, K_LIST
 
 class InputUser:   
     
+    @staticmethod
     def get_uint(msg):
         """ Pide un número entero mayor que cero"""
         while True:
@@ -24,6 +25,7 @@ class InputUser:
                 return int(i)
             else: Logger.Core.warn("El número debe ser entero y mayor que 0.")
     
+    @staticmethod
     def get_float(msg):
         """ Pide un número real """
         while True:
@@ -36,6 +38,7 @@ class InputUser:
             else:
                 Logger.Core.warn("Introduce un número real mayor que 0.")                
        
+    @staticmethod
     def get_str(question, regla = None, minim = 1, maxim = None, 
                      need_list = False):
         """
@@ -83,7 +86,7 @@ class InputUser:
             
             return id
   
-    
+    @staticmethod
     def get_from_enum(enum_class, msg1, msg2):        
         """
         Permite escoger al usuario de un enumerado pasado como parametro
@@ -109,7 +112,7 @@ class InputUser:
                 Logger.Core.warn("Introduce un número válido de la lista.") 
     
     
-    
+    @staticmethod
     def ask_yes_no_question(msg):
         while True:
             r = input(msg + " (s/n): ")
@@ -184,10 +187,10 @@ class InputUser:
         max_index = len(disp_models)
         id_list = [model_id for model_id, model in disp_models]
 
-        i_type, i_value, show_list =InputUser.get_valid_index_or_id(question,
-                                                                    max_index,
-                                                                    id_list,
-                                                                    need_list)
+        i_type, i_value, show_list = InputUser.get_valid_index_or_id(question,
+                                                                     max_index,
+                                                                     id_list,
+                                                                     need_list)
         if i_type is None:  return None, None, show_list
 
         if i_type == "index":

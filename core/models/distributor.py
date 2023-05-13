@@ -8,6 +8,8 @@ Created on Wed May  3 16:37:01 2023
 from config.settings import K_SEPARATOR
 from core.views.drawer import Displayer
 
+
+# Modelo Distribuidor
 class Distributor:
     def __init__(self):
         """
@@ -15,7 +17,9 @@ class Distributor:
         """    
         self._delivery_time = None
         self._address       = None
-
+        
+    def get_delivery_time(self): return self._delivery_time
+    
     def set_from_user_data(self, data):
         self._delivery_time, self._address = data
 
@@ -24,14 +28,7 @@ class Distributor:
 
     def update_address(self, new_address): self._address = new_address
 
-    def display(self, id, col = False, tab = True, p_l = True, max_id_len = 0,
-                idx = 1):
-        """
-        TODO: Display debería ser parte de la 'view'. Hay que replantear mejor 
-        las responsabilidades:
-            - ¿En Logger o en Drawer?
-            - ¿LLamar desde las clases menu de la 'view'?
-        """
+    def display(self, id, col=False, tab=True, p_l=True, max_id_len=0, idx=1):
         Displayer.distributor(self, id, col, tab, p_l, max_id_len, idx)
 
     def serialize_to_string(self, id):

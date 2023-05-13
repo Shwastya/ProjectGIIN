@@ -73,14 +73,16 @@ class MenuDrawer:
         if not self._first_init: Logger.scroll_screen()        
         else: self._first_init = False        
         
-        max_width = max(len(opcion) for opcion in self.opciones) 
-        width     = max(len(self.titulo), max_width) + 4
+        max_width = max(len(opcion) for opcion in self.opciones)
+        extra_title_width = len(str(obj)) if extra else 0
+        width = max(len(self.titulo), max_width, extra_title_width) + 4
 
         self.draw_up(width)
         self.draw_empty(width)
         self.draw_title(width, color=color)
 
-        if extra: self.draw_title(width, obj, color = 3)
+        if extra:
+            self.draw_title(width, obj, color = 3)
 
         if show_options:
             
@@ -111,7 +113,7 @@ class MenuDrawer:
 
 
 
-#from core.models.component import ComponentType
+#from core.models.component import ComponentTypes
 """
 TODO: Trabajo futuro
 tanto la responsabilidad de mostrar la información de los modelos como el hecho
@@ -122,6 +124,7 @@ class Displayer:
     
     #def __init__(self, colored = True):
     #    self._colored = colored        
+    @staticmethod
     def component(model, id, col, tab, p_l, max_id_len, idx): 
         
         if model._cantidad == 0:
@@ -147,6 +150,7 @@ class Displayer:
               + str(model._precio)   + "€, "
               + str(model._cantidad) + " stock." + end_color)
         
+    @staticmethod
     def device(model, id, col, tab, p_l, max_id_len, idx):
         
         """
@@ -189,6 +193,7 @@ class Displayer:
         print(device_info + comps_info)
         if p_l: Logger.print_line(50, color = True)
         
+    @staticmethod
     def distributor(model, id, col, tab, p_l, max_id_len, idx):
         name = id
         if col:
@@ -216,10 +221,72 @@ class Displayer:
               + model._address + end_color)
     
         if p_l: Logger.print_line(50, color=True)
+        
+
+    @staticmethod
+    def dispatch(model, id, col, tab, p_l, max_id_le, idx):
+        
+        from core.models.dispatch import DispatchStatus
+        
+        if col:
+            #white_bold  = "\033[1;37m"
+            gray        = "\033[0;37m"
+            blue_bold   = "\033[1;34m"
+            yellow      = "\033[0;33m"
+            yellow_bold = "\033[1;33m"
+            green_bold  = "\033[1;32m"
+            cyan_bold   = "\033[1;36m"
+            end_color   = "\033[0m"
+        else:
+            # white_bold
+            blue_bold = yellow = yellow_bold = green_bold = cyan_bold = end_color = ""
             
-   
+        t = "\t- " if tab else ""
+        # enum_idx = white_bold + str(idx).rjust(2) + ". Despacho "
         
+        # dispatch_id = enum_idx + blue_bold +('#' + str(id))+end_color+" = ( "
         
+        # Eliminamos el enum_idx ya que la key del diccionario ya es númerico
+        dispatch_id = blue_bold +('#' + str(id))+end_color+" = ( "
+
+        status = model.get_status()
+        if status == DispatchStatus.PENDING:
+            estado = yellow + "Pendiente de envío" + end_color
+        elif status == DispatchStatus.IN_TRANSIT:
+            estado = yellow_bold + "En tránsito" + end_color
+        elif status == DispatchStatus.DELIVERED:
+            estado = green_bold + "Equipo entregado" + end_color
+        elif status == DispatchStatus.RETURNED:
+            estado = gray + "Devuelto a fábrica" + end_color
+            
+        dispatch_id += estado + " )"
+        
+        s = end_color + cyan_bold + "'"+ model._distributor_id +"'"+ end_color
+        distri_info = green_bold + "Distribuidor/ID = " + s
+        
+        if status != DispatchStatus.RETURNED:
+            s = end_color + cyan_bold + "'" + model._device_id + "'" + end_color
+            device_info = green_bold + "Equipo/ID       = " + s
+            
+            s = end_color + cyan_bold + str(model._delivery_days) + end_color
+            delivery_days_info = green_bold + "Días de entrega = " + s
+            
+            s = end_color + cyan_bold + str(model._remaining_days) + end_color
+            remain_days_info = green_bold + "Días restantes  = " + s
+            
+            print(dispatch_id + "\n" + t + distri_info + "\n" + t + device_info 
+                  + "\n" + t + delivery_days_info + "\n" + t + remain_days_info)
+        else:
+            s = end_color + blue_bold + "'" + model._device_id + "'" + end_color
+            returned_msg = green_bold + "Equipo/ID       = " + s + yellow_bold + " \n El equipo fue devuelto a fábrica por baja del distribuidor." + end_color
+            print(dispatch_id + "\n" + t + distri_info 
+                  + "\n" + t + returned_msg)
+
+        if p_l: Logger.print_line(50, color=True)
+
+
+
+
         
         
     

@@ -25,7 +25,7 @@ sistema HardVIU.
 from core.views.drawer import MenuDrawer
 from core.views.logger import Logger
 
-from core.controllers.controller import Controller, ModelType
+from core.controllers.controller import Controller, ModelType, ModelFactory
 
 class MenuDistributors(Controller):
 
@@ -35,8 +35,15 @@ class MenuDistributors(Controller):
         super().__init__(ModelType.DISTRIBUTOR)
         
         # Controlador de equipos a controlador de distribuidores (ctrl equipos)
-        device_controller = menu_devices.get_controller()
+        device_controller = menu_devices.get_controller()        
         self._controller.link_device_controller(device_controller)   
+        
+        # Esta instancia es un poco rebuscada, pero 'DistributorController'
+        # necesita de 'DispatchController' además de 'DeviceController'                
+        dm = ModelType.DISPATCH
+        dc = ModelFactory.create_controller(dm, self._controller._dispatch_dic)        
+        self._controller.link_dispatch_controller(dc)
+        
 
         # Menu principal. Mostramos al principio solo "Alta" ('max_options') 
         self._menu_distributor = MenuDrawer("HardVIU / 3) Distribuidores", [
@@ -98,8 +105,8 @@ class MenuDistributors(Controller):
             Logger.UI.success("Distribuidor", id, 
                               "eliminado del sistema.")
             return True
-
-    def update(self):
+        
+    def menu_distributor(self):
         while True:
             numero_opciones_visibles = 1
             if len(self._dic.items()) > 0: numero_opciones_visibles = 3 
@@ -131,3 +138,18 @@ class MenuDistributors(Controller):
             elif option== 0:  # Salir del menú Distribuidores
                 break
             else: Logger.UI.bad_option()
+    
+    def menu_dispatch(self):
+        Logger.UI.emph("Menu Despachos")
+        Logger.pause()
+        
+    def menu_days(self):
+        Logger.UI.emph("Menu Días")
+        Logger.pause()
+        
+    """  Función a llamar desde 'System' """
+    def update(self, op):        
+        if   op == 3: self.menu_distributor()
+        elif op == 4: self.menu_dispatch()
+        elif op == 5: self.menu_days()
+        

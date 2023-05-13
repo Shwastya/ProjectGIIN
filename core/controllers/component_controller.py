@@ -104,7 +104,7 @@ class ComponentController:
     
 
 
-    # ADD (usada al dar una nueva alta)
+    # ADD -COMPONENTS-
     def get_model_data_from_user(self, id):
         """
         La función pregunta al usuario por los datos del componente.    
@@ -126,8 +126,10 @@ class ComponentController:
         if not cantidad : return False   
         
         data = (tipo, peso, precio, cantidad)
+        Logger.Core.info("Registrando Componente '"+id+"'...") 
         return data    
     
+    # MODIFY -COMPONENTS-
     def set_modify_data_from_user(self, id):
         """
         Permite al usuario modificar un componente existente en función de su id.
@@ -203,7 +205,7 @@ class ComponentController:
         # Si no se realizó ninguna modificación, informamos al usuario 
         # y devolvemos False
         if not is_modified:
-            r = "No se realizaron modificaciones en el componente "+'"'+id+'"'
+            r ="No se realizaron modificaciones en el componente "+'"'+id+'"\n'
             Logger.Core.info(r)
             Logger.pause()
             return False
@@ -211,6 +213,7 @@ class ComponentController:
         # Aunque no se hayan modificado todos, pero por lo menos uno
         # se guardarán de nuevo los antiguos valores. 
         # (Debe seguir el diseño, igual es mejorable).
+        Logger.Core.info("Registrando modificaciones de componente '"+id+"'...")   
         data = (new_tipo, new_peso, new_precio, new_cantidad)
         return data     
     
@@ -267,6 +270,7 @@ class ComponentController:
         for id, data in component_data.items():            
    
            id_ = '"' + id + '"'
+           
            # Si el componente sigue existiendo en stock de componentes
            if id in self._component_dic:
                updated = self._component_dic[id].update_quantity(increment)
@@ -288,8 +292,8 @@ class ComponentController:
                    self._component_dic[id] = new_comp
                    Logger.Core.info("Componente " + id_
                                     + " dado de alta en el stock.")   
-               else:
-                   Logger.Core.info("Componente " + id_ + " desechado.")
+                   
+               else: Logger.Core.info("Componente " + id_ + " desechado.")
                 
                 
                 

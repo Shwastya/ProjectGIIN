@@ -60,23 +60,28 @@ class MenuComponents(Controller):
         while True:                        
             self._menu_add.display(True, False, True, obj = '"' + str(o) + '"')             
             if id == True:
-                id = super().get_and_check_id(mode = "add");
+                id = super().get_and_check_id(mode = "add", auxiliar_dic=None);
                 if id is None: break
                 elif id != True: o = id
                 continue
             else:
                 if super().new_model(id):                   
                     Logger.UI.success("Componente", id, self._result,
-                                      pause = False)                     
+                                      pause = False, newline = False)                     
                     id = True
                     o  = "Nuevo Componente"
                 else: break            
                 if not super().ask_this_question("Introducir otro componente"):                
                     break
                 
-    def select_component(self, pre_list):          
+    def select_component(self, pre_list):    
+        """
+        Recordar que devuelve tupla (id, user_cancellation).
+        user_cancellation es un bool para saber si es cancelación de usuario
+        el None de los datos recibidos, o es por otro motivo.
+        """
         self._id_config["question"] = "Nombre/ID o número de la lista"
-        self._id_config["rule"] = "'l' para listar"          
+        self._id_config["rule"] = "('l' para listar) = "          
         if pre_list: super().list_models_from_dic()      
         Logger.UI.cancel_info(n1 = '\n', level = 1)
         return super().select_model_from_dic()
@@ -85,13 +90,13 @@ class MenuComponents(Controller):
         Logger.UI.cancel_info(level = 1)        
         if self._controller.get_new_stock_from_user(id):        
             success = "stock actualizado."
-            Logger.UI.success("Componente", id, success)  
+            Logger.UI.success("Componente", id, success, newline = False)  
         
     def modify_info(self, id):        
         Logger.UI.cancel_info(level = 1)
         if super().modify_model_info(id):
-            success = "ha sido modificado con éxito."
-            Logger.UI.success("Componente", id, success)  
+            success = "ha finalizado el proceso de modificación."
+            Logger.UI.success("Componente", id, success, newline = False)  
         
     def remove_component(self, id): 
         
@@ -103,7 +108,7 @@ class MenuComponents(Controller):
         if self.ask_this_question(question):  
             if self._controller.remove(id):
                 success = "eliminado del sistema."
-                Logger.UI.success("Componente", id, success)  
+                Logger.UI.success("Componente", id, success, newline = False)  
                 return True
             
             
@@ -118,9 +123,13 @@ class MenuComponents(Controller):
             
             if option == 1: # Alta componente                
                 self.add_component()
-            elif option == 2 or option == 3: # Sub Menú Modificación 
+                
+            # Sub Menú Modificación 
+            elif (option == 2 or option == 3) and numero_opciones_visibles > 1: 
+                
+                
                 p_list = False if option < 3 else True
-                id = self.select_component(pre_list = p_list)                
+                id, user_cancel = self.select_component(pre_list = p_list)                
                 if not id: continue            
                 while True:                                       
                     self._menu_modi.display(True, True, obj = '"'+ id + '"',

@@ -82,10 +82,10 @@ class Logger:
             """ Blanco (97) """
             print("\033[" + str(b) + ";97m" + msg + "\033[0;m")
             
-        def info(msg, b = 0):            
+        def info(msg, b = 0, n = ''):            
             """ Magenta (35) """
             if K_ENABLE_SYSTEM_INFO:
-                print("\033[" + str(b) + ";35m[System]: " + msg + "\033[0;m")        
+                print(n+"\033[" + str(b) + ";35m[System]: " + msg + "\033[0;m")        
             
         def warn(msg, b = 1):
             """ Amarillo (33) """
@@ -95,6 +95,9 @@ class Logger:
             """ Rojo (35) """
             print("\033[" + str(b) + ";31m" + "Error: " + msg + "\033[0;m")   
             
+        def warn_pause(msg):            
+            Logger.Core.warn(msg)
+            Logger.pause()
         def error_warn_pause(msg1, msg2):
             Logger.Core.error(msg1)    
             Logger.Core.warn(msg2)

@@ -19,8 +19,8 @@ from core.views.logger import Logger
 
 from core.views.menu_components   import MenuComponents
 from core.views.menu_devices      import MenuDevices
-from core.views.menu_distributors import MenuDistributors
-from core.views.menu_dispatches   import MenuDispatches
+from core.views.menu_management   import MenuManagament
+#from core.views.menu_dispatches   import MenuDispatches
 
 class System:
     """    
@@ -29,11 +29,14 @@ class System:
         distribuidores
         despachos.
     """
-    def __init__(self):          
-        self._components     = MenuComponents()                
-        self._equipos        = MenuDevices(self._components)   
-        self._distribuidores = MenuDistributors(self._equipos) 
-        self._despachos      = MenuDispatches(self._distribuidores)
+    def __init__(self):   
+        
+        self._components = MenuComponents()                
+        self._equipos    = MenuDevices(self._components)   
+        self._gestion    = MenuManagament(self._equipos) 
+        
+        
+        #self._despachos      = MenuDispatches(self._distribuidores)
         # self.dias      = ...
         # self.historico = ...
         
@@ -49,22 +52,19 @@ class System:
         while True:
             self._main_menu.display()  
             
-            option = self._main_menu.get_option()
+            op = self._main_menu.get_option()
 
-            if   option == 1: self._components.update()
-            elif option == 2: self._equipos.update()                
-            elif option == 3: self._distribuidores.update()                
-            elif option == 4: self._despachos.update()
-            elif option == 5:
-                print("Option 5 (En implemtación)")
-                Logger.pause();
-            elif option == 6:
+            if   op == 1: self._components.update()
+            elif op == 2: self._equipos.update()            
+            elif op == 3 or op == 4 or op == 5: self._gestion.update(op)                
+            
+            elif op == 6:
                 print("Option 6 (En implemtación)")
                 Logger.pause();
-            elif option == 7:
+            elif op == 7:
                 print("Option 7 (En implemtación)")
                 Logger.pause();
-            elif option == 0: 
+            elif op == 0: 
                 if self._system.exit_control(): break
             else: Logger.UI.bad_option()  
                 

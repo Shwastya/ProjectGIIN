@@ -50,14 +50,7 @@ class Device:
 
         return components_list
 
-    def display(self, id, col = False, tab = True, p_l = True, max_id_len = 0,
-                idx = 1):
-        """
-        TODO: Display debería ser parte de la 'view'. Hay que replantear mejor 
-        las responsabilidades:
-            - ¿En Logger o en Drawer?
-            - ¿LLamar desde las clases menu de la 'view'?
-        """
+    def display(self, id, col=False, tab=True, p_l=True, max_id_len=0, idx=1):
         Displayer.device(self, id, col, tab, p_l, max_id_len, idx)
         
 
