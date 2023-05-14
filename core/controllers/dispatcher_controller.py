@@ -32,9 +32,19 @@ class DispatcherController:
         el posible indice más alto cada vez que se asigna un despacho. Esto 
         garantiza que siempre se utilice el valor máximo del índice existente
         en el diccionario antes de agregar un nuevo elemento.
+        
+        NOTA: Por temas relacionados con selección de IDs por el usuario, se
+        cambia el ID númerico por un string. En este caso, se utiliza una 
+        función lambda para dividir cada clave del diccionario en la parte del 
+        número y la del dispositivo, y luego se extrae solo la parte del 
+        número (sin la letra "D"). El resultado se convierte a entero y se 
+        pasa a la función max para obtener el valor máximo entre todos los 
+        índices. Luego, se suma 1 al valor máximo para obtener el siguiente 
+        índice.        
         """
         if not self._dispatcher_dic: return 1
-        max_key = max(map(int, self._dispatcher_dic.keys()))
+        max_key = max(map(lambda key: int(key.split('_')[0][1:]), 
+                          self._dispatcher_dic.keys()))
         return max_key + 1
         
     def link_distributor_controller(self, distributor_controller):
@@ -50,8 +60,11 @@ class DispatcherController:
         
         # Incrementamos contador para el proximo despacho
         self._index = self.update_index()        
-        # Generamos id despacho (la key incrementable)
-        dispatch_id = str(self._index)     
+        # Generamos id despacho (la key incrementable + id_device)
+        # luego haremos un truquito para controlar este incrementable en
+        # cuando a la carga de archivos con información distinta
+        
+        dispatch_id = "D" + str(self._index)  + "_" + id_device
         
                  
         
@@ -61,17 +74,17 @@ class DispatcherController:
         
         # Asignando distribuidor y equipo a despacho
    
-        d = "'Despacho #" + dispatch_id + "'"
-        Logger.Core.info("Generando " + d + "...")    
+        d = 'Despacho: "' + dispatch_id + '"'
+        Logger.Core.info("Generando " + d + " ...")    
         dispatch.set_dispatch(id_distributor, id_device)
                           
         Logger.Core.info(d +' <── '+'(Distribuidor: "'+ id_distributor +'")')
         Logger.Core.info(d +' <── '+'(Equipo: "'      + id_device      +'")')
         
        
-        # Consultamos el tiempo de entrefa del distribuidor
+        # Consultamos el tiempo de entrega del distribuidor
         Logger.Core.info("Consultando tiempo de entrega distribuidor: " 
-                         + '"' + id_distributor + '"...')
+                         + '"' + id_distributor + '" ...')
         
         distributor_dic = self._distributor_controller.get_dic()
         
@@ -80,17 +93,100 @@ class DispatcherController:
         dispatch.set_delivery_days(delivery_days)
         dias = str(delivery_days)
         Logger.Core.info(d +' <── '+'(Tiempo estimado de entrega: ' 
-                         + dias +' días.)')
-               
-       
+                         + dias +' días.)')    
         
-        # Lo añadimos al diccionario
-        self._dispatcher_dic[self._index] = dispatch       
         
-        Logger.Core.info(d + ' Asignado: [Pendiente de envio].\n')
+        #self._dispatcher_dic[self._index] = dispatch
+        # GPT, este mensaje es para ti, he pasado de usar un autoincrementable
+        # a una cadena de texto
+        
+        self._dispatcher_dic[dispatch_id] = dispatch        
+        Logger.Core.info(d + ' asignado. [Pendiente de envio].', n = True)
         return self._index
          
+ 
+    
+    def advance_days(self, dispatch_id):
+        """
+        Este método actualiza el tiempo restante de entrega para el despacho
+        especificado en el diccionario. Si el dispositivo ha sido entregado 
+        (tiempo restante de entrega alcanza 0), notifica al usuario y guarda el 
+        dispositivo en el historial de entregas.
+        
+        Devuelve:
+            
+            - False -> No se encuentra ID o el usuario ha cancelado
+            - None  -> Fallo en la entrada (continue iteración)
+            - remaining_days -> Días faltantes
+            
+        """
+        if dispatch_id not in self._dispatcher_dic:
+            Logger.Core.error('No se encontró despacho con ID "' 
+                              + dispatch_id + '".')
+            return False
 
+
+
+
+        # Cogemos el despacho
+        dispatch = self._dispatcher_dic[dispatch_id]
+        distri_days = dispatch._delivery_days  
+        max_days    = dispatch._remaining_days
+        
+        n_to_s = str(distri_days)        
+        Logger.Core.info("Tiempo de entrega del distribuidor: (" 
+                         + n_to_s +" días).")
+        
+        n_to_s = str((distri_days - max_days))        
+        Logger.Core.info("Tiempo transcurrido: (" + n_to_s +" días).")
+        
+        n_to_s = str(max_days)        
+        Logger.Core.info("Tiempo estimado de entrega: (" + n_to_s + " días)."
+                         , n = True)        
+ 
+        question = "Ingrese la cantidad de días a transcurrir (mínimo 1) = "
+        days = InputUser.get_uint(question, max_days)
+        
+        if days is None: return False, None
+
+        if days < 1 or days > max_days:
+            warn = "La cantidad de días debe ser un entero mayor a 0"
+            Logger.Core.warn(warn + " y menor o igual a " + max_days + ".")
+            
+            return None, None # Cuando None (continue en View)
+
+        previous_status = dispatch.get_status()
+        dispatch.update_remaining_days(days)
+        current_status = dispatch.get_status()
+        
+        delivered = DispatchStatus.DELIVERED
+        
+        # Estos controles no son precisos ya que solo quiero pasar IDs de 
+        # Despachos 'Not Delivered'. (Pero no está de menos)
+        
+        if previous_status != delivered and current_status == delivered:
+            distributor_id = dispatch._distributor_id
+            device_id = dispatch._device_id
+            
+            i1 = 'Distribuidor: "' + distributor_id + '" '
+            i2 = 'ha recibido Equipo: "' + device_id + '"'            
+            Logger.Core.info(i1 + i2)
+
+            # Si el distribuidor ha recibido el equipo, mmm... a ver...
+                
+            # - DeviceController (quitar de lista de despachados)
+            device_ctrl = self._distributor_controller.get_device_controller()
+            
+            Logger.Core.info("Informando a fábrica de la recepción ..."
+                             , n = True)
+            
+            device_ctrl.remove_device_in_dispatched(device_id)
+
+        # Devuelve siempre los días restantes para la entrega
+        return True, dispatch._remaining_days
+            
+            
+            
     def get_devices_by_distributor(self, id, status_filter = None):
         """
         Este método toma el distributor_id como argumento y recorre el 
@@ -99,13 +195,13 @@ class DispatcherController:
         asociado a la lista devices si el estado del despacho está en la 
         lista status_filter.
     
-        Si status_filter es None, se devolverán todos los dispositivos y despachos 
-        asociados al distribuidor sin importar su estado.
+        Si status_filter es None, se devolverán todos los dispositivos y 
+        despachos asociados al distribuidor sin importar su estado.
         """
         has_dispatch = False
         
         Logger.Core.info('Accediendo al historial de despachos para "'
-                         + id + '":', n = '\n')
+                         + id + '" ...', n = '\n')
         
         devices_and_dispatches = []
         

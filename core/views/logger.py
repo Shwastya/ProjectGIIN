@@ -82,10 +82,13 @@ class Logger:
             """ Blanco (97) """
             print("\033[" + str(b) + ";97m" + msg + "\033[0;m")
             
-        def info(msg, b = 0, n = ''):            
+        def info(msg, b = 0, n = False):            
             """ Magenta (35) """
             if K_ENABLE_SYSTEM_INFO:
-                print(n+"\033[" + str(b) + ";35m[System]: " + msg + "\033[0;m")        
+                #print(n+"\033[" + str(b) + ";35m[System]: " + msg + "\033[0;m")        
+                print("\033[" + str(b) + ";35m[System]: " + msg + "\033[0;m")   
+                # Una pequeña adapatción estetica 
+                if n: Logger.print_line(50, color = True)
             
         def warn(msg, b = 1):
             """ Amarillo (33) """
@@ -132,7 +135,7 @@ class Logger:
         
         def deregistration():
             Logger.Core.warn("Se ha cancelado el registro.")
-            Logger.Core.info("Entradas actuales descartadas.")
+            Logger.Core.info("Entradas actuales descartadas.", n = True)
             Logger.pause()
             
                 
@@ -154,7 +157,7 @@ class Logger:
             print("\033[" + str(b) + ";34m" + msg + "\033[0;m")
             
         def cancel_info(n1 = '', n2 = '', level = 0):
-            info = "Para cancelar las entradas de registro (=), ingrese"
+            info = "Para cancelar registro (=), ingrese"
             if level == 0:
                 Logger.low_info(n1 + info + " '" + K_USER_CANCEL + "'" + n2)
             else:
@@ -177,7 +180,9 @@ class Logger:
         print("\n")
         Logger.Core.info("Console Logger Starting")
         Logger.UI.info(" - Ajuste en (True|False) la info de [System] en 'settings.py'", 0)
-        Logger.UI.info(" - El proposito principal de info [System] es para 'Debug'", 0)
+        Logger.UI.info(" - La principal función de info [System] es para 'Debug'", 0)
+        Logger.UI.info(" - La identificación de los ID's es (sensible a mayúsculas y minúsculas)", 0)
+        Logger.UI.info(" - Para 'cancelar' un registro, ingrese 'x' o 'X'", 0)
     def shutdown():
         Logger.Core.info("Shutting-down Logger")          
 

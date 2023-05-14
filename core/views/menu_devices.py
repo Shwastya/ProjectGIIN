@@ -97,24 +97,12 @@ class MenuDevices(Controller):
                 else: break            
                 if not super().ask_this_question("Ensamblar otro equipo"):                
                     break
-                
-    def select_device(self, pre_list):   
-        """
-        Recordar que devuelve tupla (id, user_cancellation).
-        user_cancellation es un bool para saber si es cancelación de usuario
-        el None de los datos recibidos, o es por otro motivo.
-        """
-        self._id_config["question"] = "Nombre/ID o número de la lista"
-        self._id_config["rule"] = "('l' para listar) = "                
-        if pre_list: super().list_models_from_dic()      
-        Logger.UI.cancel_info(n1 = '\n', level = 1)
-        return super().select_model_from_dic()    
         
     def modify_info(self, id):            
         self._controller.set_add_or_modify_mode("modify")        
         Logger.UI.cancel_info(level = 1)
         if super().modify_model_info(id):
-            success = "ha finalizado el proceso de modificación."
+            success = "modificado con éxito."
             Logger.UI.success("Equipo", id, success, newline = False)  
         
     def remove_device(self, id):
@@ -143,8 +131,9 @@ class MenuDevices(Controller):
             
             elif (option == 2 or option == 3) and numero_opciones_visibles > 1: 
                 
-                p_list = False if option < 3 else True                           
-                id, user_cancel = self.select_device(pre_list = p_list)                
+                p_list = False if option < 3 else True   
+                args = [self._dic, "Equipo", p_list, True]                        
+                id, user_cancel = super().select_model(*args)                
                 if not id: continue            
                 while True:
                     self._menu_modi.display(True, True, obj = '"'+ id + '"',

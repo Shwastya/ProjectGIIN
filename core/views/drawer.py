@@ -229,7 +229,7 @@ class Displayer:
         from core.models.dispatch import DispatchStatus
         
         if col:
-            #white_bold  = "\033[1;37m"
+            white_bold  = "\033[1;37m"
             gray        = "\033[0;37m"
             blue_bold   = "\033[1;34m"
             yellow      = "\033[0;33m"
@@ -238,16 +238,13 @@ class Displayer:
             cyan_bold   = "\033[1;36m"
             end_color   = "\033[0m"
         else:
-            # white_bold
-            blue_bold = yellow = yellow_bold = green_bold = cyan_bold = end_color = ""
+            white_bold = blue_bold = yellow    = yellow_bold = "" 
+            green_bold = cyan_bold = end_color = ""
             
         t = "\t- " if tab else ""
-        # enum_idx = white_bold + str(idx).rjust(2) + ". Despacho "
+        enum_idx = white_bold + str(idx).rjust(2) + ". Despacho = " + end_color
         
-        # dispatch_id = enum_idx + blue_bold +('#' + str(id))+end_color+" = ( "
-        
-        # Eliminamos el enum_idx ya que la key del diccionario ya es númerico
-        dispatch_id = blue_bold +('#' + str(id))+end_color+" = ( "
+        dispatch_id = enum_idx + blue_bold + '"' + id + '"' + end_color +" ( "
 
         status = model.get_status()
         if status == DispatchStatus.PENDING:

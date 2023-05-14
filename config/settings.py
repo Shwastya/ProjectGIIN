@@ -19,11 +19,15 @@ K_ENABLE_SCROLL = True
 K_SCROLL = K_ENABLE_SCROLL  # nombre corto
 
 
-
-
+"""
+'K_MODEL_SEPARATOR' Define el separador entre los diccionarios de los modelos.
+Para guardar y cargar la información en archivos.
+"""
+K_MODEL_SEPARATOR = "#MODEL_DIC"
+K_M_S = K_MODEL_SEPARATOR
 
 """
-Define el separador de cadena que se utilizará en las entidades.
+'K_SEPARATOR' Define el separador de cadena que se utilizará en los modelos.
 Hay que tener en cuenta que si se modifica el separador y se intenta acceder
 a archivos antiguos con otro separador, pueden surgir problemas.
 """

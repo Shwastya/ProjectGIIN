@@ -29,7 +29,7 @@ class Dispatch: # Modelo Despacho
         self._remaining_days = None
 
     """
-    '__update_status' es método privado de la clase.
+    '__update_status' método privado de la clase.
     """
     def __update_status(self):       
         
@@ -58,7 +58,7 @@ class Dispatch: # Modelo Despacho
             self._remaining_days = 0
         
         # AL modificar los días faltantes se actualiza el estado (status).
-        self._update_status()
+        self.__update_status()
 
     def get_status(self):
         return self._status

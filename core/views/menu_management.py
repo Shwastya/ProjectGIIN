@@ -17,7 +17,9 @@ sino que maneja varios elementos:
 from core.views.drawer import MenuDrawer
 from core.views.logger import Logger
 
+
 from core.controllers.controller import Controller, ModelType, ModelFactory
+from core.models.dispatch        import DispatchStatus
 
 class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
 
@@ -60,17 +62,31 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
         # Menú único de despachos        
         self._menu_disp = MenuDrawer(3*' '+ "HardVIU / 4) Despachar" + ' '*3)
         
-        self._depacho_result = "asignado con éxito."
+        self._despacho_result = "asignado con éxito."
         
         """
         PROPIEDADES DÍAS
         """
         # Menú único de días
-        self._menu_days = MenuDrawer(3*' '+ "HardVIU / 4) Días" + ' '*3)
+        self._menu_days = MenuDrawer(5*' '+ "HardVIU / 5) Días" + ' '*5)
+        
+        self._dias_result = "(PENDIENTE)."
+        
+        """
+        PROPIEDADES INFO SISTEMA
+        """
+        self._menu_infosys = MenuDrawer("HardVIU / 6) Info sistema", [
+            "Componentes en sistema", "Equipos disponibles",
+            "Lista de Distribuidores", "Histórico de Despachos"])
+        
+        self._sub_menu_historico = MenuDrawer(
+            "HardVIU / 6) Info sistema / 4) Histórico de Despachos", [
+                "Pendientes de envío", "En tránsito", "Entregados", 
+                "Devueltos a Fábrica", "Todos los Despachos"])
         
         
     """
-    METODOS DISTRIBUIDOR (Distrubutors)
+    METODOS DISTRIBUIDOR (Distributors)
     """    
     def get_controller(self): return self._controller
 
@@ -103,10 +119,10 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
     
 
     def modify_info(self, id):
-        Logger.UI.cancel_info(n1 = '\n', level = 1)
+        Logger.UI.cancel_info(level = 1)
         if super().modify_model_info(id):
             Logger.UI.success("Distribuidor", id, 
-                              "ha finalizado el proceso de modificación.",
+                              "modificado con éxito.",
                               newline = False)
 
     def remove_distributor(self, id):        
@@ -134,9 +150,8 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
             elif (option == 2 or option == 3) and numero_opciones_visibles > 1:
                 
                 p_list = False if option < 3 else True               
-                
                 args = [self._dic, "Distribuidor", p_list, False]
-                id, user_cancel = self.select_model(*args)                 
+                id, user_cancel = super().select_model(*args)                 
                 
                 if not id: continue
                 while True:                    
@@ -157,23 +172,6 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
             elif option== 0:  # Salir del menú Distribuidores
                 break
             else: Logger.UI.bad_option()
-    """
-    METODO GENERICO 'select_model':
-        
-        - Modelos escogibles: Distributor, Device y Dispatch
-    """
-    
-    def select_model(self, model_dic, name, pre_list, info = True):   
-        """
-        Recordar que devuelve tupla (id, user_cancellation).
-        user_cancellation es un bool para saber si es cancelación de usuario
-        el None de los datos recibidos, o es por otro motivo.
-        """
-        self._id_config["question"] = "ID " + name + " o número de la lista"
-        self._id_config["rule"    ] = "('l' para listar) = "
-        if pre_list: super().list_models_from_dic(name, model_dic)
-        if info: Logger.UI.cancel_info(level = 1)
-        return super().select_model_from_dic(model_dic, name)      
             
     """
     METODOS DESPACHOS (Dispatchs)
@@ -200,7 +198,7 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
                 # Entradas de usuario (siempre en InputUser)
                 args = [self._dic, "Distribuidor", False, False]
                 # Desempaquetamos con operador * (idea de hacerlo en todo)
-                id_distributor, user_cancel = self.select_model(*args)               
+                id_distributor, user_cancel = super().select_model(*args)               
                 
                 # Registro 'Distribuidores' vacio
                 if id_distributor is None and not user_cancel:
@@ -231,7 +229,7 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
                 # Entradas de usuario (InputUser)
                 # Función generica para escoger un modelo (se pasa dic)               
                 args = [device_dic,"Equipo", False, False]
-                id_device,user_cancel = self.select_model(*args)
+                id_device,user_cancel = super().select_model(*args)
                 
                 # Registro 'Equipo' vacio
                 if id_device is None and not user_cancel:
@@ -253,15 +251,16 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
                 
                 result = dispatch_ctrl.new_dispatch(dispatch, id_distributor,
                                                     id_device)               
-                if result > 0:                   
-                    Logger.UI.success("Despacho", '#'+str(result), 
-                                      self._depacho_result,
-                                      pause = False, newline = False)       
-                    
-                dic = dispatch_ctrl.get_dic()
-                super().list_models_from_dic("Despachos", dic)          
+                if result > 0:  
+                    id = 'D' + str(result) + '_' + id_device
+                    Logger.UI.success("Despacho", id, self._despacho_result,
+                                      pause = True, newline = False)       
                 
-                Logger.pause()
+                # # TODO: RECORDAR BORRAR ESTO
+                # dic = dispatch_ctrl.get_dic()
+                # super().list_models_from_dic("Despachos", dic)               
+                # Logger.pause()
+                # # 
                 break  
     
     def menu_dispatch(self): self.add_dispatch()
@@ -297,34 +296,71 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
             if not is_selected:
                 
                 # Entradas de usuario (siempre en InputUser)
-                args = [dispatch_dic, "Despachos", False, False]
-                id_dispatch, user_cancel = self.select_model(*args)
                 
+                # Solo podemos modificar despachos pendientes o en transito
+                filtro   = [DispatchStatus.PENDING, DispatchStatus.IN_TRANSIT]
                 
-                Logger.pause()
+                # filtramos modelos con la función 'controller' base                
+                dic = super().filter_models(dispatch_dic, filtro)
                 
+               
                 
+                args = [dic,"Despachos", False,False, "Pendiente; En transito"]
                 
+                id_dispatch, user_cancel = super().select_model(*args)                
+                
+                # Registro 'Equipo' vacio
+                if id_dispatch is None and not user_cancel:
+                    Logger.UI.emph("Asigne algún despacho en el menú Despachar.")
+                    Logger.pause() # A la espera de que el usuario lea mensaje
+                    break 
+                # El usuario ha cancelado  
+                if user_cancel: break    
             
             
+                is_selected = True
+                o = id_dispatch
+                Logger.UI.cancel_info(level = 1)
+                continue
             
+            else:             
+                
+                result, days = dispatch_ctrl.advance_days(id_dispatch)
+                
+                if not result: break # Cancelación (esto lo veo arriesgado)
+                elif result is None: continue # Fallo en la entrada (continue)
+                else:                         # Dias restantes
+                
+                    dias = "(" + str(days) + ")"
+                    if days > 0:           
+                        msg = "Días estimados para la entrega:"
+                        self._dias_result = "(EN TRANSITO)."
+                    else:
+                        msg = "Equipo llegó a destino. Días restantes:"
+                        self._dias_result = "(ENTREGADO)."
+                    
+                Logger.UI.success(msg, dias, self._dias_result, pause = True, 
+                                  newline = False)
+                break
             
-        
-        
-        
-        
-        
-        
-    
-    
-        
     def menu_days(self):
-        Logger.UI.emph("Menu Días")
-        Logger.pause()
+        self.add_days()
+    
+    """
+    METODOS INFO SYSTEM
+    """   
+    def info_system(self):
+        self.add_days()
+        print("INFO SISTEMA (IN CONTROLLER WORK)")
+        
         
     """  Función a llamar desde 'System' """
     def update(self, op):        
         if   op == 3: self.menu_distributor()
         elif op == 4: self.menu_dispatch()
         elif op == 5: self.menu_days()
+        elif op == 6: self.info_system()
         
+
+
+

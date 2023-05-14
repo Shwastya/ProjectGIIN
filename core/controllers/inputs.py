@@ -13,17 +13,32 @@ from config.settings   import K_USER_CANCEL, K_LIST
 
 class InputUser:   
     
+  
     @staticmethod
-    def get_uint(msg):
-        """ Pide un número entero mayor que cero"""
+    def get_uint(msg, max_value = None):
+        """ Pide un número entero mayor que cero. Da opción a un valor max."""
         while True:
             i = input(msg)
             if i.lower() == K_USER_CANCEL.lower():
                 Logger.Core.deregistration()
                 return None
-            elif i.isdigit() and int(i) > 0:
-                return int(i)
-            else: Logger.Core.warn("El número debe ser entero y mayor que 0.")
+            try:
+                num = int(i)
+                if num > 0 and (max_value is None or num <= max_value):
+                    return num
+                else:
+                    if max_value is not None and num > max_value:
+                        Logger.Core.warn(
+                            "El número debe ser entero y menor o igual a "  
+                            + str(max_value) + ".")
+                    else:
+                        Logger.Core.warn(
+                            "El número debe ser entero y mayor que 0.")
+            except ValueError:
+                Logger.Core.warn(
+                    "Entrada no válida. Por favor, ingrese un número entero.")
+
+
     
     @staticmethod
     def get_float(msg):
@@ -39,8 +54,7 @@ class InputUser:
                 Logger.Core.warn("Introduce un número real mayor que 0.")                
        
     @staticmethod
-    def get_str(question, regla = None, minim = 1, maxim = None, 
-                     need_list = False):
+    def get_str(question, regla=None, minim=1, maxim=None, need_list=False):
         """
         Pide un alfanumérico.Se añade la posibilidad de validar 'K_USER_CANCEL'
         con 'need_list' por si queremos dar opción o no a pedir un listado.
@@ -123,34 +137,8 @@ class InputUser:
    
 
     @staticmethod
-    def get_valid_index_or_id(question, max_index, id_list, need_list=False):
-        """
-        TODO: Esta función controla tambien un caso de ambiguedad entre indice
-        y Nombre/ID
-        
-        Solicita al usuario que ingrese un índice o ID válido.
-        
-        Parámetros:
-        - question: La pregunta que se le hará al usuario.
-        - max_index: El índice máximo permitido.
-        - id_list: La lista de IDs válidos.
-        - need_list: Si se necesita la opción de mostrar la lista (opcional).
-        
-        Retorno:
-        - Una tupla que contiene el tipo de entrada ("index" o "id"), el valor 
-        de entrada y un booleano que indica si se debe mostrar la lista.
-    
-        La función verifica si la entrada del usuario es un número dentro del 
-        rango permitido de índices. Si el usuario ingresa un número de 3 
-        caracteres que también está presente en la lista de IDs, se le pedirá 
-        que ingrese directamente el ID para evitar confusiones. Si la entrada 
-        es válida, devuelve una tupla con el tipo de entrada, el valor y un 
-        booleano que indica si se debe mostrar la lista de elementos 
-        (si need_list es True).
-    
-        Si el usuario cancela la operación, devuelve None en lugar del tipo y 
-        el valor de entrada.
-        """
+    def get_valid_index_or_id(question, max_index, id_list, need_list = False
+                              , has_shown_list=False):
         while True:
             input_str = input(question)
     
@@ -164,11 +152,15 @@ class InputUser:
             if input_str.isdigit():
                 index = int(input_str)
                 if 1 <= index <= max_index:
-                    if input_str in id_list:
-                        Logger.Core.info("Ambiguedad entre índice e ID.")                        
+                    if not has_shown_list:
                         Logger.Core.warn(
-                            "El número ingresado coincide con un ID.")
-                        s="Ingrese el ID directamente para evitar confusiones."
+                            "No ingrese el índice antes de ver la lista. Ingresa el ID (o muestra la lista).")
+                        continue
+    
+                    if input_str in id_list:
+                        Logger.Core.info("Ambiguedad entre índice e ID.")
+                        Logger.Core.warn("El número ingresado coincide con un ID.")
+                        s = "Ingrese el ID directamente para evitar confusiones."
                         Logger.Core.warn(s)
                         continue
                     return "index", index, False
@@ -180,25 +172,26 @@ class InputUser:
 
 
     @staticmethod
-    def get_valid_model(q, r, disp_models, need_list = False):
-        
-        question = q + " " + r # question + rule
-        
+    def get_valid_model(q, r, disp_models, need_list = False, 
+                        has_shown_list = False):
+        question = q + " " + r  # question + rule
+
         max_index = len(disp_models)
-        id_list = [model_id for model_id, model in disp_models]
+        id_list = [model_id for model_id, model in disp_models]        
 
         i_type, i_value, show_list = InputUser.get_valid_index_or_id(question,
                                                                      max_index,
                                                                      id_list,
-                                                                     need_list)
-        if i_type is None:  return None, None, show_list
+                                                                     need_list,
+                                                                     has_shown_list)
+        if i_type is None: return None, None, show_list
 
         if i_type == "index":
             selected_model_id, selected_model = disp_models[i_value - 1]
         elif i_type == "id":
             selected_model_id = i_value
-            selected_model = next(model for model_id, 
-                                  model in disp_models 
+            selected_model = next(model for model_id,
+                                  model in disp_models
                                   if model_id == selected_model_id)
 
         return selected_model_id, selected_model, show_list

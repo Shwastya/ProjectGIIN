@@ -53,10 +53,11 @@ class MenuComponents(Controller):
     def add_component(self): # Alta de componente        
     
         self._id_config["question"] = "Nombre/ID de " + self._model._name
-        self._id_config["rule"]     = "alfanumérico, mínimo 3 caracteres"         
+        self._id_config["rule"    ] = "alfanumérico, mínimo 3 caracteres"         
         
         id = True
-        o  = "Nuevo Componente"               
+        o  = "Nuevo Componente"  
+             
         while True:                        
             self._menu_add.display(True, False, True, obj = '"' + str(o) + '"')             
             if id == True:
@@ -66,49 +67,53 @@ class MenuComponents(Controller):
                 continue
             else:
                 if super().new_model(id):                   
-                    Logger.UI.success("Componente", id, self._result,
-                                      pause = False, newline = False)                     
+                    Logger.UI.success("Componente",id,self._result,pause=False)      
                     id = True
                     o  = "Nuevo Componente"
                 else: break            
                 if not super().ask_this_question("Introducir otro componente"):                
                     break
                 
-    def select_component(self, pre_list):    
-        """
-        Recordar que devuelve tupla (id, user_cancellation).
-        user_cancellation es un bool para saber si es cancelación de usuario
-        el None de los datos recibidos, o es por otro motivo.
-        """
-        self._id_config["question"] = "Nombre/ID o número de la lista"
-        self._id_config["rule"] = "('l' para listar) = "          
-        if pre_list: super().list_models_from_dic()      
-        Logger.UI.cancel_info(n1 = '\n', level = 1)
-        return super().select_model_from_dic()
+    # def select_component(self, pre_list):    
+    #     """
+    #     Recordar que devuelve tupla (id, user_cancellation).
+    #     user_cancellation es un bool para saber si es cancelación de usuario
+    #     el None de los datos recibidos, o es por otro motivo.
+    #     """
+    #     self._id_config["question"] = "Nombre/ID de componente"        
+    #     self._id_config["rule"] = "(o 'l' para mostrar lista) = "          
+        
+    #     if pre_list: 
+    #         self._id_config["question"] = "Nombre/ID o número de la lista"
+    #         self._id_config["rule"] = "('l' listar de nuevo) = "
+    #         super().list_models_from_dic()      
+            
+    #     Logger.UI.cancel_info(level = 1)
+        
+    #     return super().select_model_from_dic(can_select_index = pre_list)
     
     def modify_stock(self, id):
         Logger.UI.cancel_info(level = 1)        
         if self._controller.get_new_stock_from_user(id):        
             success = "stock actualizado."
-            Logger.UI.success("Componente", id, success, newline = False)  
+            Logger.UI.success("Componente", id, success)  
         
     def modify_info(self, id):        
         Logger.UI.cancel_info(level = 1)
         if super().modify_model_info(id):
-            success = "ha finalizado el proceso de modificación."
-            Logger.UI.success("Componente", id, success, newline = False)  
+            success = "modificado con éxito."
+            Logger.UI.success("Componente", id, success)  
         
     def remove_component(self, id): 
         
-        Logger.UI.success("Componente", id, 'seleccionado para su eliminación.',
-                          newline = False, 
+        Logger.UI.success("Componente", id, 'seleccionado para su eliminación.', 
                           pause   = False)  
         
         question = "Seguro que desea eliminar este componente del sistema"
         if self.ask_this_question(question):  
             if self._controller.remove(id):
                 success = "eliminado del sistema."
-                Logger.UI.success("Componente", id, success, newline = False)  
+                Logger.UI.success("Componente", id, success)  
                 return True
             
             
@@ -125,12 +130,13 @@ class MenuComponents(Controller):
                 self.add_component()
                 
             # Sub Menú Modificación 
-            elif (option == 2 or option == 3) and numero_opciones_visibles > 1: 
-                
+            elif (option == 2 or option == 3) and numero_opciones_visibles > 1:                 
                 
                 p_list = False if option < 3 else True
-                id, user_cancel = self.select_component(pre_list = p_list)                
+                args = [self._dic, "Componente", p_list, True]
+                id, user_cancel = super().select_model(*args)                
                 if not id: continue            
+            
                 while True:                                       
                     self._menu_modi.display(True, True, obj = '"'+ id + '"',
                                             zero = "Menú anterior")

@@ -40,25 +40,25 @@ class ComponentController:
         tipo = InputUser.get_from_enum(ComponentType, msg1, msg2)
         if tipo is None    : return False
         temp = "<── (" + tipo.value + ":" + ' "' + id + '"'
-        Logger.Core.info(temp + ")\n")          
+        Logger.Core.info(temp + ")", n = True)          
         return tipo        
     
     def __get_weight_from_user(self, msg):
         peso = InputUser.get_uint("Peso en gramos del componente = ")
         if peso is None    : return False
-        Logger.Core.info(msg + '. ' + str(peso) + ' gramos)\n') 
+        Logger.Core.info(msg + '(Peso: ' + str(peso) + ' g)', n = True) 
         return peso        
     
     def __get_price_from_user(self, msg):
         precio = InputUser.get_float("Precio en euros del componente = ")
         if precio  is None  : return False
-        Logger.Core.info(msg  + '. ' + str(precio) + ' euros)\n')     
+        Logger.Core.info(msg  + '(Precio: ' + str(precio) + ' €)', n = True)     
         return precio        
     
     def __get_quantity_from_user(self, msg):
         cantidad = InputUser.get_uint("Cantidad de componentes = ")
         if cantidad is None : return False           
-        Logger.Core.info(msg + '. ' + str(cantidad) + ' stock)\n')
+        Logger.Core.info(msg + '(Stock: ' + str(cantidad) + ' U/Uds)', n = True)
         return cantidad
     
     """
@@ -76,7 +76,7 @@ class ComponentController:
         """            
         if len(self._component_dic) == 0:
             warn  = "Agregue componentes desde el menú de Componentes."
-            error = "¡Stock de componentes vacío! Registro cancelado..."
+            error = "¡Stock de componentes vacío! Registro cancelado."
             Logger.Core.error_warn_pause(error, warn)
             return False    
         return True
@@ -114,7 +114,7 @@ class ComponentController:
         """       
         tipo = self.__get_type_from_user(id)
         if not tipo     : return False        
-        msg = "<── (" + tipo.value + ":" + ' "' + id + '"'
+        msg = "(" + tipo.value + ":" + ' "' + id + '") <── '
         
         peso = self.__get_weight_from_user(msg)
         if not peso     : return False                   
@@ -126,7 +126,9 @@ class ComponentController:
         if not cantidad : return False   
         
         data = (tipo, peso, precio, cantidad)
-        Logger.Core.info("Registrando Componente '"+id+"'...") 
+        
+        Logger.Core.info('Registrando Componente "' + id + '" ...', n = True) 
+        
         return data    
     
     # MODIFY -COMPONENTS-
@@ -163,12 +165,12 @@ class ComponentController:
         else: new_tipo = old._tipo
         
         t    = str(new_tipo.value)
-        msg  = "<── (" + t + ": " + old_id
-        info = "──> (" + t + ": " + old_id + ". "
+        msg  = "(" + t + ": " + old_id + ") <── "
+        info = "(" + t + ": " + old_id + ") ──> "
         
         # PESO DEL COMPONENTE
         old_peso = str(old._peso)
-        Logger.Core.info(info + old_peso + " gramos)")        
+        Logger.Core.info(info + "(Peso: " + old_peso + " g)")        
     
         question = "¿Desea modificar el peso del componente?"
         if InputUser.ask_yes_no_question(question):           
@@ -180,7 +182,7 @@ class ComponentController:
     
         # PRECIO DEL COMPONENTE
         old_precio = str(old._precio)
-        Logger.Core.info(info + old_precio + " euros)")                
+        Logger.Core.info(info + "(Precio: " + old_precio + " €)")                
         
         question = "¿Desea modificar el precio del componente?"
         if InputUser.ask_yes_no_question(question):            
@@ -192,7 +194,7 @@ class ComponentController:
         
         # CANTIDAD DEL COMPONENTE
         old_stock = str(old._cantidad)
-        Logger.Core.info(info + old_stock + " stock)")                
+        Logger.Core.info(info + "(Stock: " + old_stock + " U/Uds)")                
         
         question = "¿Desea modificar la cantidad del componente?"
         if InputUser.ask_yes_no_question(question):            
@@ -205,15 +207,16 @@ class ComponentController:
         # Si no se realizó ninguna modificación, informamos al usuario 
         # y devolvemos False
         if not is_modified:
-            r ="No se realizaron modificaciones en el componente "+'"'+id+'"\n'
-            Logger.Core.info(r)
+            r ="No se realizaron modificaciones en el componente "+'"'+id+'"'
+            Logger.Core.info(r, n = True)
             Logger.pause()
             return False
         
         # Aunque no se hayan modificado todos, pero por lo menos uno
         # se guardarán de nuevo los antiguos valores. 
         # (Debe seguir el diseño, igual es mejorable).
-        Logger.Core.info("Registrando modificaciones de componente '"+id+"'...")   
+        Logger.Core.info("Registrando modificaciones de componente '" 
+                         + id + "' ...", n = True)   
         data = (new_tipo, new_peso, new_precio, new_cantidad)
         return data     
     
@@ -232,8 +235,8 @@ class ComponentController:
         
         self._component_dic[id].set_quantity(c)        
                
-        info  = '<── (' + t + ': ' + '"' + id + '". ' + str(c) + ' stock)\n'
-        Logger.Core.info(info) 
+        info = '(' + t +': ' + '"' + id + '") <── (Stock: ' + str(c) + ' U/Uds)'
+        Logger.Core.info(info, n = True) 
         
         return True
     
@@ -242,9 +245,9 @@ class ComponentController:
         TODO: Empezamos a realizar cierta parte de la separación de
         responsabilidades 
         """
-        Logger.Core.info('Eliminando "' + id + '"...') 
+        Logger.Core.info('Eliminando "' + id + '" ...') 
         del self._component_dic[id]  
-        Logger.Core.info('"' + id + '" eliminado.\n' ) 
+        Logger.Core.info('"' + id + '" eliminado.', n = True) 
         
         return True
         

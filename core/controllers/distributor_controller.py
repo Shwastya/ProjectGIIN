@@ -73,9 +73,11 @@ class DistributorController:
         delivery = InputUser.get_uint(
             "Tiempo de entrega desde fábrica en días = ")
         
+        id_ = '("' + id + '") <── '
+        
         if delivery is None: return False
-        Logger.Core.info('<── ' + '"' + id + '". (Tiempo de entrega ' 
-                         + str(delivery) + ' días)\n')
+        Logger.Core.info(id_ + '(Tiempo de entrega ' 
+                         + str(delivery) + ' días)', n = True)
         
         address = InputUser.get_str(self._address_config["question"],
                                     self._address_config["rule"    ],
@@ -83,12 +85,12 @@ class DistributorController:
                                     self._address_config["maxim"   ], False)
         
         if address is None: return False
-        Logger.Core.info('<── ' + '"' + id + '". (' + address + ")\n")        
+        Logger.Core.info(id_ + '(' + address + ")", n = True)        
 
         data = (delivery, address)        
         if not data: return None
         
-        Logger.Core.info('Registrando distribuidor "' + id + '"...'  ) 
+        Logger.Core.info('Registrando distribuidor "' + id + '" ...', n = True) 
         return data
     
     # MODIFY
@@ -103,7 +105,8 @@ class DistributorController:
         old_id = '"' + id + '"'
         old = self._distributor_dic.get(id)
     
-        is_modified = False
+        is_modified       = False
+        modify_dispatches = False
     
         if old is None:
             Logger.Core.warn(
@@ -115,7 +118,7 @@ class DistributorController:
     
         # TIEMPO DE ENTREGA
         old_delivery = str(old._delivery_time)
-        Logger.Core.info("──> (" + old_id + ": " + old_delivery + " días)")
+        Logger.Core.info("(" + old_id + ") ──> (" + old_delivery + " días)")
     
         question = "¿Desea modificar el tiempo de entrega del distribuidor?"
         if InputUser.ask_yes_no_question(question):
@@ -123,15 +126,17 @@ class DistributorController:
                 "Nuevo tiempo de entrega desde fábrica en días = ")
             if new_delivery is None:
                 return False
-            Logger.Core.info("<── (" + old_id + ": " + str(new_delivery) 
-                             + " días)\n")
-            is_modified = True       
+            
+            Logger.Core.info("(" + old_id + ") <── (" + str(new_delivery) 
+                             + " días)", n = True)
+            is_modified       = True                
+            modify_dispatches = True
             
         else: new_delivery = old._delivery_time
     
         # DIRECCIÓN DEL DISTRIBUIDOR
         old_address = old._address
-        Logger.Core.info("──> (" + old_id + ": " + old_address + ")")
+        Logger.Core.info("(" + old_id + ") ──> (" + old_address + ")",n = True)
     
         question = "¿Desea modificar la dirección del distribuidor?"
         if InputUser.ask_yes_no_question(question):
@@ -142,7 +147,8 @@ class DistributorController:
                                             self._address_config["maxim"], 
                                             False)
             if new_address is None:  return False
-            Logger.Core.info("<── (" + old_id + ": " + new_address + ")\n")
+            Logger.Core.info("(" + old_id + ") <── (" + new_address + ")"
+                             , n = True)
             is_modified = True
         else: new_address = old._address
     
@@ -150,13 +156,13 @@ class DistributorController:
         # y devolvemos False
         if not is_modified:
             i = old_id
-            r = "No se realizaron modificaciones en el distribuidor "+ i +"\n"
-            Logger.Core.info(r)
+            r = "No se realizaron modificaciones en el distribuidor " + i
+            Logger.Core.info(r, n = True)
             Logger.pause()
             return False
     
         data = (new_delivery, new_address)
-        Logger.Core.info("Modificando distribuidor '" + id + "'...")
+        Logger.Core.info('Modificando distribuidor "' + id + '" ...')
         
         # Si se modifica el distribuidor, es lógico que afecte a los despachos.
         # Sin embargo, puede ser problemático modificar los despachos que ya
@@ -167,36 +173,35 @@ class DistributorController:
         # El sistema informará que solo se hace responsable de los cambios del
         # distribuidor en los Despachos pendientes de envio
         
-        i1 = "La modificación del distribuidor solo afectará a los despachos "
-        Logger.Core.info(i1 + "pendientes.")
-        i2 = "El sistema no se hace responsable de los despachos en transito."                
-        Logger.Core.info(i2)
-                        
-        # Acceso al 'controller' de Despachos
-        disp_ctrl = self._dispatch_controller
-        
-        filtro = [DispatchStatus.PENDING] # Filtro (solo los pendientes)
-        devices_dispatches = disp_ctrl.get_devices_by_distributor(id, filtro)
-        
-        has_dispatch = False
-        
-        for device_id, dispatch in devices_dispatches:
+        if modify_dispatches:
+            i= "La modificación (días) solo impactará en despachos pendientes."               
+            Logger.Core.info(i)
+                            
+            # Acceso al 'controller' de Despachos
+            disp_ctrl = self._dispatch_controller
             
-            has_dispatch = True
+            filtro = [DispatchStatus.PENDING] # Filtro (solo los pendientes)
+            devices_dispatches = disp_ctrl.get_devices_by_distributor(id, filtro)
             
-            dev_id = '"' + device_id + '"'
-            Logger.Core.info("Despacho pendiente para Equipo :" + dev_id)
+            has_dispatch = False
             
-            Logger.Core.info("Modificando: 'Días de Entrega'")
-            dispatch.set_delivery_days(new_delivery)
-            
-        if has_dispatch:
-            i1 = 'Despachos pendientes asociados al distribuidor "' + id + '" '
-            i2 = 'Modificados.\n'
-            Logger.Core.info(i1 + i2)       
-        else:
-            i = 'Distribuidor: "' + id + '" sin despachos pendientes.\n'
-            Logger.Core.info(i)       
+            for device_id, dispatch in devices_dispatches:
+                
+                has_dispatch = True
+                
+                dev_id = '"' + device_id + '"'
+                Logger.Core.info("Despacho pendiente para Equipo: " + dev_id)
+                
+                Logger.Core.info("Modificando: 'Días de Entrega'", n = True)
+                dispatch.set_delivery_days(new_delivery)
+                
+            if has_dispatch:
+                i1 = 'Despachos pendientes asociados al distribuidor "' + id + '" '
+                i2 = 'Modificados.'
+                Logger.Core.info(i1 + i2, n = True)       
+            else:
+                i = 'Distribuidor: "' + id + '" sin despachos pendientes.'
+                Logger.Core.info(i, n = True)       
         
         return data
 
@@ -229,9 +234,10 @@ class DistributorController:
             self._device_controller.return_device_from_distributor(device_id)        
             dispatch.set_status_returned()  
         
-        Logger.Core.info("Eliminando distribuidor " + '"' + id + '"...',n='\n')
-        del self._distributor_dic[id]          
-        Logger.Core.info("Distribuidor " + '"' + id + '" eliminado.\n') 
+        Logger.Core.info("Eliminando distribuidor " + '"' + id + '" ...',True)        
+        del self._distributor_dic[id]                  
+        Logger.Core.info("Distribuidor " + '"' + id + '" eliminado.', True) 
+        
         return True
         
     
