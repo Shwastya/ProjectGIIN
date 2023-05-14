@@ -169,6 +169,10 @@ class DeviceController:
     def get_dic(self):
         return self._device_dic
     
+    def get_component_dic(self):
+        return self._component_controller.get_dic()
+        
+    
     def get_dispatched_devices_dic(self):
         return self._device_dispatched 
         

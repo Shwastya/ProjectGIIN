@@ -43,11 +43,11 @@ class MenuDevices(Controller):
     
         # Submenu modificación equipo
         self._menu_modi = MenuDrawer("HardVIU / 2) Equipos / 2) Modificación",[
-                "Cambiar configuración", "Desensamblar"])   
+                "Cambiar Configuración", "Desensamblar"])   
         
         # Submenu cambiar información
         self._menu_info = MenuDrawer("HardVIU / 1) Equipos / 2) " + 
-                                     "Modificar / 2) Cambiar configuración")
+                                     "Modificar / 2) Cambiar Configuración")
                        
         self._result = "ensamblado con éxito."    
     
@@ -132,7 +132,7 @@ class MenuDevices(Controller):
             elif (option == 2 or option == 3) and numero_opciones_visibles > 1: 
                 
                 p_list = False if option < 3 else True   
-                args = [self._dic, "Equipo", p_list, True]                        
+                args = [self._dic, "Equipo", p_list, True, "Disponibles"]                        
                 id, user_cancel = super().select_model(*args)                
                 if not id: continue            
                 while True:

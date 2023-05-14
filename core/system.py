@@ -31,7 +31,7 @@ class System:
         
         self._main_menu = MenuDrawer("- HardVIU Menu -", [
             "Componentes", "Equipos", "Distribuidores", "Despachar", "Días",
-            "Info sistema", "Ficheros"])        
+            "Info Sistema", "Ficheros"])        
         self._main_menu.set_first_init(True)  
         
 

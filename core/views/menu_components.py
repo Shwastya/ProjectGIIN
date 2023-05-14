@@ -40,11 +40,11 @@ class MenuComponents(Controller):
         # Submenu modificación componente
         self._menu_modi = MenuDrawer(
             "HardVIU / 1) Componentes / 2) Modificar", [
-                "Cambiar stock", "Cambiar información", "Dar de baja"])
+                "Cambiar Stock", "Cambiar Información", "Eliminar"])
 
         # Submenu cambiar información
         self._menu_info = MenuDrawer("HardVIU / 1) Componentes / 2) " + 
-                                     "Modificar / 2) Cambiar información") 
+                                     "Modificar / 2) Cambiar Información") 
                        
         self._result = "dado de alta con éxito."        
     
@@ -73,24 +73,6 @@ class MenuComponents(Controller):
                 else: break            
                 if not super().ask_this_question("Introducir otro componente"):                
                     break
-                
-    # def select_component(self, pre_list):    
-    #     """
-    #     Recordar que devuelve tupla (id, user_cancellation).
-    #     user_cancellation es un bool para saber si es cancelación de usuario
-    #     el None de los datos recibidos, o es por otro motivo.
-    #     """
-    #     self._id_config["question"] = "Nombre/ID de componente"        
-    #     self._id_config["rule"] = "(o 'l' para mostrar lista) = "          
-        
-    #     if pre_list: 
-    #         self._id_config["question"] = "Nombre/ID o número de la lista"
-    #         self._id_config["rule"] = "('l' listar de nuevo) = "
-    #         super().list_models_from_dic()      
-            
-    #     Logger.UI.cancel_info(level = 1)
-        
-    #     return super().select_model_from_dic(can_select_index = pre_list)
     
     def modify_stock(self, id):
         Logger.UI.cancel_info(level = 1)        

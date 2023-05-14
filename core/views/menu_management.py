@@ -45,7 +45,7 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
         # Submenú modificación distribuidor
         self._menu_modi = MenuDrawer(
             "HardVIU / 3) Distribuidores / 2) Modificar", [
-                "Cambiar información", "Dar de baja"])
+                "Cambiar Información", "Eliminar"])
 
         self._distribuidor_result = "dado de alta con éxito."
         
@@ -76,13 +76,13 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
         PROPIEDADES INFO SISTEMA
         """
         self._menu_infosys = MenuDrawer("HardVIU / 6) Info sistema", [
-            "Componentes en sistema", "Equipos disponibles",
-            "Lista de Distribuidores", "Histórico de Despachos"])
+            "Componentes", "Equipos", "Distribuidores", 
+            "Histórico de Despachos", "Sistema Completo"])
         
         self._sub_menu_historico = MenuDrawer(
             "HardVIU / 6) Info sistema / 4) Histórico de Despachos", [
-                "Pendientes de envío", "En tránsito", "Entregados", 
-                "Devueltos a Fábrica", "Todos los Despachos"])
+                "Pendientes", "En tránsito", "Entregados", 
+                "Devueltos", "Histórico Completo"])
         
         
     """
@@ -349,9 +349,100 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
     """
     METODOS INFO SYSTEM
     """   
-    def info_system(self):
-        self.add_days()
-        print("INFO SISTEMA (IN CONTROLLER WORK)")
+    
+    def info_component(self):        
+        component_dic = self._controller.get_device_controller().get_component_dic()
+        if not super().list_models_from_dic("Componente", component_dic):            
+            Logger.UI.emph("No hay componentes dados de alta en el sistema.")
+        Logger.print_line(50, color = True)
+              
+    
+    def info_devices(self):
+        device_dic = self._controller.get_device_controller().get_dic()
+        if not super().list_models_from_dic("Equipo", device_dic, "Disponibles"):
+            Logger.UI.emph("No hay equipos disponibles, consulte en despachados.")        
+        Logger.print_line(50, color = True)
+          
+        
+    def info_distributors(self):
+        distribut_dic = self._controller._distributor_dic
+        if not super().list_models_from_dic("Distribuidor", distribut_dic):
+            Logger.UI.emph("No hay distribuidores dados de alta en el sistema.")
+        Logger.print_line(50, color = True)
+        
+    def info_dispatch(self, filtro = None, txt = None):
+        dispatch_dic = self._controller.get_dispatch_controller().get_dic()
+        dic = dispatch_dic
+        
+        if filtro is not None:
+            dic = super().filter_models(dispatch_dic, filtro)
+        
+        t = ' ' + txt + ' ' if txt is not None else ' '
+        
+        if not super().list_models_from_dic("Despacho", dic, txt):
+            Logger.UI.emph("No hay despachos" + t + "en el sistema.")
+        Logger.print_line(50, color = True)       
+    
+    def sub_menu_dispatch(self):
+        
+        while True:                         
+            self._sub_menu_historico.display(zero = "Menú anterior")           
+            op = self._sub_menu_historico.get_option()     
+            
+            if   op == 1:
+                args = [[DispatchStatus.PENDING], "Pendientes"]                
+                self.info_dispatch(*args)
+                Logger.pause() 
+                
+            elif op == 2:
+                args = [[DispatchStatus.IN_TRANSIT], "En transito"]                
+                self.info_dispatch(*args)
+                Logger.pause() 
+                
+            elif op == 3:
+                args = [[DispatchStatus.DELIVERED], "Entregados"]                
+                self.info_dispatch(*args)
+                Logger.pause() 
+                
+            elif op == 4:
+                args = [[DispatchStatus.RETURNED], "Devueltos"]                
+                self.info_dispatch(*args)
+                Logger.pause() 
+                
+            elif op == 5:
+                self.info_dispatch()
+                Logger.pause() 
+                
+            elif op == 0: break # Salir de menu Componentes
+            else: Logger.UI.bad_option()        
+        
+    def info_system(self):   
+        
+        while True:                         
+                       
+            self._menu_infosys.display(zero = "Menú anterior")           
+            op = self._menu_infosys.get_option()     
+            
+            if   op == 1: 
+                self.info_component()
+                Logger.pause() 
+            elif op == 2: 
+                self.info_devices()
+                Logger.pause() 
+            elif op == 3: 
+                self.info_distributors()
+                Logger.pause()
+            elif op == 4:
+                self.sub_menu_dispatch()
+            elif op == 5:
+                self.info_component()
+                self.info_devices()
+                self.info_distributors()
+                self.info_dispatch()
+                Logger.pause()               
+                
+            elif op == 0: break # Salir de menu Componentes
+            else: Logger.UI.bad_option()           
         
         
     """  Función a llamar desde 'System' """
