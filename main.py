@@ -31,7 +31,7 @@ from core.system import System, Logger
 
 def main():
     """
-    EntryPoint del programa: Crea y ejecuta System
+    'EntryPoint' del programa: Crea y ejecuta System
     """    
     hardviu = System()
     
