@@ -17,7 +17,7 @@ class DispatchStatus(Enum):
     DELIVERED  = 3   
     RETURNED   = 4 # Devuelto a fábrica    
 
-class Dispatch: # Modelo Despacho
+class Dispatch: 
 
     def __init__(self):
         
@@ -54,8 +54,7 @@ class Dispatch: # Modelo Despacho
 
     def update_remaining_days(self, days_passed):
         self._remaining_days -= days_passed
-        if self._remaining_days < 0:
-            self._remaining_days = 0
+        if self._remaining_days < 0: self._remaining_days = 0
         
         # AL modificar los días faltantes se actualiza el estado (status).
         self.__update_status()

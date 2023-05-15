@@ -9,12 +9,8 @@ from config.settings import K_SEPARATOR
 from core.views.drawer import Displayer
 
 
-# Modelo Distribuidor
 class Distributor:
     def __init__(self):
-        """
-        Algunos método tienen que ser comunes para todas los modelos.             
-        """    
         self._delivery_time = None
         self._address       = None
         

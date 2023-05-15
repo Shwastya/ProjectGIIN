@@ -299,8 +299,13 @@ class ComponentController:
                else: Logger.Core.info("Componente " + id_ + " desechado.")
                 
                 
+        
                 
-                
+        
+    # Es una llamada generica desde controller base, solo quien quiera 
+    # usarla la implementará    
+    def check_id_status_from_controller(self, id):
+        pass
     
                 
                 

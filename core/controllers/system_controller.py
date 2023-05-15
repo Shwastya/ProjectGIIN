@@ -24,15 +24,13 @@ class SystemController:
         
         #self._system_data = self._gestion.get_system_data()
     
-    def components_run(self):
-        self._components.update()
-    def devices_run(self):
-        self._equipos.update()
-    def management_run(self, op):
-        self._gestion.update(op)
+    def components_run(self)     : self._components.update()
+    def devices_run   (self)     : self._equipos.update()
+    def management_run(self, op) : self._gestion.update(op)
     
-    def exit_control(self):        
-        warn = "La información no guardada se perderá."
-        Logger.Core.info(warn)
-        question = "¿Está seguro de querer salir?"
-        return InputUser.ask_yes_no_question(question)
+    
+    
+    
+    def exit_control(self):      
+        Logger.Core.info("La información no guardada se perderá.")
+        return InputUser.ask_yes_no_question("¿Está seguro de querer salir?")

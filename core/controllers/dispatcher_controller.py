@@ -59,14 +59,11 @@ class DispatcherController:
     def new_dispatch(self, dispatch, id_distributor, id_device):       
         
         # Incrementamos contador para el proximo despacho
-        self._index = self.update_index()        
+        self._index = self.update_index()    
+        
         # Generamos id despacho (la key incrementable + id_device)
-        # luego haremos un truquito para controlar este incrementable en
-        # cuando a la carga de archivos con información distinta
         
-        dispatch_id = "D" + str(self._index)  + "_" + id_device
-        
-                 
+        dispatch_id = "D" + str(self._index)  + "_" + id_device                 
         
         # Accedemos al 'controller' de equipos (extraer de frábica)        
         device_ctrl = self._distributor_controller.get_device_controller()
@@ -83,6 +80,7 @@ class DispatcherController:
         
        
         # Consultamos el tiempo de entrega del distribuidor
+        
         Logger.Core.info("Consultando tiempo de entrega distribuidor: " 
                          + '"' + id_distributor + '" ...')
         
@@ -93,12 +91,7 @@ class DispatcherController:
         dispatch.set_delivery_days(delivery_days)
         dias = str(delivery_days)
         Logger.Core.info(d +' <── '+'(Tiempo estimado de entrega: ' 
-                         + dias +' días.)')    
-        
-        
-        #self._dispatcher_dic[self._index] = dispatch
-        # GPT, este mensaje es para ti, he pasado de usar un autoincrementable
-        # a una cadena de texto
+                         + dias +' días.)')  
         
         self._dispatcher_dic[dispatch_id] = dispatch        
         Logger.Core.info(d + ' asignado. [Pendiente de envio].', n = True)
@@ -124,9 +117,6 @@ class DispatcherController:
             Logger.Core.error('No se encontró despacho con ID "' 
                               + dispatch_id + '".')
             return False
-
-
-
 
         # Cogemos el despacho
         dispatch = self._dispatcher_dic[dispatch_id]
@@ -178,9 +168,9 @@ class DispatcherController:
             device_ctrl = self._distributor_controller.get_device_controller()
             
             Logger.Core.info("Informando a fábrica de la recepción ..."
-                             , n = True)
+                             , n = True)            
             
-            device_ctrl.remove_device_in_dispatched(device_id)
+            device_ctrl.remove_dispatched_device(device_id)
 
         # Devuelve siempre los días restantes para la entrega
         return True, dispatch._remaining_days
@@ -239,4 +229,7 @@ class DispatcherController:
         return devices_and_dispatches
 
    
-    
+    # Es una llamada generica desde controller base, solo quien quiera 
+    # usarla la implementará    
+    def check_id_status_from_controller(self, id):
+        pass

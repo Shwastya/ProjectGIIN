@@ -136,7 +136,9 @@ class MenuComponents(Controller):
                     elif option == 3: # Dar de baja                    
                         if self.remove_component(id): break
                         continue
-                    else: Logger.UI.bad_option()               
+                    else: Logger.UI.bad_option()        
+                    
             elif option == 0: break # Salir de menu Componentes
             else: Logger.UI.bad_option()           
                 
+

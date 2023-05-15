@@ -17,16 +17,15 @@ cuenta ya con métodos definidos que son genericos a todos los modelos
 """
 
 from core.views.logger import Logger
-from core.views.drawer import Displayer
 
 from core.controllers.model_factory import ModelFactory, ModelType  
-from core.controllers.inputs        import InputUser, K_LIST
+from core.controllers.inputs        import InputUser
 
 class Controller:
 
     def __init__(self, model_type: ModelType):     
         
-        self._dic        = {} # Dic. base que heredan todos los modelos
+        self._dic = {} # Dic. base que heredan todos los modelos
         
         self._model     = model_type      
         self._controller= ModelFactory.create_controller(self._model,self._dic)   
@@ -59,13 +58,21 @@ class Controller:
     def get_and_check_id(self, mode = "", auxiliar_dic = None):
         
         id = self.get_id()
+        
         if id is None: return None
         result = self.check_id(id)
         
         if result:
             if mode == "add":
-                warn = "El identificador ya existe. Inténtelo de nuevo."
+                
+                
+                # Solo los controladores que la implementen, pero el resto
+                # deben tener (pass)
+                self._controller.check_id_status_from_controller(id)   
+                
+                warn = "El ID ya existe en el sistema. Inténtelo de nuevo."
                 Logger.Core.warn(warn)
+                
                 Logger.pause()
                 return result       
         return id
@@ -80,7 +87,7 @@ class Controller:
         Devuelve 'None'  Si el usuario ha cancelado desde 'InputUser'
         Devuelve 'True'  Si el alta se ha hecho correctamente        
         
-        Hay que asegurarse que todos los 'controllers' implementen está función.        
+        Hay que asegurarse que todos los 'controllers' implementen está función        
         """    
         data  = self._controller.get_model_data_from_user(id)            
         if not data: return None      
@@ -121,9 +128,7 @@ class Controller:
             # Buscamos la longitud del ID más largo. (por embellecer display)
             max_id_len = max(len(str(id)) for id in dic.keys())            
             
-            for i, (id, model) in enumerate(dic.items()): 
-                
-                
+            for i, (id, model) in enumerate(dic.items()):               
            
                 is_last_model = i == total_models - 1
                 
@@ -164,9 +169,7 @@ class Controller:
         dic   = self._dic.items()
         model = self._model._name
         
-        if aux_dic is not None: 
-            # VALE ya! me faltaba sacar los .items() que desastre!
-            # No te olvides de esta experiencia, por poca cosa, el horror
+        if aux_dic is not None:
             dic   = aux_dic.items()
             model = model_name
         
@@ -175,8 +178,7 @@ class Controller:
         warn = "No hay '" + plural_name + "' disponibles en el sistema."
         
         # El añadir user_cancellation es para poder recordar mejor 
-        # la lógica de esta función en el futuro
-        
+        # la lógica de esta función en el futuro        
         user_cancellation = False
         
         while True:   
@@ -192,7 +194,7 @@ class Controller:
                                                  has_shown_list = need_list)            
             # El usuario pide lista
             if l:
-                need_list = True # Aqui tambien
+                need_list = True 
                 self.list_models_from_dic(plural_name, aux_dic, f)
                 self._id_config["question"] = "Nombre/ID o número de la lista"
                 self._id_config["rule"    ] = "('l' listar de nuevo) = "

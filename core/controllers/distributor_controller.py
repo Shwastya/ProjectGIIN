@@ -10,9 +10,6 @@ recopila los datos del usuario para crear o modificar un distribuidor, mientras
 que la función remove se encarga de eliminar un distribuidor del sistema. 
 También se proporciona una función get_dic para acceder al diccionario de 
 distribuidores.
-
-Esta implementación básica debería servir como punto de partida para trabajar 
-en el controlador de distribuidores en tu sistema HardVIU. Es posible que necesites ajustar algunas partes del código para que se adapte completamente a tu proyecto.
 """
 
 from core.controllers.inputs import InputUser
@@ -170,6 +167,7 @@ class DistributorController:
         # distribuidor en los Despachos pendientes de envio
         
         if modify_dispatches:
+            
             i= "La modificación (días) solo impactará en despachos pendientes."               
             Logger.Core.info(i)
                             
@@ -210,31 +208,46 @@ class DistributorController:
         
         # Al dar de baja hay que regresar los posibles equipos en despacho
         # a fábrica. Por eso tenemos acceso al controlador de despachos, y
-        # usamos la siguiente función.
-        
+        # usamos la siguiente función.      
               
         dispatch_ctrl = self._dispatch_controller
         
-        filt = [DispatchStatus.PENDING, DispatchStatus.IN_TRANSIT] # FILTRO
+        filtro = [DispatchStatus.PENDING, DispatchStatus.IN_TRANSIT] # FILTRO
         
-        devices_dispatches = dispatch_ctrl.get_devices_by_distributor(id, filt)
-        
-        
+        devices_dispatches =dispatch_ctrl.get_devices_by_distributor(id,filtro)
         
         
         # Ahora accedemos al controlador de Devices, usando la función 
         # return_device_from_distributor recorremos la lista devices
         # y los vamos devolviendo a fabrica.
-        for device_id, dispatch in devices_dispatches:
-            
+        
+        for device_id, dispatch in devices_dispatches:            
             self._device_controller.return_device_from_distributor(device_id)        
             dispatch.set_status_returned()  
         
-        Logger.Core.info("Eliminando distribuidor " + '"' + id + '" ...',True)        
+        info = "Eliminando distribuidor " + '"' + id + '" ...'
+        Logger.Core.info(info, n = True)        
+        
         del self._distributor_dic[id]                  
-        Logger.Core.info("Distribuidor " + '"' + id + '" eliminado.', True) 
+        info = "Distribuidor " + '"' + id + '" eliminado.'
+        Logger.Core.info(info, n = True)         
         
         return True
+    
+    
+    
+    
+    
+    
+    # Es una llamada generica desde controller base, solo quien quiera 
+    # usarla la implementará    
+    def check_id_status_from_controller(self, id):
+        pass
+    
+    
+    
+    
+    
         
     
     

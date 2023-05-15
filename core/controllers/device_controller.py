@@ -21,11 +21,19 @@ class DeviceController:
         # "DeviceController" necesita acceso al 'ComponentController'
         self._component_controller = None    
         
-        # A ver (esto es una idea), los equipo que se despechan a un 
-        # distribuidor guardaremos aquí por. Si por algún motivo se devolvieran
-        # como los 'controllers' Dispatch y Distributor tienen acceso a este
-        # 'controller', podremos devolver el equipo a fábrica facilmente.
-        self._device_dispatched = {}
+        # Como queremos tener una lista de todos los equipos creados, en caso
+        # de que un equipo haya sido entregado, se pasa a este diccionario,
+        # esto permite, si se desea, poder crear un equipo nuevo con el ID
+        # de un equipo que ya ha sido entregado. 
+        
+        self._device_delivered = {}
+        
+        # NOTA: Me parece un mal planteamiento por el uso que estamos haciendo
+        # del ID según plantea la práctica, pero estoy tratando de ser lo 
+        # la más fiel posible al enunciado de la práctica. Yo hubiera 
+        # preferido hacer el ID de otra manera, como un autoincrementable y 
+        # llevar un mejor manejo de componentes compatibles        
+        
         
     """
     Las siguientes funciones se pretende que sean privadas (similar a C++).
@@ -169,13 +177,11 @@ class DeviceController:
     def get_dic(self):
         return self._device_dic
     
-    def get_component_dic(self):
-        return self._component_controller.get_dic()
-        
+    def get_delivered_devices_dic(self):
+        return self._device_delivered 
     
-    def get_dispatched_devices_dic(self):
-        return self._device_dispatched 
-        
+    def get_component_dic(self):
+        return self._component_controller.get_dic()        
         
     def link_component_controller(self, component_controller):
         self._component_controller = component_controller
@@ -337,21 +343,20 @@ class DeviceController:
 
     """
     Las siguientes funciones. Si creamos un despacho, he creido oportuno llevar
-    aquí el control de equipos despachados
+    aquí el control de equipos despachados, devueltos, en transito, etc, etc..
     """
     def dispatch_device_to_distributor(self, id): # device_id
         """
-        Despacha un dispositivo a un distribuidor, moviéndolo del
-        diccionario principal a self._device_dispatched.        
+        Despacha un dispositivo a un distribuidor, se le asigna el filtro
+        de [Despachado]
         """
         id_  = '(Equipo: "' + id + '")'
         info = 'Extrayendo de Fábrica ' + id_ + ' ...'
         Logger.Core.info(info)
         
         if id in self._device_dic:
-            device = self._device_dic[id]
-            self._device_dispatched[id] = device
-            del self._device_dic[id]            
+            
+            self._device_dic[id].set_dispatched_status()    
             
             Logger.Core.info('Se ha enviado al distribuidor ' + id_, n = True)
         else:
@@ -360,61 +365,83 @@ class DeviceController:
 
     def return_device_from_distributor(self, id): # device_id
         """
-        Devuelve un dispositivo desde un distribuidor, moviéndolo desde
-        self._device_dispatched al diccionario principal.
+        Devuelve un dispositivo desde un distribuidor, cambiando el filtro
+        de [Despachado] a [Devuelto].
         """
         id_  = 'Equipo: "' + id + '"'
         info = 'Devolviendo ' + id_ + ' a fábrica ...'
         Logger.Core.info(info)
         
-        if id in self._device_dispatched:
-            device = self._device_dispatched[id]
-            self._device_dic[id] = device
-            del self._device_dispatched[id]
+        
+        if id in self._device_dic:
             
-            Logger.Core.info(id_+ ' ha sido devuelto del distribuidor.')
-        else:
-            Logger.Core.error(id_+ ' no existe como dispositivo despachado.')
+            if self._device_dic[id].is_dispatched():
+                
+                Logger.Core.info(id_ + " asignando filtro [RETURNED],")
+                self._device_dic[id].set_returned_status()
+                Logger.Core.info(id_ + ' ha sido devuelto del distribuidor.')
+                
+            else:
+                Logger.Core.info(id_ + ' no constaba como Equipo en despacho.')
+            
+        else: 
+            Logger.Core.error(id_ + ' no existe el equipo en el sistema.'
+                              , n = True)
     
     def remove_dispatched_device(self, id):
        """
-       Elimina un dispositivo del diccionario de dispositivos despachados.
-       Esta función es útil cuando un dispositivo ha sido entregado, por lo 
+       Mueve del diccionario de equipos a al diccionario de entregados.
+       Esta función es útil cuando un equipo ha sido entregado, por lo 
        tanto, ya no se encuentra en el control de la empresa.
        """
+       
        id_  ='Equipo: "' + id + '"'
-       info ='Eliminando' + id_ + 'del registro de dispositivos despachados ...'
+       info ='Eliminando '+id_+' del registro de dispositivos despachados ...'
+       
        Logger.Core.info(info)
        
-       if id in self._device_dispatched:
-           del self._device_dispatched[id]
-           i =' ha sido eliminado del registro de dispositivos despachados.\n'
-           Logger.Core.info(id_ + i)
-       else:
-           Logger.Core.error(id_
-                             + ' no existe como dispositivo despachado.\n')
-
-    def is_device_in_dispatched(self, id):
-        """
-        Comprueba si un dispositivo está en el diccionario de dispositivos 
-        despachados. Esta función es útil para verificar si un dispositivo 
-        específico se encuentra actualmente en tránsito o ya ha sido entregado 
-        al distribuidor.
-        """
-        result = id in self._device_dispatched
-        if result: Logger.Core.info('"' + id + '" está en lista-despacho.')
-        return result
+       if id in self._device_dic:
+           
+           if self._device_dic[id].is_dispatched():
+               
+               Logger.Core.info(id_ + " asignando filtro [DELIVERED],")
+               self._device_dic[id].set_delivered_status()
+               
+               Logger.Core.info(id_ + " guardando en diccionario de entregados.")
+               device = self._device_dic[id]
+               self._device_delivered[id] = device
+               
+               del self._device_dic[id]
+               Logger.Core.info(id_ + " eliminado de diccionario principal.")
+               
+           else: 
+               Logger.Core.info(id_+ " no consta en despacho.", n = True)
+       else: 
+           Logger.Core.error(id_ + ' no existe el equipo en el sistema.'
+                             , n = True)
     
     
-    def remove_device_in_dispatched(self, id):
+    
+    
+    # Es una llamada generica desde controller base, solo quien quiera 
+    # usarla la implementará    
+    def check_id_status_from_controller(self, id):
         
-        if self.is_device_in_dispatched(id):
-            Logger.Core.info('Eliminando de equipos en despacho "' + id + '"')
-            del self._device_dispatched[id]
-            Logger.Core.info('ID: "' + id + '" ahora disponible para nuevas altas.')
-    
-    
-    
+        i = '"' + id + '" '        
+        if   self._device_dic[id].is_newdevice():
+            Logger.Core.info(i + "equipo ensamblado recientemente.", n = True)
+        elif self._device_dic[id].is_dispatched():
+            Logger.Core.info(i 
+                             + "actualmente pertenece a un equipo en despacho."
+                             , n = True)
+        elif self._device_dic[id].is_delivered():
+            Logger.Core.info(i 
+                             + "equipo entregado. Ya no pertenece al sistema."
+                             , n = True)
+        elif self._device_dic[id].is_returned():
+            Logger.Core.info(i + "equipo devuelto por algún distribuidor."
+                             , n = True)
+            
     
     
     

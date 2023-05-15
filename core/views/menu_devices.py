@@ -22,6 +22,7 @@ from core.views.drawer import MenuDrawer
 from core.views.logger import Logger
 
 from core.controllers.controller import Controller, ModelType
+from core.models.device          import DeviceStatus
 
 class MenuDevices(Controller):
 
@@ -36,7 +37,7 @@ class MenuDevices(Controller):
        
         # Menu principal. Mostramos al principio solo "Alta" ('max_options') 
         self._menu_dev = MenuDrawer("HardVIU / 2) Equipos", [
-            "Alta", "Modificar", "Listar Equipos"], max_options = 1)
+            "Alta", "Modificar", "Listar Disponibles"], max_options = 1)
     
         # Submenu nueva alta
         self._menu_add = MenuDrawer("HardVIU / 2) Equipos / 1) Alta")
@@ -58,8 +59,8 @@ class MenuDevices(Controller):
         self._id_config["question"] = "Nombre/ID de " + self._model._name
         self._id_config["rule"]     = "alfanumérico, mínimo 3 caracteres" 
         
-        a1 = "Debido a los requisitos para el ID único, y que se pide simplificar:\n"
-        a2 = "Se deja la compatibilidad entre componentes a criterio del usuario.\n"
+     
+        a="Se deja la compatibilidad entre componentes a criterio del usuario:"
         
         self._controller.set_add_or_modify_mode("add")               
         id = True
@@ -79,22 +80,25 @@ class MenuDevices(Controller):
                     # Pero que pasa con los equipos que están en despacho?
                     
                     # Controlamos este caso pues: 
-                    if not self._controller.is_device_in_dispatched(id):
-                        o = id
-                    else:                        
-                        e = 'El ID "' + id + '" no está disponible, '
-                        info1 = e + 'corresponde a un equipo en despacho.'
-                        n = "El ID estará disponible una vez llegue a destino "
-                        info3 = n + "(salvo en caso de devolución)."
-                        Logger.UI.emph(info1)                        
-                        Logger.UI.emph(info3)
-                        Logger.pause()  
+                    # if not self._controller.is_device_in_dispatched(id):
+                    #     o = id
+                    # else:                        
+                    #     e = 'El ID "' + id + '" no está disponible, '
+                    #     info1 = e + 'corresponde a un equipo en despacho.'
+                    #     n = "El ID estará disponible una vez llegue a destino "
+                    #     info3 = n + "(salvo en caso de devolución)."
+                    #     Logger.UI.emph(info1)                        
+                    #     Logger.UI.emph(info3)
+                    #     Logger.pause()  
                         
-                        id = True # Reniciamos el tema.
+                    #     id = True # Reniciamos el tema.
+                    
+                    o = id
                         
                 continue
             else:
-                Logger.UI.emph(a1 + a2)       
+                Logger.UI.emph(a)       
+                Logger.print_line(50, color = True)
                 if super().new_model(id):                   
                     Logger.UI.success("Equipo", id, self._result,
                                       pause = False, newline = False)                     
@@ -107,7 +111,6 @@ class MenuDevices(Controller):
     def modify_info(self, id):            
         self._controller.set_add_or_modify_mode("modify")        
         Logger.UI.cancel_info(level = 1)
-        
         
         
         if super().modify_model_info(id):
@@ -129,19 +132,29 @@ class MenuDevices(Controller):
         while True:                         
             numero_opciones_visibles = 1               
             
-            if len(self._dic.items()) > 0: numero_opciones_visibles = 3                  
+            # Solo podemos modificar equipos NEW_DEVICE o RETURNED
+            filtro   = [DeviceStatus.NEW_DEVICE, DeviceStatus.RETURNED]              
+            # filtramos modelos con la función base 'controller'                
+            dic = super().filter_models(self._dic, filtro) 
+            
+            if len(dic.items()) > 0: numero_opciones_visibles = 3     
+             
             self._menu_dev.set_max_options(numero_opciones_visibles)            
             self._menu_dev.display(zero = "Menú anterior")            
             option = self._menu_dev.get_option()             
             
             if option == 1: # Alta componente                    
                 self.add_device() 
-            # Sub Menú Modificación  
-            
-            elif (option == 2 or option == 3) and numero_opciones_visibles > 1: 
+                
+            # Sub Menú Modificación              
+            elif (option == 2 or option == 3) and numero_opciones_visibles > 1:                               
                 
                 p_list = False if option < 3 else True   
-                args = [self._dic, "Equipo", p_list, True, "Disponibles"]                        
+                d_list = "Nuevos; Devueltos"
+                args = [dic, "Equipo", p_list, True, d_list] 
+                
+                Logger.UI.emph("Equipos disponibles para modificación.")
+                Logger.print_line(50, color = True)
                 id, user_cancel = super().select_model(*args)                
                 if not id: continue            
                 while True:

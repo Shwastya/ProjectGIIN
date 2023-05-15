@@ -17,9 +17,9 @@ sino que maneja varios elementos:
 from core.views.drawer import MenuDrawer
 from core.views.logger import Logger
 
-
 from core.controllers.controller import Controller, ModelType, ModelFactory
 from core.models.dispatch        import DispatchStatus
+from core.models.device          import DeviceStatus
 
 class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
 
@@ -79,6 +79,10 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
             "Componentes", "Equipos", "Distribuidores", 
             "Histórico de Despachos", "Sistema Completo"])
         
+        sub_menu_equipos_tit = "HardVIU / 6) Info sistema / 2) Equipos"
+        self._sub_menu_equipos = MenuDrawer(sub_menu_equipos_tit, [
+            "Equipos en Sistema", "Equipos Despachados"])
+        
         self._sub_menu_historico = MenuDrawer(
             "HardVIU / 6) Info sistema / 4) Histórico de Despachos", [
                 "Pendientes", "En tránsito", "Entregados", 
@@ -88,6 +92,7 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
     """
     METODOS DISTRIBUIDOR (Distributors)
     """    
+    
     def get_controller(self): return self._controller
 
     def add_distributor(self):  # Alta de distribuidor    
@@ -173,9 +178,11 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
                 break
             else: Logger.UI.bad_option()
             
+            
     """
     METODOS DESPACHOS (Dispatchs)
     """    
+    
     
     def select_dispatch(self, dispatch_dic):
         self._id_config["question"] = "ID Despacho o número de la lista"
@@ -226,9 +233,16 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
                 # Accedemos al diccionario de Device
                 device_dic = device_ctrl.get_dic()
                 
+                # Que dispositivos se pueden escoger para Despacho
+                # [NEW_DEVICE] y [RETURNED]
+                filtro = [DeviceStatus.NEW_DEVICE, DeviceStatus.RETURNED]
+                
+                # filtramos modelos con la función 'controller' base                
+                dic = super().filter_models(device_dic, filtro)               
+                
                 # Entradas de usuario (InputUser)
                 # Función generica para escoger un modelo (se pasa dic)               
-                args = [device_dic,"Equipo", False, False]
+                args = [dic, "Equipo", False, False, "Nuevos, Devueltos"]
                 id_device,user_cancel = super().select_model(*args)
                 
                 # Registro 'Equipo' vacio
@@ -265,10 +279,10 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
     
     def menu_dispatch(self): self.add_dispatch()
     
+    
     """
     METODOS DÍAS (Days)
-    """    
-    
+    """        
     
     def add_days(self): # Dias
     
@@ -286,8 +300,7 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
         self._id_config["rule"    ] = "númerico" 
             
         is_selected = False
-        o  = "Selección de " + model
-        
+        o  = "Selección de " + model        
         
         while True:                        
             self._menu_days.display(True, False, True, obj= '"' + str(o) + '"')
@@ -301,9 +314,7 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
                 filtro   = [DispatchStatus.PENDING, DispatchStatus.IN_TRANSIT]
                 
                 # filtramos modelos con la función 'controller' base                
-                dic = super().filter_models(dispatch_dic, filtro)
-                
-               
+                dic = super().filter_models(dispatch_dic, filtro)               
                 
                 args = [dic,"Despachos", False,False, "Pendiente; En transito"]
                 
@@ -345,22 +356,48 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
             
     def menu_days(self):
         self.add_days()
+        
     
     """
     METODOS INFO SYSTEM
     """   
     
+    def info_devices_in_system(self):
+         device_dic = self._controller.get_device_controller().get_dic()
+         if not super().list_models_from_dic("Equipo", device_dic):
+             Logger.UI.emph("No hay equipos disponibles, consulte en despachados.")        
+         Logger.print_line(50, color = True)
+         
+    
+    def info_devices_delivered(self):
+        device_ctrl = self._controller.get_device_controller()
+        device_dic  = device_ctrl.get_delivered_devices_dic()         
+        if not super().list_models_from_dic("Equipo", device_dic, "Entregados"):
+            Logger.UI.emph("No hay hay histórico de equipos entregados.")
+        Logger.print_line(50, color = True)  
+        
+        
+        
+    def sub_menu_equipos(self):
+        
+        while True:                         
+            self._sub_menu_equipos.display(zero = "Menú anterior")           
+            op = self._sub_menu_equipos.get_option()     
+            
+            if   op == 1: 
+                self.info_devices_in_system()                
+                Logger.pause() 
+            elif op == 2: 
+                self.info_devices_delivered()                           
+                Logger.pause() 
+                
+            elif op == 0: break # Salir de menu Componentes
+            else: Logger.UI.bad_option()
+            
     def info_component(self):        
         component_dic = self._controller.get_device_controller().get_component_dic()
         if not super().list_models_from_dic("Componente", component_dic):            
             Logger.UI.emph("No hay componentes dados de alta en el sistema.")
-        Logger.print_line(50, color = True)
-              
-    
-    def info_devices(self):
-        device_dic = self._controller.get_device_controller().get_dic()
-        if not super().list_models_from_dic("Equipo", device_dic, "Disponibles"):
-            Logger.UI.emph("No hay equipos disponibles, consulte en despachados.")        
         Logger.print_line(50, color = True)
           
         
@@ -427,8 +464,7 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
                 self.info_component()
                 Logger.pause() 
             elif op == 2: 
-                self.info_devices()
-                Logger.pause() 
+                self.sub_menu_equipos()
             elif op == 3: 
                 self.info_distributors()
                 Logger.pause()
@@ -436,7 +472,8 @@ class MenuManagament(Controller): # controller 1ª instancia 'Distributor'
                 self.sub_menu_dispatch()
             elif op == 5:
                 self.info_component()
-                self.info_devices()
+                self.info_devices_in_system()
+                self.info_devices_delivered()  
                 self.info_distributors()
                 self.info_dispatch()
                 Logger.pause()               

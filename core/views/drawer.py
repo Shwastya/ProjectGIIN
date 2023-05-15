@@ -150,6 +150,7 @@ class Displayer:
               + str(model._precio)   + "€, "
               + str(model._cantidad) + " stock." + end_color)
         
+    
     @staticmethod
     def device(model, id, col, tab, p_l, max_id_len, idx):
         
@@ -169,19 +170,33 @@ class Displayer:
             end_color     = "\033[0m"
         else:
             id_color = info_color = comp_id_color = comp_color = end_color = ""
+
+        # Define el color y el texto en función del estado del dispositivo
+        status_color = ""
+        status_text = ""
+        if model.get_status() == DeviceStatus.NEW_DEVICE:
+            status_color = "\033[1;34m"  # Azul en negrita
+            status_text = " (Nuevo)"
+        elif model.get_status() == DeviceStatus.DISPATCHED:
+            status_color = "\033[1;33m"  # Amarillo en negrita
+            status_text = " (En despacho)"
+        elif model.get_status() == DeviceStatus.DELIVERED:
+            status_color = "\033[1;32m"  # Verde en negrita
+            status_text = " (Vendido)"
+        elif model.get_status() == DeviceStatus.RETURNED:
+            status_color = "\033[0;37m"  # Gris
+            status_text = " (Devuelto)"
         
         enum_idx = info_color + str(idx).rjust(2) + ". "
         
         equipo      = enum_idx + "Equipo/ID = " + end_color 
-        id_equipo   = id_color + "'" + id + "'" + end_color + "\n"        
+        id_equipo   = id_color + "'" + id + "'" + status_color + status_text + end_color + "\n"        
         device_info = equipo + id_equipo
         
         comps_info = ""
         n_components = len(model._components)
         counter = 0
         max_width = max([len(comp_type.value) for comp_type in model._components])
-        
-        
         
         for comp_type, comp in model._components.items():
             counter += 1

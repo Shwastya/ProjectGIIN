@@ -11,7 +11,8 @@ from core.views.drawer import Displayer
 from enum import Enum
 
 class DeviceStatus(Enum):
-    AVAILABLE  = 1
+    
+    NEW_DEVICE = 1
     DISPATCHED = 2
     DELIVERED  = 3
     RETURNED   = 4
@@ -19,9 +20,20 @@ class DeviceStatus(Enum):
 class Device:
     def __init__(self):
         
-        self._status     = DeviceStatus.AVAILABLE  # Estado inicial 'AVAILABLE'        
-        self._components = {}                      # clave = Tipo Componente
-
+        self._status     = DeviceStatus.NEW_DEVICE  # Estado inicial
+        self._components = {}                       # clave = Tipo Componente
+    
+    def set_newdevice_status (self): self._status = DeviceStatus.NEW_DEVICE 
+    def set_dispatched_status(self): self._status = DeviceStatus.DISPATCHED
+    def set_delivered_status (self): self._status = DeviceStatus.DELIVERED
+    def set_returned_status  (self): self._status = DeviceStatus.RETURNED
+        
+    def is_newdevice (self): return self._status == DeviceStatus.NEW_DEVICE
+    def is_dispatched(self): return self._status == DeviceStatus.DISPATCHED
+    def is_delivered (self): return self._status == DeviceStatus.DELIVERED
+    def is_returned  (self): return self._status == DeviceStatus.RETURNED
+    
+        
     def add_component(self, component_type, compact_component):
         """
         Agrega un componente compacto al dispositivo. El componente compacto es
@@ -56,11 +68,7 @@ class Device:
         components_list = []
         for component_type, component_info in self._components.items():
             components_list.append(component_info["id"])
-        return components_list
-    
-    def set_status(self, status):
-        if isinstance(status, DeviceStatus): self._status = status
-        else:raise ValueError('Invalid status value')
+        return components_list    
         
     def get_status(self): return self._status
 
