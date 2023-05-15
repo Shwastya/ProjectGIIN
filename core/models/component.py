@@ -32,12 +32,7 @@ class ComponentType(Enum):
             index += 1
 
 class Component:
-    def __init__(self):
-        """
-        Algunos método tienen que ser comunes para todas los modelos.
-        Nota: 
-            investigar si se puede hacer interfaz virtual override como en C++               
-        """    
+    def __init__(self):          
         self._tipo     = None
         self._peso     = None
         self._precio   = None
@@ -48,7 +43,7 @@ class Component:
         Ingresamos los datos directamente pasando un parametro como tupla
         """
         tipo, self._peso, self._precio, self._cantidad = data
-        # Almacena el tipo como una instancia de ComponentType
+        # Almacena como una instancia de ComponentType
         self._tipo = ComponentType(tipo) 
 
         

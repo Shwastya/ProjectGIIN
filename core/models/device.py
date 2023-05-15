@@ -8,10 +8,19 @@ Created on Tue Mar 28 16:42:39 2023
 from config.settings   import K_SEPARATOR
 from core.views.drawer import Displayer
 
+from enum import Enum
+
+class DeviceStatus(Enum):
+    AVAILABLE  = 1
+    DISPATCHED = 2
+    DELIVERED  = 3
+    RETURNED   = 4
+
 class Device:
     def __init__(self):
         
-        self._components    = {}   # clave = tipo de componente
+        self._status     = DeviceStatus.AVAILABLE  # Estado inicial 'AVAILABLE'        
+        self._components = {}                      # clave = Tipo Componente
 
     def add_component(self, component_type, compact_component):
         """
@@ -47,8 +56,13 @@ class Device:
         components_list = []
         for component_type, component_info in self._components.items():
             components_list.append(component_info["id"])
-
         return components_list
+    
+    def set_status(self, status):
+        if isinstance(status, DeviceStatus): self._status = status
+        else:raise ValueError('Invalid status value')
+        
+    def get_status(self): return self._status
 
     def display(self, id, col=False, tab=True, p_l=True, max_id_len=0, idx=1):
         Displayer.device(self, id, col, tab, p_l, max_id_len, idx)

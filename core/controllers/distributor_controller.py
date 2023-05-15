@@ -36,32 +36,28 @@ class DistributorController:
         self._address_config = {"question": "Dirección del distribuidor",
                                 "rule"    : "máximo 100 caracteres", 
                                 "minim"   : 1,   
-                                "maxim"   : 100}       
+                                "maxim"   : 100}    
+        
     
-    # Diccionario de la instancia 'Distributors'
-    def get_dic(self):
-        return self._distributor_dic
-    
-    # Todo lo referente a 'Device'
     def link_device_controller(self, device_controller):
-        self._device_controller = device_controller        
+        self._device_controller = device_controller  
         
-    def get_device_controller(self):
-        return self._device_controller
-
-    def get_device_dic(self):
-        return self._device_controller.get_dic()
-        
-    # Todo lo referenre a 'Dispatch'       
     def link_dispatch_controller(self, dispatch_ctrl):        
         dispatch_ctrl.link_distributor_controller(self)
         self._dispatch_controller = dispatch_ctrl
-                
-    def get_dispatch_controller(self): 
-        return self._dispatch_controller
         
-    def get_dispatch_dic(self):
-        return self._dispatch_dic
+    
+    # Diccionario y controlador de 'Equipos'
+    def get_device_controller(self): return self._device_controller
+    def get_device_dic(self): return self._device_controller.get_dic()    
+    
+    # Diccionario de la instancia 'Distributors' 
+    def get_dic(self): return self._distributor_dic
+        
+   
+    # Diccionario y controlador de 'Dispatchs'
+    def get_dispatch_controller(self): return self._dispatch_controller        
+    def get_dispatch_dic(self): return self._dispatch_dic
         
 
     # ADD

@@ -158,6 +158,9 @@ class Displayer:
         que utilizar la clase Logger. Igual que se ha hecho en el modelo 
         'Component' pero para 'Device' (Equipo)
         """        
+        
+        from core.models.device import DeviceStatus
+        
         if col:
             id_color      = "\033[1;34m"  # Azul en negrita
             info_color    = "\033[1;37m"  # Blanco en negrita

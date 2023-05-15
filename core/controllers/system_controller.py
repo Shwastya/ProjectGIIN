@@ -21,7 +21,8 @@ class SystemController:
         self._components = MenuComponents()                
         self._equipos    = MenuDevices(self._components)   
         self._gestion    = MenuManagament(self._equipos) 
-    
+        
+        #self._system_data = self._gestion.get_system_data()
     
     def components_run(self):
         self._components.update()

@@ -58,12 +58,17 @@ class MenuDevices(Controller):
         self._id_config["question"] = "Nombre/ID de " + self._model._name
         self._id_config["rule"]     = "alfanumérico, mínimo 3 caracteres" 
         
+        a1 = "Debido a los requisitos para el ID único, y que se pide simplificar:\n"
+        a2 = "Se deja la compatibilidad entre componentes a criterio del usuario.\n"
+        
         self._controller.set_add_or_modify_mode("add")               
         id = True
         o  = "Nuevo Equipo"               
-        while True:                        
+        while True:         
+            
             self._menu_add.display(True, False, True, obj = '"' + str(o) + '"')             
             if id == True:
+                        
                 id = super().get_and_check_id(mode="add", auxiliar_dic=None);
                 if id is None: 
                     break
@@ -89,6 +94,7 @@ class MenuDevices(Controller):
                         
                 continue
             else:
+                Logger.UI.emph(a1 + a2)       
                 if super().new_model(id):                   
                     Logger.UI.success("Equipo", id, self._result,
                                       pause = False, newline = False)                     
@@ -101,6 +107,9 @@ class MenuDevices(Controller):
     def modify_info(self, id):            
         self._controller.set_add_or_modify_mode("modify")        
         Logger.UI.cancel_info(level = 1)
+        
+        
+        
         if super().modify_model_info(id):
             success = "modificado con éxito."
             Logger.UI.success("Equipo", id, success, newline = False)  
